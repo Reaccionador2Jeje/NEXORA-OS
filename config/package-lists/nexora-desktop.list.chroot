@@ -1,0 +1,18 @@
+# NEXORA OS Desktop - initial package selection
+# Debian task package provides the KDE Plasma desktop environment.
+task-kde-desktop
+sddm
+ konsole
+dolphin
+kate
+firefox-esr
+network-manager
+network-manager-gnome
+sudo
+git
+curl
+wget
+ca-certificates
+bash-completion
+vim-tiny
+htop

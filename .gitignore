@@ -1,0 +1,26 @@
+# Debian live-build generated state
+/.build/
+/.chroot/
+/.binary/
+/.cache/
+/config/binary
+/config/bootstrap
+/config/chroot
+/config/common
+/config/source
+/filesystem.squashfs
+/live/
+/*.iso
+/*.img
+/*.contents
+/*.packages
+/*.manifest
+
+# Build output
+/build-output/
+
+# Editor and OS files
+*~
+.DS_Store
+.idea/
+.vscode/
