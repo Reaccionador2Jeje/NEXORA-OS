@@ -2,6 +2,8 @@
 
 **Your Terminal. Your Universe.**
 
+[![Build ISO](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml/badge.svg)](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml)
+
 NEXORA OS is an open-source Linux distribution based on **Debian 13 (Trixie)**, designed around a clean KDE Plasma desktop and the NEXORA ecosystem.
 
 > Project status: early development — the first bootable test image is the current milestone.
