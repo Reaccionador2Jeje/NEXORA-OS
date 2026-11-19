@@ -2,13 +2,15 @@
 # Debian task package provides the KDE Plasma desktop environment.
 task-kde-desktop
 sddm
- konsole
+konsole
 dolphin
 kate
 firefox-esr
 network-manager
-network-manager-gnome
+plasma-nm
 sudo
+locales
+keyboard-configuration
 git
 curl
 wget
