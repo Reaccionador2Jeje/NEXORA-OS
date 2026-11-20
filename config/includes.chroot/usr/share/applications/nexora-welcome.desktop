@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=NEXORA Welcome
+GenericName=Welcome to NEXORA OS
+Comment=Get started with your NEXORA desktop
+Exec=nexora-welcome
+Icon=/usr/share/pixmaps/nexora-icon.svg
+Terminal=false
+Categories=System;Utility;
+StartupNotify=true
