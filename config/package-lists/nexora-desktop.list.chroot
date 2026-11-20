@@ -19,6 +19,8 @@ upower
 policykit-1
 dbus-user-session
 # System tools and user experience
+kdialog
+systemsettings
 sudo
 locales
 keyboard-configuration
