@@ -1,0 +1,12 @@
+[Containments][1]
+activityId=
+formfactor=0
+immutability=1
+lastScreen=0
+location=0
+plugin=org.kde.plasma.desktop
+wallpaperplugin=org.kde.image
+
+[Containments][1][Wallpaper][org.kde.image][General]
+Image=file:///usr/share/wallpapers/NEXORA/contents/images/1920x1080.svg
+PreviewImage=file:///usr/share/wallpapers/NEXORA/contents/images/1920x1080.svg
