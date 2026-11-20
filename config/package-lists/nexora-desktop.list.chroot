@@ -39,7 +39,7 @@ upower
 policykit-1
 dbus-user-session
 
-# Games — KDE and classic open-source games
+# Games — KDE, platform, racing, arcade and puzzle games
 kmines
 kpat
 ksudoku
@@ -49,8 +49,9 @@ granatier
 kbreakout
 supertux
 supertuxkart
-0ad
 neverball
+kapman
+chromium-bsu
 
 # System tools and user experience
 sudo
@@ -67,7 +68,7 @@ htop
 nano
 unzip
 zip
-p7zip-full
+7zip
 rsync
 tree
 ncdu
