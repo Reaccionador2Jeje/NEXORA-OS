@@ -1,16 +1,31 @@
-# NEXORA OS Desktop - initial package selection
-# Debian task package provides the KDE Plasma desktop environment.
+# NEXORA OS Desktop — Debian 13 Trixie package baseline
+# KDE Plasma desktop and core session
 task-kde-desktop
 sddm
 konsole
 dolphin
 kate
+# Web and networking
 firefox-esr
 network-manager
 plasma-nm
+# Audio, device integration and desktop services
+pipewire
+pipewire-audio
+wireplumber
+alsa-utils
+udisks2
+upower
+policykit-1
+dbus-user-session
+# System tools and user experience
 sudo
 locales
 keyboard-configuration
+xdg-utils
+xdg-user-dirs
+fonts-noto-core
+fonts-noto-color-emoji
 git
 curl
 wget
