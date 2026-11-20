@@ -56,8 +56,8 @@ For full instructions and build requirements, see [docs/BUILDING.md](docs/BUILDI
 - `config/` — package lists and live-build settings.
 - `scripts/` — build and maintenance helpers.
 - `docs/` — architecture, build guide and roadmap.
-- `branding/` — visual identity documentation and planned artwork, wallpapers and boot theme.
-- `config/includes.chroot/` — NEXORA release identity and live-system welcome messages.
+- `branding/` — NEXORA logo, icon, wallpaper and visual identity guide.
+- `config/includes.chroot/` — live-system identity, KDE defaults, branding assets and NEXORA Welcome launcher.
 - `packages/` — future NEXORA OS packages and integrations.
 
 ## Development principles
