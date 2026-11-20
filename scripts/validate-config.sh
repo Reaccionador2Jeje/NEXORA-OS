@@ -17,6 +17,12 @@ check_file() {
     printf '[OK] %s\n' "$1"
 }
 
+check_package() {
+    grep -qx "$1" config/package-lists/nexora-desktop.list.chroot ||
+        fail "Required package is missing: $1"
+    printf '[OK] package %s\n' "$1"
+}
+
 check_file auto/config
 check_file config/package-lists/nexora-desktop.list.chroot
 check_file config/includes.chroot/etc/nexora-release
@@ -36,12 +42,17 @@ check_file branding/wallpapers/nexora-default.svg
 
 grep -q -- '--distribution trixie' auto/config || fail "Distribution must remain Debian Trixie."
 grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture must remain amd64."
-grep -qx 'task-kde-desktop' config/package-lists/nexora-desktop.list.chroot || fail "KDE desktop task is missing."
-grep -qx 'sddm' config/package-lists/nexora-desktop.list.chroot || fail "SDDM display manager package is missing."
-grep -qx 'chromium' config/package-lists/nexora-desktop.list.chroot || fail "Chromium browser package is missing."
-grep -qx 'kdialog' config/package-lists/nexora-desktop.list.chroot || fail "KDialog is required by NEXORA Welcome."
-grep -qx 'supertux' config/package-lists/nexora-desktop.list.chroot || fail "SuperTux game package is missing."
-grep -qx 'supertuxkart' config/package-lists/nexora-desktop.list.chroot || fail "SuperTuxKart game package is missing."
+
+check_package task-kde-desktop
+check_package sddm
+check_package chromium
+check_package kdialog
+check_package kde-spectacle
+check_package polkitd
+check_package pkexec
+check_package supertux
+check_package supertuxkart
+
 grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
 grep -qx 'es_CL.UTF-8 UTF-8' config/includes.chroot/etc/locale.gen || fail "Spanish (Chile) locale is not enabled."
 grep -qx 'LANG=es_CL.UTF-8' config/includes.chroot/etc/default/locale || fail "Spanish (Chile) is not the default locale."
