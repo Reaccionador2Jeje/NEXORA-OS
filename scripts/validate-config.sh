@@ -31,11 +31,28 @@ check_file config/includes.chroot/usr/share/wallpapers/NEXORA/metadata.json
 check_file config/includes.chroot/usr/share/wallpapers/NEXORA/contents/images/1920x1080.svg
 check_file config/includes.chroot/etc/hostname
 check_file config/includes.chroot/etc/default/keyboard
+check_file config/includes.chroot/etc/xdg/kdeglobals
+check_file config/includes.chroot/etc/xdg/plasma-org.kde.plasma.desktop-appletsrc
+check_file config/includes.chroot/etc/sddm.conf.d/nexora.conf
+check_file config/includes.chroot/usr/share/color-schemes/NEXORA.colors
+check_file config/includes.chroot/usr/bin/nexora-welcome
+check_file config/includes.chroot/usr/share/applications/nexora-welcome.desktop
 
 grep -q -- '--distribution trixie' auto/config || fail "Distribution must remain Debian Trixie."
 grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture must remain amd64."
 grep -q 'task-kde-desktop' config/package-lists/nexora-desktop.list.chroot || fail "KDE desktop task is missing."
-grep -q '^sddm$' config/package-lists/nexora-desktop.list.chroot || fail "SDDM display manager package is missing."
+grep -q '^sddm
+grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
+
+printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
+ config/package-lists/nexora-desktop.list.chroot || fail "SDDM display manager package is missing."
+grep -q '^kdialog
+grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
+
+printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
+ config/package-lists/nexora-desktop.list.chroot || fail "KDialog is required by NEXORA Welcome."
+grep -q 'ColorScheme=NEXORA' config/includes.chroot/etc/xdg/kdeglobals || fail "NEXORA KDE color scheme is not selected."
+grep -q 'Image=file:///usr/share/wallpapers/NEXORA/' config/includes.chroot/etc/xdg/plasma-org.kde.plasma.desktop-appletsrc || fail "NEXORA default wallpaper is not selected."
 grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
 
 printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
