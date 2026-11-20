@@ -31,6 +31,8 @@ check_file config/includes.chroot/usr/share/wallpapers/NEXORA/metadata.json
 check_file config/includes.chroot/usr/share/wallpapers/NEXORA/contents/images/1920x1080.svg
 check_file config/includes.chroot/etc/hostname
 check_file config/includes.chroot/etc/default/keyboard
+check_file config/includes.chroot/etc/locale.gen
+check_file config/includes.chroot/etc/default/locale
 check_file config/includes.chroot/etc/xdg/kdeglobals
 check_file config/includes.chroot/etc/sddm.conf.d/nexora.conf
 check_file config/includes.chroot/usr/share/color-schemes/NEXORA.colors
@@ -42,6 +44,34 @@ grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture 
 grep -q 'task-kde-desktop' config/package-lists/nexora-desktop.list.chroot || fail "KDE desktop task is missing."
 grep -q '^sddm
 grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
+grep -q '^es_CL.UTF-8 UTF-8
+
+printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
+ config/package-lists/nexora-desktop.list.chroot || fail "SDDM display manager package is missing."
+grep -q '^kdialog
+grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
+
+printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
+ config/package-lists/nexora-desktop.list.chroot || fail "KDialog is required by NEXORA Welcome."
+grep -q 'ColorScheme=NEXORA' config/includes.chroot/etc/xdg/kdeglobals || fail "NEXORA KDE color scheme is not selected."
+grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
+
+printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
+ config/includes.chroot/etc/locale.gen || fail "Spanish (Chile) locale is not enabled."
+grep -q '^LANG=es_CL.UTF-8
+
+printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
+ config/package-lists/nexora-desktop.list.chroot || fail "SDDM display manager package is missing."
+grep -q '^kdialog
+grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
+
+printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
+ config/package-lists/nexora-desktop.list.chroot || fail "KDialog is required by NEXORA Welcome."
+grep -q 'ColorScheme=NEXORA' config/includes.chroot/etc/xdg/kdeglobals || fail "NEXORA KDE color scheme is not selected."
+grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
+
+printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
+ config/includes.chroot/etc/default/locale || fail "Spanish (Chile) is not the default locale."
 
 printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
  config/package-lists/nexora-desktop.list.chroot || fail "SDDM display manager package is missing."
