@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">NEXORA OS</title>
+  <desc id="desc">Geometric N emblem wrapped by an orbital ring, with the Your Terminal. Your Universe. tagline.</desc>
+  <defs>
+    <linearGradient id="n" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d946ef"/><stop offset=".48" stop-color="#5637f5"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
+    <linearGradient id="orbit" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#d946ef"/><stop offset=".52" stop-color="#8b5cf6"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
+    <linearGradient id="word" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f8fafc"/><stop offset=".72" stop-color="#dbeafe"/><stop offset="1" stop-color="#a5f3fc"/></linearGradient>
+  </defs>
+  <path d="M390 42h104l210 246V42h106v330H706L496 127v245H390z" fill="url(#n)"/>
+  <path d="M355 251C428 80 790 13 866 119c70 98-214 253-430 257" fill="none" stroke="url(#orbit)" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="860" cy="119" r="9" fill="#67e8f9"/>
+  <text x="600" y="300" text-anchor="middle" font-family="Inter,Montserrat,Arial,sans-serif" font-size="112" font-weight="750" letter-spacing="9" fill="url(#word)">NEXORA <tspan fill="#22d3ee">OS</tspan></text>
+  <path d="M240 345h170m380 0h170" stroke="#64748b" stroke-width="2"/>
+  <text x="600" y="358" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="30" font-style="italic" letter-spacing="2" fill="#c4b5fd">Your Terminal. Your Universe.</text>
+</svg>
