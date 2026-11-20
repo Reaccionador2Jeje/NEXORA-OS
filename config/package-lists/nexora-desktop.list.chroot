@@ -1,14 +1,34 @@
 # NEXORA OS Desktop — Debian 13 Trixie package baseline
+
 # KDE Plasma desktop and core session
 task-kde-desktop
 sddm
 konsole
 dolphin
 kate
-# Web and networking
-firefox-esr
+kdialog
+systemsettings
+plasma-systemmonitor
+plasma-discover
+kcalc
+ark
+filelight
+gwenview
+okular
+spectacle
+partitionmanager
+kwalletmanager
+bluedevil
+print-manager
+
+# Browser and networking
+chromium
 network-manager
 plasma-nm
+curl
+wget
+ca-certificates
+
 # Audio, device integration and desktop services
 pipewire
 pipewire-audio
@@ -18,9 +38,21 @@ udisks2
 upower
 policykit-1
 dbus-user-session
+
+# Games — KDE and classic open-source games
+kmines
+kpat
+ksudoku
+kmahjongg
+bomber
+granatier
+kbreakout
+supertux
+supertuxkart
+0ad
+neverball
+
 # System tools and user experience
-kdialog
-systemsettings
 sudo
 locales
 keyboard-configuration
@@ -29,9 +61,17 @@ xdg-user-dirs
 fonts-noto-core
 fonts-noto-color-emoji
 git
-curl
-wget
-ca-certificates
 bash-completion
 vim-tiny
 htop
+nano
+unzip
+zip
+p7zip-full
+rsync
+tree
+ncdu
+fastfetch
+lm-sensors
+usbutils
+pciutils
