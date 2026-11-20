@@ -15,7 +15,7 @@ ark
 filelight
 gwenview
 okular
-spectacle
+kde-spectacle
 partitionmanager
 kwalletmanager
 bluedevil
@@ -36,7 +36,8 @@ wireplumber
 alsa-utils
 udisks2
 upower
-policykit-1
+polkitd
+pkexec
 dbus-user-session
 
 # Games — KDE, platform, racing, arcade and puzzle games
