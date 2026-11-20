@@ -30,6 +30,7 @@ git clone https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
 chmod +x auto/config scripts/*.sh
 sudo ./scripts/check-dependencies.sh
+sh ./scripts/validate-config.sh
 sudo ./scripts/build.sh
 ```
 
