@@ -1,18 +1,21 @@
 # NEXORA OS Roadmap
 
-The roadmap is a plan, not a promise of release dates.
+The roadmap is a plan, not a promise of release dates. A checked item means the source/configuration exists; it does not imply that an ISO has already been built or boot-tested.
 
 ## 0.1.0 — Foundation
 - [x] Create the repository and initial project structure.
 - [x] Add Debian 13 live-build configuration.
 - [x] Define the first Desktop package selection.
+- [x] Create the initial NEXORA vector logo and icon.
+- [x] Add static configuration validation to CI.
 - [ ] Build the first ISO successfully.
 - [ ] Boot-test the ISO in a virtual machine.
 
 ## 0.2.0 — Desktop identity
-- [ ] Configure KDE Plasma defaults.
-- [ ] Add NEXORA wallpaper, icons and color scheme.
+- [x] Define the NEXORA color palette and logo usage guide.
+- [ ] Integrate wallpaper, icon and color scheme into KDE Plasma.
 - [ ] Add a branded Plymouth boot theme.
+- [ ] Configure SDDM branding and KDE defaults.
 - [ ] Review default applications and system settings.
 
 ## 0.3.0 — NEXORA integration
