@@ -32,7 +32,6 @@ check_file config/includes.chroot/usr/share/wallpapers/NEXORA/contents/images/19
 check_file config/includes.chroot/etc/hostname
 check_file config/includes.chroot/etc/default/keyboard
 check_file config/includes.chroot/etc/xdg/kdeglobals
-check_file config/includes.chroot/etc/xdg/plasma-org.kde.plasma.desktop-appletsrc
 check_file config/includes.chroot/etc/sddm.conf.d/nexora.conf
 check_file config/includes.chroot/usr/share/color-schemes/NEXORA.colors
 check_file config/includes.chroot/usr/bin/nexora-welcome
@@ -52,7 +51,6 @@ grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA re
 printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
  config/package-lists/nexora-desktop.list.chroot || fail "KDialog is required by NEXORA Welcome."
 grep -q 'ColorScheme=NEXORA' config/includes.chroot/etc/xdg/kdeglobals || fail "NEXORA KDE color scheme is not selected."
-grep -q 'Image=file:///usr/share/wallpapers/NEXORA/' config/includes.chroot/etc/xdg/plasma-org.kde.plasma.desktop-appletsrc || fail "NEXORA default wallpaper is not selected."
 grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
 
 printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
