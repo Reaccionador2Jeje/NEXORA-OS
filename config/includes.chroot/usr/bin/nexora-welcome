@@ -1,0 +1,32 @@
+#!/bin/sh
+# NEXORA OS Welcome — lightweight KDE launcher using KDialog.
+
+set -eu
+
+if ! command -v kdialog >/dev/null 2>&1; then
+    printf '%s\n' "NEXORA Welcome requires kdialog." >&2
+    exit 1
+fi
+
+while :; do
+    choice=$(kdialog --title "Welcome to NEXORA OS" --menu \
+        "Your Terminal. Your Universe.\n\nWelcome to your NEXORA desktop. What would you like to open?" \
+        terminal "Open Terminal (Konsole)" \
+        files "Browse Files (Dolphin)" \
+        browser "Browse the Web (Firefox)" \
+        settings "System Settings" \
+        about "About NEXORA OS" \
+        quit "Close Welcome") || exit 0
+
+    case "$choice" in
+        terminal) konsole >/dev/null 2>&1 & ;;
+        files) dolphin >/dev/null 2>&1 & ;;
+        browser) firefox-esr >/dev/null 2>&1 & ;;
+        settings) systemsettings >/dev/null 2>&1 & ;;
+        about)
+            kdialog --title "About NEXORA OS" --msgbox \
+                "NEXORA OS 0.1.0\nDebian GNU/Linux 13 (Trixie)\nKDE Plasma\n\nYour Terminal. Your Universe.\n\nOpen-source project: https://github.com/Reaccionador2Jeje/NEXORA-OS"
+            ;;
+        quit) exit 0 ;;
+    esac
+done
