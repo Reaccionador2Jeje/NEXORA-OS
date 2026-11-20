@@ -34,6 +34,16 @@ NEXORA OS aims to be more than a themed Debian installation. It will bring toget
 - ISO builder: Debian live-build
 - First milestone: reproducible bootable Desktop test ISO
 
+## Included desktop software
+
+The Desktop edition is being assembled with:
+- **Chromium** as the default web browser for new user profiles.
+- KDE utilities: Discover, System Settings, System Monitor, Ark, Okular, Gwenview, Spectacle, Filelight and more.
+- Games: SuperTux, SuperTuxKart, Neverball, Chromium B.S.U. and a selection of KDE arcade and puzzle games.
+- System tools: Fastfetch, htop, ncdu, rsync, tree, sensors and common archive utilities.
+
+The initial package selection is maintained in `config/package-lists/nexora-desktop.list.chroot`. The final ISO size and package resolution still need to be verified by CI.
+
 ## Build the Desktop image
 
 Build on a Debian 13 amd64 host or a compatible Debian 13 build environment.
