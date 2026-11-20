@@ -13,7 +13,7 @@ while :; do
         "Your Terminal. Your Universe.\n\nWelcome to your NEXORA desktop. What would you like to open?" \
         terminal "Open Terminal (Konsole)" \
         files "Browse Files (Dolphin)" \
-        browser "Browse the Web (Firefox)" \
+        browser "Browse the Web (Chromium)" \
         settings "System Settings" \
         about "About NEXORA OS" \
         quit "Close Welcome") || exit 0
@@ -21,7 +21,7 @@ while :; do
     case "$choice" in
         terminal) konsole >/dev/null 2>&1 & ;;
         files) dolphin >/dev/null 2>&1 & ;;
-        browser) firefox-esr >/dev/null 2>&1 & ;;
+        browser) chromium >/dev/null 2>&1 & ;;
         settings) systemsettings >/dev/null 2>&1 & ;;
         about)
             kdialog --title "About NEXORA OS" --msgbox \
