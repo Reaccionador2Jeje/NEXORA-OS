@@ -1,0 +1,5 @@
+NEXORA OS 0.1.0
+Base: Debian GNU/Linux 13 (Trixie)
+Desktop: KDE Plasma
+Architecture: amd64
+Tagline: Your Terminal. Your Universe.
