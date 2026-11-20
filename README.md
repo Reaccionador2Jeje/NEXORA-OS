@@ -56,7 +56,8 @@ For full instructions and build requirements, see [docs/BUILDING.md](docs/BUILDI
 - `config/` — package lists and live-build settings.
 - `scripts/` — build and maintenance helpers.
 - `docs/` — architecture, build guide and roadmap.
-- `branding/` — future artwork, wallpapers and boot theme.
+- `branding/` — visual identity documentation and planned artwork, wallpapers and boot theme.
+- `config/includes.chroot/` — NEXORA release identity and live-system welcome messages.
 - `packages/` — future NEXORA OS packages and integrations.
 
 ## Development principles
