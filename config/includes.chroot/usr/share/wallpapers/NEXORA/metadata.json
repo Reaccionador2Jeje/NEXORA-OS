@@ -1,0 +1,13 @@
+{
+  "KPlugin": {
+    "Id": "NEXORA",
+    "Name": "NEXORA",
+    "Description": "NEXORA OS space-inspired desktop background",
+    "Authors": [
+      {
+        "Name": "NEXORA OS Project"
+      }
+    ],
+    "License": "CC0-1.0"
+  }
+}
