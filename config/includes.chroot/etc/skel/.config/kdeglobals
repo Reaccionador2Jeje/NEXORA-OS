@@ -1,0 +1,12 @@
+[General]
+ColorScheme=NEXORA
+Name=NEXORA OS
+TerminalApplication=konsole
+TerminalService=org.kde.konsole
+
+[KDE]
+LookAndFeelPackage=org.kde.breeze.desktop
+widgetStyle=Breeze
+
+[Icons]
+Theme=breeze
