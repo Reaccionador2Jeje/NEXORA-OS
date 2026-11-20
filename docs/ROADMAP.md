@@ -16,7 +16,7 @@ The roadmap is a plan, not a promise of release dates. A checked item means the 
 - [ ] Integrate wallpaper, icon and color scheme into KDE Plasma.
 - [ ] Add a branded Plymouth boot theme.
 - [ ] Configure SDDM branding and KDE defaults.
-- [x] Add the first NEXORA Welcome launcher.\n- [ ] Review default applications and system settings.
+- [x] Add the first NEXORA Welcome launcher.\n- [x] Select Chromium as the default browser for new users.\n- [x] Bundle a starter collection of KDE, platform, racing, arcade and puzzle games.\n- [ ] Review default applications and system settings.
 
 ## 0.3.0 — NEXORA integration
 - [ ] Package the NEXORA terminal for Debian.
