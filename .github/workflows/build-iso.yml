@@ -38,7 +38,7 @@ jobs:
         run: sudo ./scripts/check-dependencies.sh
 
       - name: Validate NEXORA configuration
-        run: ./scripts/validate-config.sh
+        run: sh ./scripts/validate-config.sh
 
       - name: Build NEXORA OS
         run: sudo ./scripts/build.sh
