@@ -24,6 +24,13 @@ check_file config/includes.chroot/etc/issue
 check_file config/includes.chroot/etc/motd
 check_file branding/logo/nexora-logo.svg
 check_file branding/logo/nexora-icon.svg
+check_file branding/wallpapers/nexora-default.svg
+check_file config/includes.chroot/usr/share/nexora/branding/nexora-logo.svg
+check_file config/includes.chroot/usr/share/nexora/branding/nexora-icon.svg
+check_file config/includes.chroot/usr/share/wallpapers/NEXORA/metadata.json
+check_file config/includes.chroot/usr/share/wallpapers/NEXORA/contents/images/1920x1080.svg
+check_file config/includes.chroot/etc/hostname
+check_file config/includes.chroot/etc/default/keyboard
 
 grep -q -- '--distribution trixie' auto/config || fail "Distribution must remain Debian Trixie."
 grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture must remain amd64."
