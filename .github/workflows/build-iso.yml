@@ -8,6 +8,7 @@ on:
     paths:
       - "auto/**"
       - "config/**"
+      - "branding/**"
       - "scripts/**"
       - ".github/workflows/build-iso.yml"
 
@@ -31,10 +32,13 @@ jobs:
       - name: Install Debian Live build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y             live-build             debootstrap             squashfs-tools             xorriso
+          sudo apt-get install -y live-build debootstrap squashfs-tools xorriso
 
       - name: Check build dependencies
         run: sudo ./scripts/check-dependencies.sh
+
+      - name: Validate NEXORA configuration
+        run: ./scripts/validate-config.sh
 
       - name: Build NEXORA OS
         run: sudo ./scripts/build.sh
