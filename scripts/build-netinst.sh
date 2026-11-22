@@ -85,7 +85,8 @@ xorriso -indev "$SOURCE_ISO" \
     -end
 
 echo "==> Verifying embedded NEXORA profiles and El Torito boot metadata..."
-xorriso -indev "$OUTPUT_ISO" -toc >/dev/null
+# El Torito is verified explicitly below. Avoid -toc here because xorriso may
+# return status 5 after successfully reading an otherwise valid ISO.
 profile_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/preseed 2>&1 || true)
 printf '%s\n' "$profile_listing"
 printf '%s\n' "$profile_listing" | grep -q 'minimal.cfg' || {
