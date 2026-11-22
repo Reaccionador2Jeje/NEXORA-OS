@@ -1,5 +1,5 @@
 # NEXORA OS 0.2.0 — Hyper Lightweight XFCE4 desktop
-# Keep this manifest intentionally small. Do not add games or heavyweight desktop suites.
+# Keep this manifest intentionally small. No games or heavyweight desktop suites.
 
 # X.Org display server and XFCE desktop
 xserver-xorg
@@ -13,31 +13,34 @@ xfce4-appfinder
 xfce4-terminal
 xfce4-whiskermenu-plugin
 
-# File manager and basic desktop integration
+# File manager and desktop integration
 thunar
 thunar-volman
 gvfs
-gvfs-backends
 dbus-x11
 lightdm
 lightdm-gtk-greeter
 adwaita-icon-theme
 
-# Network and removable-device support
+# Network, removable devices and authorization prompts
 network-manager
 network-manager-gnome
 udisks2
 upower
 polkitd
+pkexec
+lxpolkit
 
-# Audio without a heavyweight desktop stack
+# Audio
 pipewire-audio
 pipewire-pulse
 wireplumber
 xfce4-pulseaudio-plugin
 
-# Flatpak support — applications and games are user-installed, never bundled
+# Flatpak and the lightweight NEXORA Store (GTK3 + Python bindings)
 flatpak
+python3-gi
+gir1.2-gtk-3.0
 xdg-desktop-portal
 xdg-desktop-portal-gtk
 
