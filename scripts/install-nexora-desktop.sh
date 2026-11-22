@@ -65,9 +65,17 @@ install -D -m 0644 config/includes.chroot/usr/share/applications/nexora-store.de
 
 SKEL="$ROOT_DIR/config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml"
 SYSTEM="/etc/xdg/xfce4/xfconf/xfce-perchannel-xml"
+NEW_USER_DEFAULTS="/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml"
+
+# System-wide XFCE defaults are used when a user has no personal override.
 install -D -m 0644 "$SKEL/xfce4-desktop.xml" "$SYSTEM/xfce4-desktop.xml"
 install -D -m 0644 "$SKEL/xfce4-panel.xml" "$SYSTEM/xfce4-panel.xml"
 install -D -m 0644 "$SKEL/xsettings.xml" "$SYSTEM/xsettings.xml"
+
+# Seed accounts created after NEXORA is installed with the same desktop defaults.
+install -D -m 0644 "$SKEL/xfce4-desktop.xml" "$NEW_USER_DEFAULTS/xfce4-desktop.xml"
+install -D -m 0644 "$SKEL/xfce4-panel.xml" "$NEW_USER_DEFAULTS/xfce4-panel.xml"
+install -D -m 0644 "$SKEL/xsettings.xml" "$NEW_USER_DEFAULTS/xsettings.xml"
 install -D -m 0644 config/includes.chroot/etc/skel/.config/fastfetch/config.jsonc /etc/skel/.config/fastfetch/config.jsonc
 
 install -d -m 0755 /etc/gtk-3.0
