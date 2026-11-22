@@ -26,6 +26,8 @@ The ISO now embeds original NEXORA installer artwork at `/nexora/branding/nexora
 
 ## Installer interface status
 
-The artwork is packaged, but Debian Installer's GTK dialogs are not yet re-skinned and the artwork is not yet wired into the live GTK frontend. The boot-menu inspection is automated; the next implementation step is to apply a branded boot menu to verified BIOS/UEFI configuration files while preserving the upstream fallback. A fully re-skinned GTK installer is not claimed yet.
+The NEXORA artwork is now wired into both verified boot selectors: Syslinux/ISOLINUX for BIOS and GRUB for UEFI. The menu offers **NEXORA OS Minimal Terminal** and **NEXORA OS XFCE Desktop**, while retaining Debian's upstream rescue, expert and standard installer entries as fallback. Both NEXORA entries select the matching preseed and request the installer's built-in dark theme.
+
+The GTK installer screens themselves still use Debian Installer's upstream interface. The built-in dark theme changes the palette only; it does not replace Debian logos, titles, icons or dialogs with NEXORA artwork. A fully branded GTK frontend requires rebuilding and testing the relevant Debian Installer udebs/frontend assets, and is not claimed in this stage.
 
 **Safety:** neither preseed profile defines automatic partitioning or silently confirms disk formatting.
