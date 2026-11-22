@@ -1,0 +1,65 @@
+/* NEXORA GTK3 theme — lightweight dark surfaces with cyan/violet accents. */
+@define-color theme_bg_color #0b1020;
+@define-color theme_fg_color #e7ecff;
+@define-color theme_base_color #111a30;
+@define-color theme_text_color #e7ecff;
+@define-color theme_selected_bg_color #5542c8;
+@define-color theme_selected_fg_color #ffffff;
+@define-color borders #263452;
+@define-color accent_color #22d3ee;
+
+* {
+  -GtkWidget-focus-line-width: 1;
+  -GtkWidget-focus-line-pattern: '';
+}
+window, .background {
+  background-color: @theme_bg_color;
+  color: @theme_fg_color;
+}
+headerbar, .titlebar {
+  background-image: linear-gradient(to right, #15142f, #10243b);
+  color: #f8fbff;
+  border-bottom: 1px solid @borders;
+  box-shadow: none;
+}
+button {
+  color: @theme_fg_color;
+  background-image: linear-gradient(to bottom, #202b46, #17223a);
+  border: 1px solid #344568;
+  border-radius: 7px;
+  box-shadow: none;
+  padding: 5px 10px;
+}
+button:hover {
+  background-image: linear-gradient(to bottom, #303b62, #202e50);
+  border-color: @accent_color;
+}
+button:checked, button:active {
+  background-image: none;
+  background-color: #4435a5;
+  border-color: #8b7cff;
+}
+entry, textview, spinbutton, combobox, .view {
+  color: @theme_fg_color;
+  background-color: @theme_base_color;
+  border: 1px solid @borders;
+  border-radius: 6px;
+  caret-color: @accent_color;
+}
+entry:focus, textview:focus {
+  border-color: @accent_color;
+}
+menubar, menu, popover, .menu {
+  background-color: #10182b;
+  color: @theme_fg_color;
+  border: 1px solid @borders;
+}
+tooltip {
+  background-color: #070b16;
+  color: #ffffff;
+  border: 1px solid #5542c8;
+}
+selection {
+  background-color: @theme_selected_bg_color;
+  color: @theme_selected_fg_color;
+}
