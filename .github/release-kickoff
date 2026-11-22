@@ -1,3 +1,5 @@
 One-time trigger for the first NEXORA XFCE4 alpha release build. This file is intentionally not used by the build scripts.
 Retry trigger: use the extracted BIOS/UEFI menu verification before publishing the first alpha ISO.
 Start the NEXORA XFCE4 Live alpha build. This replaces the earlier XFCE netinst release attempt.
+
+Retry after fixing executable-bit assumptions: invoke Live build with bash explicitly. Build, validate checksum, QEMU smoke-test, then publish v0.1.0-alpha.2 if every gate passes.
