@@ -110,11 +110,19 @@ xorriso -osirrox on -indev "$OUTPUT_ISO" \
     -extract "$SYSLINUX_MENU_PATH" "$MENU_VERIFY_DIR/menu.cfg" \
     >/dev/null 2>&1
 grep -q "NEXORA OS Minimal" "$MENU_VERIFY_DIR/grub.cfg" || {
-    echo "UEFI NEXORA boot entry is missing from the embedded GRUB menu." >&2
+    echo "UEFI NEXORA Minimal boot entry is missing from the embedded GRUB menu." >&2
+    exit 1
+}
+grep -q "NEXORA OS XFCE Desktop" "$MENU_VERIFY_DIR/grub.cfg" || {
+    echo "UEFI NEXORA XFCE boot entry is missing from the embedded GRUB menu." >&2
     exit 1
 }
 grep -q "NEXORA OS Minimal" "$MENU_VERIFY_DIR/menu.cfg" || {
-    echo "BIOS NEXORA boot entry is missing from the embedded Syslinux menu." >&2
+    echo "BIOS NEXORA Minimal boot entry is missing from the embedded Syslinux menu." >&2
+    exit 1
+}
+grep -q "NEXORA OS XFCE Desktop" "$MENU_VERIFY_DIR/menu.cfg" || {
+    echo "BIOS NEXORA XFCE boot entry is missing from the embedded Syslinux menu." >&2
     exit 1
 }
 installer_branding=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/branding 2>&1 || true)
