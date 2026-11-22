@@ -30,7 +30,7 @@ jobs:
   build-live:
     name: Build and smoke-test XFCE4 Live ISO
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 150
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
