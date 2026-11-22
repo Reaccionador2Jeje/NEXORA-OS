@@ -1,22 +1,24 @@
 # Building NEXORA OS
 
-This guide describes the first Desktop live image build.
+This guide describes the Hyper Lightweight XFCE4 live image.
 
 ## Target
 
-- Debian 13 (Trixie)
+- Debian GNU/Linux 13 (Trixie)
 - amd64
-- KDE Plasma
+- XFCE4 with NEXORA GTK styling
+- LightDM GTK greeter
 - Spanish (Chile) locale and Latin American keyboard layout
 - Hybrid live ISO
+- Flatpak with Flathub remote; no Flatpak applications or games preinstalled
 
-The build configuration is maintained in `auto/config`. Package selection is in `config/package-lists/`.
+The build configuration is maintained in `auto/config`. Package selection is in `config/package-lists/nexora-desktop.list.chroot`.
 
 ## Host requirements
 
-Use a Debian 13 amd64 installation with a reliable internet connection. A live image build downloads packages and needs several gigabytes of free disk space. Building as root is required by live-build.
+Use a Debian 13 amd64 installation with a reliable internet connection. Building downloads the base system and packages and requires several gigabytes of free disk space. Run live-build as root.
 
-Install the required tools:
+Install the build tools:
 
 ```bash
 sudo apt update
@@ -28,37 +30,40 @@ sudo apt install -y live-build debootstrap squashfs-tools xorriso
 ```bash
 git clone https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
-chmod +x auto/config scripts/*.sh
+chmod +x auto/config scripts/*.sh config/hooks/normal/*.hook.chroot
 sudo ./scripts/check-dependencies.sh
 sh ./scripts/validate-config.sh
 sudo ./scripts/build.sh
 ```
 
-The first build can take a while because packages and the base filesystem must be downloaded. The resulting ISO is moved to `build-output/`.
+The first build downloads the base filesystem and packages. The resulting ISO is moved to `build-output/`.
 
 ## Clean
-
-To remove generated live-build state before a fresh build:
 
 ```bash
 sudo ./scripts/clean.sh
 ```
 
-This removes generated build artifacts, not the source files in Git.
+This removes generated live-build state, not source files in Git.
 
 ## Testing
 
-Use a virtual machine first. Boot the ISO and check:
-1. The live boot menu appears.
-2. The system reaches the KDE Plasma desktop.
-3. Display, keyboard and pointer work.
-4. Network Manager can detect available network interfaces.
-5. The selected locale and keyboard layout are correct.
+Boot the ISO in a virtual machine before considering installation on physical hardware. Check:
 
-Do not install this early development image on a primary machine. It is a test image and has not yet completed installation or hardware compatibility testing.
+1. The live boot menu appears.
+2. LightDM displays the NEXORA-branded login screen.
+3. The session starts in XFCE4, not KDE.
+4. The NEXORA wallpaper, GTK theme and panel settings are applied.
+5. Keyboard, pointer, display and NetworkManager work.
+6. Audio works through PipeWire.
+7. `flatpak remotes` lists Flathub.
+8. No games or heavyweight desktop suites are installed by default.
+
+This is an early development image. It is not a stable release and has not completed hardware compatibility or installation testing.
 
 ## Troubleshooting
 
-- If a package cannot be found, confirm the configured Debian suite and archive areas.
+- If a package cannot be found, verify the Debian suite and archive areas.
 - If the build is interrupted, run `sudo lb clean` and start again.
-- If disk space becomes low, free space before retrying; do not remove files from the source tree to solve a generated-cache problem.
+- If disk space becomes low, clear generated caches rather than deleting source files.
+- If the Flathub hook fails, inspect the build log and verify network access from the build environment.
