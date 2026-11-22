@@ -25,6 +25,7 @@ OUTPUT_ISO="$ROOT_DIR/build-output/nexora-os-minimal-netinst-${ARCH}.iso"
 
 mkdir -p "$ROOT_DIR/build-output"
 rm -f "$SOURCE_ISO" "$OUTPUT_ISO"
+python3 "$ROOT_DIR/scripts/create-installer-background.py" "$ROOT_DIR/build-output/nexora-installer-background.png"
 
 echo "==> Downloading the official Debian ${VERSION} GTK netboot mini ISO..."
 curl --fail --location --retry 4 --retry-delay 3 \
@@ -49,6 +50,8 @@ xorriso -indev "$SOURCE_ISO" \
     -map "$ROOT_DIR/installer/preseed" /nexora/preseed \
     -map "$ROOT_DIR/installer/desktop-overlay" /nexora/desktop-overlay \
     -map "$ROOT_DIR/installer/BOOT-OPTIONS.md" /nexora/BOOT-OPTIONS.md \
+    -mkdir /nexora/branding \
+    -map "$ROOT_DIR/build-output/nexora-installer-background.png" /nexora/branding/nexora-installer-background.png \
     -boot_image any replay \
     -commit \
     -end
