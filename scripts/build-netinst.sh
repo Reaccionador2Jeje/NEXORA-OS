@@ -47,6 +47,7 @@ xorriso -indev "$SOURCE_ISO" \
     -outdev "$OUTPUT_ISO" \
     -volid "NEXORA_MINIMAL" \
     -map "$ROOT_DIR/installer/preseed" /nexora/preseed \
+    -map "$ROOT_DIR/installer/desktop-overlay" /nexora/desktop-overlay \
     -map "$ROOT_DIR/installer/BOOT-OPTIONS.md" /nexora/BOOT-OPTIONS.md \
     -boot_image any replay \
     -commit \
@@ -62,6 +63,12 @@ printf '%s\\n' "$profile_listing" | grep -q 'minimal.cfg' || {
 }
 printf '%s\\n' "$profile_listing" | grep -q 'desktop.cfg' || {
     echo "XFCE preseed profile is missing from the ISO." >&2
+    exit 1
+}
+overlay_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/desktop-overlay/usr/share/backgrounds/nexora 2>&1)
+printf '%s\\n' "$overlay_listing"
+printf '%s\\n' "$overlay_listing" | grep -q 'nexora-aurora.svg' || {
+    echo "NEXORA desktop overlay is missing its wallpapers." >&2
     exit 1
 }
 boot_report=$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1)
