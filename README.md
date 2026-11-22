@@ -47,7 +47,8 @@ Netinst downloads the installed operating system from Debian repositories. A wor
 - ISO volume label: changed to NEXORA.
 - BIOS/UEFI boot metadata: preserved by xorriso and checked during build.
 - Profile selection: embedded Minimal and XFCE preseed files, selected through installer boot arguments.
-- NEXORA-branded GTK installer screens, a graphical profile chooser and automatic desktop asset deployment: not implemented yet.
+- Branded boot-time profile menu: being prepared; CI first identifies the exact upstream BIOS/UEFI boot configuration paths before patching them.
+- NEXORA-branded GTK installer screens and automatic desktop asset deployment: not implemented yet.
 - Full interactive QEMU installation test: not yet implemented; the current QEMU step is a boot smoke test only.
 
 ## Project principles
