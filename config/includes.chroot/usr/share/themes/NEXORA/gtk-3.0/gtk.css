@@ -22,6 +22,22 @@ headerbar, .titlebar {
   border-bottom: 1px solid @borders;
   box-shadow: none;
 }
+#XfcePanelWindow {
+  background-color: rgba(8, 11, 27, 0.96);
+  color: #e7ecff;
+  border-top: 1px solid #344568;
+}
+#XfcePanelWindow button {
+  background-image: none;
+  background-color: transparent;
+  border: 0;
+  border-radius: 5px;
+  color: #e7ecff;
+  box-shadow: none;
+}
+#XfcePanelWindow button:hover {
+  background-color: rgba(85, 66, 200, 0.38);
+}
 button {
   color: @theme_fg_color;
   background-image: linear-gradient(to bottom, #202b46, #17223a);
