@@ -2,6 +2,9 @@
 # Keep this manifest intentionally small. No games or heavyweight desktop suites.
 
 # Kernel is installed as a normal APT package; live-build kernel discovery is disabled.
+
+# Match the selected systemd init system in Debian Live.
+live-config-systemd
 linux-image-amd64
 
 # X.Org display server and XFCE desktop
