@@ -1,7 +1,8 @@
-NEXORA OS Minimal 0.1.0
+NEXORA OS Minimal 0.2.0
 Base: Debian GNU/Linux 13 (Trixie)
-Desktop: None (terminal-only)
+Desktop: Optional NEXORA XFCE
 Init: systemd
 Architecture: amd64
 Profile: Minimal
+Setup: nexora-setup
 Tagline: Your Terminal. Your Universe.
