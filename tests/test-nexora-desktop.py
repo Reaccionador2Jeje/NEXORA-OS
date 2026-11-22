@@ -100,3 +100,30 @@ panel_css = (overlay / "usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css").read_tex
 assert "#XfcePanelWindow" in panel_css
 assert "border-radius: 0" in panel_css
 print("PASS: NEXORA GTK theme name resolves and the panel has its own full-width styling.")
+
+
+# Ship a small original wallpaper collection and verify the default is installed.
+wallpaper_dir = overlay / "usr/share/backgrounds/nexora"
+wallpapers = [
+    "nexora-default.svg",
+    "nexora-aurora.svg",
+    "nexora-orbit.svg",
+    "nexora-grid.svg",
+    "nexora-midnight.svg",
+]
+for wallpaper in wallpapers:
+    asset = wallpaper_dir / wallpaper
+    assert asset.is_file() and asset.stat().st_size > 100, asset
+    ET.parse(asset)
+
+desktop_xml = ET.parse(
+    ROOT / "config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml"
+).getroot()
+default_wallpaper = desktop_xml.find(
+    "./property[@name='backdrop']/property[@name='screen0']/property[@name='monitor0']/property[@name='workspace0']/property[@name='last-image']"
+)
+assert default_wallpaper is not None
+assert default_wallpaper.attrib.get("value") == "/usr/share/backgrounds/nexora/nexora-default.svg"
+installer_text = (ROOT / "scripts/install-nexora-desktop.sh").read_text(encoding="utf-8")
+assert all(f'nexora/{name}' in installer_text for name in wallpapers)
+print("PASS: five NEXORA wallpapers ship with the desktop installer and the default wallpaper is configured.")
