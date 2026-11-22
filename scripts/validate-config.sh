@@ -49,6 +49,7 @@ sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh sc
 
 grep -q 'Debian Installer GTK' installer/README.md || fail "GTK netinst installer must be documented."
 grep -q -- '--debian-installer live' scripts/build-live.sh || fail "XFCE4 must be built with Debian Live Installer support."
+grep -q -- '--initsystem systemd' scripts/build-live.sh || fail "XFCE4 Live must use the systemd init backend."
 grep -q 'Exec=python3 /usr/bin/nexora-installer' installer/desktop-overlay/usr/share/applications/nexora-installer.desktop || fail "Branded installer welcome entry is missing."
 grep -q 'debian-installer-launcher' installer/desktop-overlay/usr/bin/nexora-installer || fail "Branded installer must launch Debian Installer Live."
 grep -q 'task-xfce-desktop' config/package-lists/nexora-live.list.chroot || fail "Live image must include the XFCE desktop task."
