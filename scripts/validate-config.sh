@@ -28,6 +28,9 @@ check_file config/archives/nexora-security.list.chroot
 check_file config/archives/nexora-security.list.binary
 check_file config/includes.chroot/etc/nexora-release
 check_file branding/logo/nexora-logo.svg
+check_file config/includes.chroot/usr/local/bin/nexora-setup
+check_file config/includes.chroot/usr/share/nexora/desktop-packages.list
+check_file config/hooks/normal/0600-nexora-setup-permissions.hook.chroot
 
 grep -q -- '--distribution trixie' auto/config || fail "Base must remain Debian Trixie."
 grep -q -- '--architecture amd64' auto/config || fail "Architecture must remain amd64."
@@ -44,6 +47,14 @@ if grep -R -n 'trixie/updates' auto config; then
 fi
 
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
+bash -n config/includes.chroot/usr/local/bin/nexora-setup
+sh -n config/hooks/normal/0600-nexora-setup-permissions.hook.chroot
+if grep -Eq "^(xserver-xorg|xfce4-session|lightdm|chromium|flatpak)$" config/package-lists/nexora-minimal.list.chroot; then
+    fail "Optional desktop package leaked into the Minimal base image."
+fi
+for package in xserver-xorg xfce4-session lightdm chromium flatpak; do
+    grep -qx "$package" config/includes.chroot/usr/share/nexora/desktop-packages.list || fail "Optional desktop package missing: $package"
+done
 
 for package in live-boot live-config live-config-systemd live-tools systemd-sysv user-setup linux-image-amd64 bash coreutils util-linux procps iproute2 ifupdown isc-dhcp-client locales keyboard-configuration console-setup apt ca-certificates; do
     check_package "$package"
