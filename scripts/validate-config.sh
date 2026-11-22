@@ -37,6 +37,8 @@ check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-
 check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
 check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 check_file config/includes.chroot/usr/share/themes/NEXORA/gtk-3.0/gtk.css
+check_file config/includes.chroot/usr/share/plymouth/themes/nexora-aurora/nexora-aurora.plymouth
+check_file config/includes.chroot/usr/share/plymouth/themes/nexora-aurora/nexora-aurora.script
 check_file config/includes.chroot/usr/share/backgrounds/nexora/nexora-default.svg
 check_file config/includes.chroot/usr/bin/nexora-welcome
 check_file config/includes.chroot/usr/bin/nexora-store
@@ -46,6 +48,7 @@ check_file config/includes.chroot/usr/share/applications/nexora-upgrade.desktop
 check_file config/includes.chroot/usr/share/nexora-store/catalog.json
 check_file scripts/test-store-catalog.py
 check_file config/hooks/normal/0500-enable-flathub.hook.chroot
+check_file config/hooks/normal/0600-enable-nexora-plymouth.hook.chroot
 check_file config/archives/nexora-security.list.chroot
 check_file config/archives/nexora-security.list.binary
 check_file branding/logo/nexora-logo.svg
@@ -57,19 +60,20 @@ grep -q -- '--apt-recommends false' auto/config || fail "APT recommends must rem
 grep -q -- '--security false' auto/config || fail "Use the explicit Trixie security source instead of live-build's obsolete default suite."
 grep -q -- '--linux-packages none' auto/config || fail "Kernel discovery must be disabled; install the amd64 kernel from the package manifest."
 grep -q -- '--initsystem systemd' auto/config || fail "Debian Live must use systemd, not sysvinit."
+grep -q -- 'quiet splash' auto/config || fail "Plymouth splash boot parameters are missing."
 grep -q '^deb http://security.debian.org/debian-security trixie-security ' config/archives/nexora-security.list.chroot || fail "Build chroot must use the Debian Trixie security suite."
 grep -q '^deb http://security.debian.org/debian-security trixie-security ' config/archives/nexora-security.list.binary || fail "Installed system must use the Debian Trixie security suite."
 if grep -R -n 'trixie/updates' auto config; then
     fail "Obsolete Debian security suite trixie/updates detected."
 fi
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
-sh -n config/hooks/normal/0500-enable-flathub.hook.chroot
+sh -n config/hooks/normal/0500-enable-flathub.hook.chroot config/hooks/normal/0600-enable-nexora-plymouth.hook.chroot
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/lib/nexora/nexora-upgrade.py").read_text(encoding="utf-8"))'
 python3 -c 'import json, pathlib; json.loads(pathlib.Path("config/includes.chroot/usr/share/nexora-store/catalog.json").read_text(encoding="utf-8"))'
 python3 scripts/test-store-catalog.py
 
-for package in live-config-systemd linux-image-amd64 xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm chromium flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
+for package in plymouth plymouth-themes live-config-systemd linux-image-amd64 xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm chromium flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
     check_package "$package"
 done
 for package in live-config-sysvinit task-kde-desktop sddm plasma-discover konsole dolphin supertux supertuxkart kmines kpat neverball; do
@@ -82,5 +86,7 @@ grep -qx 'LANG=es_CL.UTF-8' config/includes.chroot/etc/default/locale || fail "S
 grep -q 'NEXORA' config/includes.chroot/etc/lightdm/lightdm-gtk-greeter.conf || fail "NEXORA greeter theme is not selected."
 grep -q 'NEXORA Store' config/includes.chroot/usr/share/applications/nexora-store.desktop || fail "NEXORA Store launcher is missing."
 grep -q 'nexora-upgrade.py' config/includes.chroot/usr/share/applications/nexora-upgrade.desktop || fail "NEXORA Upgrade launcher is missing."
+grep -q 'ModuleName=script' config/includes.chroot/usr/share/plymouth/themes/nexora-aurora/nexora-aurora.plymouth || fail "NEXORA Aurora must use the Plymouth script renderer."
+grep -q 'plymouth-set-default-theme --rebuild-initrd nexora-aurora' config/hooks/normal/0600-enable-nexora-plymouth.hook.chroot || fail "NEXORA Aurora is not selected for initramfs."
 
-printf '\nNEXORA XFCE, Store and Upgrade Assistant configuration checks passed. ISO build and boot tests are still required.\n'
+printf '\nNEXORA XFCE, Store, Upgrade Assistant and Aurora Plymouth configuration checks passed. ISO build and boot tests are still required.\n'
