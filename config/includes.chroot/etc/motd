@@ -1,10 +1,16 @@
 ====================================================
-  NEXORA OS
+  NEXORA OS MINIMAL 0.1.0
   Your Terminal. Your Universe.
 ====================================================
 
-  Welcome to NEXORA OS.
-  Debian 13 (Trixie) | KDE Plasma | NEXORA ecosystem
+  Debian 13 (Trixie) | amd64 | systemd
+  Edition: terminal-only
 
-  Project: https://github.com/Reaccionador2Jeje/NEXORA-OS
+  Useful commands:
+    ip addr       Show network interfaces
+    sudo apt update
+    sudo apt install <package>
+
+  Project:
+  https://github.com/Reaccionador2Jeje/NEXORA-OS
 
