@@ -54,10 +54,10 @@ sh -n config/hooks/normal/0500-enable-flathub.hook.chroot
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
 python3 -c 'import json, pathlib; json.loads(pathlib.Path("config/includes.chroot/usr/share/nexora-store/catalog.json").read_text(encoding="utf-8"))'
 
-for package in xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
+for package in xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm chromium flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
     check_package "$package"
 done
-for package in task-kde-desktop sddm plasma-discover konsole dolphin supertux supertuxkart kmines kpat neverball chromium; do
+for package in task-kde-desktop sddm plasma-discover konsole dolphin supertux supertuxkart kmines kpat neverball; do
     reject_package "$package"
 done
 
