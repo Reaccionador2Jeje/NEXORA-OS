@@ -47,7 +47,7 @@ sudo apt update
 sudo apt install -y git ca-certificates
 git clone --branch feature/nexora-minimal-terminal https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
-sudo ./scripts/install-nexora-desktop.sh install
+sudo sh ./scripts/install-nexora-desktop.sh install
 sudo reboot
 ```
 
