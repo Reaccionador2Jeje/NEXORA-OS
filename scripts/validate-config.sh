@@ -86,6 +86,15 @@ for package in live-config-sysvinit task-kde-desktop sddm plasma-discover konsol
     reject_package "$package"
 done
 
+
+# The in-place installer must support a terminal-only Debian 13 base.
+for package in xserver-xorg xfce4-whiskermenu-plugin xfce4-appfinder xfce4-terminal thunar-volman gvfs dbus-x11 lightdm-gtk-greeter network-manager network-manager-gnome udisks2 upower polkitd pipewire-audio wireplumber xfce4-pulseaudio-plugin xdg-desktop-portal xdg-desktop-portal-gtk; do
+    grep -q "    ${package}" scripts/install-nexora-desktop.sh ||
+        fail "NEXORA Minimal installer does not install required desktop package: ${package}"
+done
+grep -q 'systemctl set-default graphical.target' scripts/install-nexora-desktop.sh || fail "Installer does not enable graphical boot."
+grep -q 'ln -sf.*install-nexora-desktop.sh' scripts/install-nexora-desktop.sh || fail "Installer does not register the nexora-desktop command."
+
 grep -q 'Desktop: XFCE4' config/includes.chroot/etc/nexora-release || fail "Release identity must declare XFCE4."
 grep -qx 'es_CL.UTF-8 UTF-8' config/includes.chroot/etc/locale.gen || fail "Spanish (Chile) locale is not enabled."
 grep -qx 'LANG=es_CL.UTF-8' config/includes.chroot/etc/default/locale || fail "Spanish (Chile) is not the default locale."
