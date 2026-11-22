@@ -11,7 +11,7 @@ lb config noauto \
     --apt-recommends false \
     --apt-secure true \
     --security false \
-    --debian-installer none \
+    --debian-installer false \
     --firmware-binary true \
     --firmware-chroot true \
     --iso-application "NEXORA OS" \
