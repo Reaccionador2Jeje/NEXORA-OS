@@ -24,6 +24,7 @@ NEXORA OS is a Debian-derived operating system assembled with Debian Live `live-
 
 ## Software policy
 
+- Chromium is preinstalled as the default web browser so the first boot has a ready-to-use browser.
 - No games are preinstalled.
 - No heavyweight game launchers or desktop software centers are included.
 - Flatpak is installed and Flathub is configured as a system remote.
