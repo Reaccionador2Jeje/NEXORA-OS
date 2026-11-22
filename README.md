@@ -66,18 +66,36 @@ python3 /usr/lib/nexora/nexora-upgrade.py
 
 **Important:** this prototype does not migrate between NEXORA releases, change APT repositories, or install/remove packages. Its APT check is simulation-only. Do not treat it as a substitute for backups or a supported distribution upgrade path. Full release upgrades will only be enabled after signed release metadata, compatibility rules, configuration migrations, rollback/recovery and real upgrade tests exist.
 
-## Apply NEXORA desktop to an existing Debian 13 XFCE install
+## Install NEXORA Desktop on Debian 13 Minimal / Terminal
 
-This is a development convenience installer for an existing Debian 13 XFCE desktop. It copies the current NEXORA branding, wallpaper, GTK theme, XFCE defaults, Fastfetch profile, Welcome launcher and Store into the installed system. It also installs the required desktop dependencies and configures the system Flathub remote.
+You can install the NEXORA XFCE desktop on a terminal-only Debian 13 (Trixie) installation. The installer now installs the desktop stack itself, so XFCE does **not** need to be present beforehand.
+
+On the Minimal system, make sure you have an internet connection, then run:
 
 ```bash
+sudo apt update
+sudo apt install -y git ca-certificates
 git clone --branch feature/nexora-desktop-2.0 https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
-chmod +x scripts/install-nexora-desktop.sh
-sudo ./scripts/install-nexora-desktop.sh
+sudo ./scripts/install-nexora-desktop.sh install
+sudo reboot
 ```
 
-Log out and back in after installation. Existing XFCE configuration files are backed up with a `.nexora-backup` suffix before the NEXORA defaults are applied. This helper does not replace Debian's packages with a NEXORA APT repository, does not convert the installation into a supported NEXORA release, and does not configure the Plymouth boot theme. It is an early desktop integration helper; test it on a backed-up system first.
+The installer adds X.Org, XFCE4, LightDM, NetworkManager, audio support, Chromium, Flatpak, NEXORA Store, the NEXORA GTK defaults and the official two-panel XFCE configuration. It backs up existing per-user XFCE settings before replacing them, enables the graphical boot target, and registers the `nexora-desktop` command for checking installation status.
+
+After installation:
+
+```bash
+nexora-desktop status
+```
+
+To see available commands:
+
+```bash
+nexora-desktop help
+```
+
+This installer is intended for Debian 13 (Trixie). It adds the NEXORA desktop without reinstalling Debian or automatically removing another desktop environment. It requires a working network connection and administrator privileges. The NEXORA Aurora boot animation is currently configured by the live ISO build hook and is not installed by this in-place desktop installer. The system remains Debian-based; this does not turn an arbitrary Debian installation into a separately supported NEXORA release.
 
 ## Build the ISO
 
