@@ -38,7 +38,7 @@ for f in \
     config/includes.chroot/usr/bin/nexora-store \
     config/includes.chroot/usr/share/applications/nexora-welcome.desktop \
     config/includes.chroot/usr/share/applications/nexora-store.desktop \
-    config/includes.chroot/usr/share/nexora-store/catalog.json \
+install -D -m 0644 config/includes.chroot/usr/share/nexora-store/catalog.json /usr/share/nexora-store/catalog.json
     config/includes.chroot/usr/share/nexora-store/store.css
 do
     need_file "$f"
