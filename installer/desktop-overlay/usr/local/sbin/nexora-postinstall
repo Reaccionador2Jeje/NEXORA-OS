@@ -51,7 +51,7 @@ fi
 cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml <<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
 <channel name="xsettings" version="1.0">
- <property name="Net" type="empty"><property name="ThemeName" type="string" value="NEXORA"/><property name="IconThemeName" type="string" value="Adwaita"/></property>
+ <property name="Net" type="empty"><property name="ThemeName" type="string" value="NEXORA-Ocean"/><property name="IconThemeName" type="string" value="Adwaita"/></property>
  <property name="Xft" type="empty"><property name="DPI" type="int" value="96"/><property name="Antialias" type="int" value="1"/><property name="Hinting" type="int" value="1"/></property>
 </channel>
 XML
