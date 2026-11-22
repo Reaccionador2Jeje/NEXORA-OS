@@ -36,6 +36,31 @@ The Live image defaults to Chilean Spanish and the Latin American keyboard layou
 
 NEXORA Minimal remains a separate, small Debian Installer GTK network installer. It offers the terminal-focused profile and keeps disk partitioning interactive. It does not include the XFCE desktop.
 
+## Add NEXORA Desktop after installing Minimal
+
+If you installed **NEXORA OS Minimal** with the terminal-only profile, you can add the NEXORA XFCE desktop later. You do not need to reinstall or repartition the system.
+
+Connect to the internet and run:
+
+```sh
+sudo apt update
+sudo apt install -y git ca-certificates
+git clone --branch feature/nexora-minimal-terminal https://github.com/Reaccionador2Jeje/NEXORA-OS.git
+cd NEXORA-OS
+sudo ./scripts/install-nexora-desktop.sh install
+sudo reboot
+```
+
+The installer adds Debian's XFCE desktop task, LightDM, NetworkManager, audio and desktop utilities, then applies NEXORA wallpapers, themes, Welcome, Store, Control Center, Updater, and the fixed two-panel layout. Existing XFCE configuration files are backed up before NEXORA defaults are applied. It does not alter disk partitions or reinstall Debian.
+
+After reboot, check the installation with:
+
+```sh
+nexora-desktop status
+```
+
+This requires Debian 13 (Trixie), an internet connection and administrator access. The NEXORA Store downloads optional apps from Flathub only when selected. The system remains based on Debian.
+
 ## Build
 
 On a Debian or Ubuntu amd64 build host:
