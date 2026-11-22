@@ -53,6 +53,12 @@ jobs:
       - name: Build NEXORA GTK netinst
         run: sudo sh ./scripts/build.sh
 
+      # The builder runs as root; restore runner ownership before creating
+      # checksums, running checks, or uploading files.
+      - name: Make build output writable for validation
+        if: success()
+        run: sudo chown -R "$USER:$USER" build-output
+
       - name: Inspect ISO boot menu layout
         run: sh ./scripts/inspect-boot-layout.sh build-output/nexora-os-minimal-netinst-amd64.iso
 
@@ -69,10 +75,6 @@ jobs:
             sha256sum --check "$(basename "$ISO").sha256"
           )
 
-      - name: Make build output readable
-        if: success()
-        run: sudo chown -R "$USER:$USER" build-output
-
       - name: Upload Minimal GTK netinst ISO artifact
         if: success()
         uses: actions/upload-artifact@v4
@@ -82,7 +84,7 @@ jobs:
             build-output/nexora-os-minimal-netinst-amd64.iso
             build-output/nexora-os-minimal-netinst-amd64.iso.sha256
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 30
 
       - name: Publish verified Minimal GTK netinst ISO to SourceForge
         if: success() && github.event_name == 'push' && github.ref == 'refs/heads/feature/nexora-minimal-terminal'
