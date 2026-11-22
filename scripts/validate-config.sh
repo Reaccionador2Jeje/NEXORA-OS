@@ -38,6 +38,10 @@ grep -q 'desktop.cfg' scripts/build-netinst.sh || fail "Desktop preseed profile 
 grep -q ' -ls /nexora/preseed' scripts/build-netinst.sh || fail "Build must verify the embedded preseed directory."
 grep -q 'tasksel tasksel/first multiselect standard$' installer/preseed/minimal.cfg || fail "Minimal profile must select standard utilities only."
 grep -q 'tasksel tasksel/first multiselect standard, xfce-desktop' installer/preseed/desktop.cfg || fail "XFCE profile task selection is missing."
+if grep -Eq 'auto=true|priority=critical' installer/preseed/*.cfg installer/BOOT-OPTIONS.md; then
+    fail "Profile boot options must preserve interactive installer questions."
+fi
+
 if grep -Eq 'partman-auto|partman/early_command|partman/confirm.*true' installer/preseed/*.cfg; then
     fail "Preseed profiles must not automate or silently confirm disk partitioning."
 fi
