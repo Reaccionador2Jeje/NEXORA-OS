@@ -41,7 +41,7 @@ with tempfile.TemporaryDirectory(prefix="nexora-initrd-") as temp:
     )
     if listing.returncode:
         raise SystemExit("The Debian initrd is not a readable gzip-compressed cpio archive.")
-    available = set(listing.stdout.splitlines())
+    available = {line.removeprefix("./") for line in listing.stdout.splitlines()}
     missing = sorted(set(required) - available)
     if missing:
         raise SystemExit("Expected GTK logo assets are missing from initrd: " + ", ".join(missing))
@@ -73,9 +73,15 @@ with tempfile.TemporaryDirectory(prefix="nexora-initrd-") as temp:
         raise SystemExit("Could not rebuild the NEXORA GTK initrd.")
 
     with gzip.open(output_initrd, "rb") as stream:
-        if stream.read(6)[:6] != b"070701":
-            # cpio newc begins with ASCII 070701 after decompression.
+        if stream.read(6) != b"070701":
             raise SystemExit("Rebuilt initrd does not contain a valid newc cpio archive.")
+    verify = subprocess.run(
+        ["sh", "-c", 'gzip -dc "$1" | cpio -t', "nexora", str(output_initrd)],
+        text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    verified_paths = {line.removeprefix("./") for line in verify.stdout.splitlines()}
+    if verify.returncode or not set(required).issubset(verified_paths):
+        raise SystemExit("NEXORA GTK logos did not survive initrd repacking.")
 
 print(f"Created branded GTK initrd: {output_initrd}")
 print("Replaced Debian GTK logo variants with NEXORA branding:")
