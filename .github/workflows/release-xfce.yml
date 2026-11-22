@@ -13,8 +13,10 @@ on:
         default: true
         type: boolean
   push:
-    tags:
-      - "v*"
+    branches:
+      - feature/nexora-minimal-terminal
+    paths:
+      - ".github/release-kickoff"
 
 permissions:
   contents: write
@@ -58,10 +60,10 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.version || github.ref_name }}
+          tag_name: ${{ inputs.version || 'v0.1.0-alpha.1' }}
           target_commitish: ${{ github.sha }}
-          name: NEXORA OS XFCE4 ${{ inputs.version || github.ref_name }}
-          prerelease: ${{ inputs.prerelease || false }}
+          name: NEXORA OS XFCE4 ${{ inputs.version || 'v0.1.0-alpha.1' }}
+          prerelease: ${{ github.event_name == 'push' || inputs.prerelease }}
           generate_release_notes: true
           body: |
             ## NEXORA OS XFCE4
