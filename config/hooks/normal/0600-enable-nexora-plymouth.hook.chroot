@@ -1,0 +1,18 @@
+#!/bin/sh
+# Select the original NEXORA Aurora Plymouth theme and rebuild initramfs.
+set -eu
+
+THEME_DIR=/usr/share/plymouth/themes/nexora-aurora
+THEME_FILE="$THEME_DIR/nexora-aurora.plymouth"
+
+if ! command -v plymouth-set-default-theme >/dev/null 2>&1; then
+    echo "plymouth-set-default-theme is unavailable; cannot select NEXORA Aurora." >&2
+    exit 1
+fi
+
+if [ ! -s "$THEME_FILE" ] || [ ! -s "$THEME_DIR/nexora-aurora.script" ]; then
+    echo "NEXORA Aurora theme files are missing." >&2
+    exit 1
+fi
+
+plymouth-set-default-theme --rebuild-initrd nexora-aurora
