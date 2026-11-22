@@ -162,8 +162,8 @@ if ! flatpak remote-list --system --columns=name 2>/dev/null | grep -qx flathub;
 fi
 
 update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
-install -d -m 0755 /usr/local/sbin
-ln -sf "$ROOT_DIR/scripts/install-nexora-desktop.sh" /usr/local/sbin/nexora-desktop
+install -d -m 0755 /usr/local/bin
+ln -sf "$ROOT_DIR/scripts/install-nexora-desktop.sh" /usr/local/bin/nexora-desktop
 
 echo
 echo "NEXORA Desktop installation completed."
