@@ -85,7 +85,7 @@ fi
 cp "$BUILT_ISO" "$OUTPUT_ISO"
 
 echo "==> Checking the Live filesystem and installer media..."
-LIVE_CONTENTS="$(xorriso -indev "$OUTPUT_ISO" -ls /live 2>&1)"
+LIVE_CONTENTS="$(xorriso -indev "$OUTPUT_ISO" -ls /live 2>&1 || true)"
 printf '%s\n' "$LIVE_CONTENTS"
 printf '%s\n' "$LIVE_CONTENTS" | grep -q 'filesystem.squashfs' || {
     echo "The ISO does not contain the compressed live root filesystem." >&2
