@@ -77,6 +77,8 @@ xorriso -indev "$SOURCE_ISO" \
     -map "$ROOT_DIR/installer/BOOT-OPTIONS.md" /nexora/BOOT-OPTIONS.md \
     -map "$ROOT_DIR/installer/branding" /nexora/branding \
     -map "$ROOT_DIR/build-output/nexora-installer-background.png" /nexora/nexora-installer-background.png \
+    -map "$ROOT_DIR/build-output/nexora-installer-background.png" /isolinux/splash.png \
+    -map "$ROOT_DIR/build-output/nexora-installer-background.png" /boot/grub/splash.png \
     -map "$BOOT_BRANDING_DIR/grub.cfg" /boot/grub/grub.cfg \
     -map "$BOOT_BRANDING_DIR/menu.cfg" "$SYSLINUX_MENU_PATH" \
     -map "$INITRD_BRANDING_DIR/initrd-nexora.gz" /initrd.gz \
