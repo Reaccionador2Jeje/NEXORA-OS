@@ -18,18 +18,19 @@ The roadmap describes source milestones, not guaranteed release dates. A checked
 - [x] Disable APT recommended-package installation.
 - [x] Add NEXORA GTK3 dark theme.
 - [x] Add NEXORA wallpaper and LightDM branding.
-- [x] Configure XFCE defaults for new users.
+- [x] Configure a custom XFCE panel and user defaults.
 - [x] Add Flatpak and configure Flathub.
 - [x] Port NEXORA Welcome away from KDE dependencies.
+- [x] Implement NEXORA Store with search, install, remove and update actions.
 - [ ] Build and boot-test the XFCE ISO.
 - [ ] Measure idle RAM, boot time and installed image size.
 
-## 0.3.0 — NEXORA Store
+## 0.3.0 — NEXORA Store improvements
 
-- [ ] Build a lightweight graphical software center.
-- [ ] Browse and search Flathub applications.
-- [ ] Install, update and uninstall Flatpak applications.
-- [ ] Add a Games category without bundling games in the ISO.
+- [ ] Add application categories, including Games.
+- [ ] Add screenshots, ratings and app detail pages.
+- [ ] Add update notifications and safer progress reporting.
+- [ ] Add a configurable per-user or system-wide install mode.
 
 ## 0.4.0 — NEXORA integration
 
