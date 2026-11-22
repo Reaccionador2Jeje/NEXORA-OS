@@ -52,12 +52,12 @@
       <div class="section-head"><div class="eyebrow">Cómo empezar</div><h2>Prepara tu instalación</h2><p>El instalador está basado en Debian Installer GTK. La instalación necesita conexión de red para descargar los paquetes.</p></div>
       <div class="steps">
         <article class="step"><h3>Revisa el proyecto</h3><p>Consulta los perfiles, requisitos y estado actual en el repositorio oficial.</p></article>
-        <article class="step"><h3>Obtén la imagen</h3><p>Cuando haya una compilación publicada, estará disponible desde los artefactos o lanzamientos del proyecto.</p></article>
+        <article class="step"><h3>Obtén la imagen</h3><p>Descarga NEXORA Minimal directamente desde SourceForge y verifica su archivo SHA256 antes de instalar.</p></article>
         <article class="step"><h3>Instala con cuidado</h3><p>Prueba primero en una máquina virtual. Revisa el disco seleccionado: el particionado debe hacerse de forma interactiva.</p></article>
       </div>
     </section>
     <section class="wrap section" id="descargas">
-      <div class="section-head"><div class="eyebrow">Descargas de prueba</div><h2>Prueba NEXORA OS</h2><p>Las compilaciones se publican como artefactos temporales cuando superan las pruebas automáticas. Elige una ejecución completada correctamente para descargar su ISO.</p></div>
+      <div class="section-head"><div class="eyebrow">Descargas</div><h2>Prueba NEXORA OS</h2><p>Las imágenes verificadas se publican en SourceForge. NEXORA Minimal ya tiene una compilación disponible; XFCE4 continúa en desarrollo.</p></div>
       <div class="cards">
         <article class="card">
           <span class="tag">Live · amd64 · Debian 13</span>
@@ -83,15 +83,16 @@
             <li>Perfil centrado en terminal</li>
           </ul>
           <div class="actions" style="justify-content:flex-start">
-            <a class="btn primary" href="https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml" target="_blank" rel="noopener">Ver compilaciones Minimal ↗</a>
+            <a class="btn primary" href="https://sourceforge.net/projects/nexora-os/files/NEXORA-OS-Minimal-GTK-Netinst-alpha-272.1/nexora-os-minimal-netinst-amd64.iso/download" target="_blank" rel="noopener">Descargar ISO ↗</a>
+            <a class="btn" href="https://sourceforge.net/projects/nexora-os/files/NEXORA-OS-Minimal-GTK-Netinst-alpha-272.1/nexora-os-minimal-netinst-amd64.iso.sha256/download" target="_blank" rel="noopener">SHA256 ↗</a>
           </div>
-          <div class="note">Abre una ejecución con estado Success y descarga <strong>nexora-os-minimal-gtk-netinst-amd64</strong> desde Artifacts.</div>
+          <div class="note">Versión experimental alpha 272.1 · amd64 · Debian 13 Trixie. <a href="https://sourceforge.net/projects/nexora-os/files/NEXORA-OS-Minimal-GTK-Netinst-alpha-272.1/">Ver todos los archivos de esta versión ↗</a></div>
         </article>
       </div>
-      <div class="status" style="margin-top:18px"><div class="status-icon">i</div><div><h3>Descargas temporales de CI</h3><p>Para descargar artefactos de GitHub Actions debes iniciar sesión en GitHub y tener acceso de lectura al repositorio. Se conservan durante 30 días. Las descargas públicas permanentes llegarán mediante SourceForge una vez que el proyecto esté registrado y configurado. <a href="https://github.com/Reaccionador2Jeje/NEXORA-OS/blob/feature/nexora-minimal-terminal/TESTING.md">Leer la guía de pruebas ↗</a></p></div></div>
+      <div class="status" style="margin-top:18px"><div class="status-icon">i</div><div><h3>Descargas y verificación</h3><p>NEXORA Minimal se distribuye públicamente mediante SourceForge. Después de descargar la ISO y su archivo SHA256, verifica la integridad con <code>sha256sum --check nexora-os-minimal-netinst-amd64.iso.sha256</code>. <a href="https://github.com/Reaccionador2Jeje/NEXORA-OS/blob/feature/nexora-minimal-terminal/TESTING.md">Leer la guía de pruebas ↗</a></p></div></div>
     </section>
     <section class="wrap section" id="estado">
-      <div class="status"><div class="status-icon">◈</div><div><h3>Proyecto en desarrollo</h3><p>NEXORA OS todavía está en fase de integración y pruebas. La imagen netinst, el arranque BIOS/UEFI y la instalación completa deben validarse antes de considerarla una versión estable. El instalador gráfico aún conserva la interfaz original de Debian. <a href="https://github.com/Reaccionador2Jeje/NEXORA-OS/actions">Consultar compilaciones y CI ↗</a></p></div></div>
+      <div class="status"><div class="status-icon">◈</div><div><h3>Proyecto en desarrollo</h3><p><strong>NEXORA Minimal alpha 272.1:</strong> compilación completada, prueba de arranque BIOS superada y publicación en SourceForge realizada. <strong>NEXORA XFCE4 Live:</strong> continúa en desarrollo; todavía no hay una descarga pública confirmada. NEXORA OS sigue siendo experimental y debe probarse primero en una máquina virtual. El instalador gráfico aún conserva la interfaz original de Debian. <a href="https://github.com/Reaccionador2Jeje/NEXORA-OS/actions">Consultar compilaciones y CI ↗</a></p></div></div>
     </section>
   </main>
   <footer><div class="wrap foot"><span>© NEXORA OS · Your Terminal. Your Universe.</span><span><a href="https://github.com/Reaccionador2Jeje/NEXORA-OS">GitHub</a> · Basado en Debian · Proyecto independiente</span></div></footer>
