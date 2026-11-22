@@ -7,6 +7,8 @@ on:
       - feature/nexora-minimal-terminal
     paths:
       - "website/**"
+      - "TESTING.md"
+      - ".github/ISSUE_TEMPLATE/**"
       - ".github/workflows/pages.yml"
 
 permissions:
