@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=NEXORA Welcome
+Comment=Welcome to NEXORA OS
+Exec=xfce4-terminal --title=NEXORA-Welcome --command=/usr/bin/nexora-welcome
+Icon=help-about
+Terminal=false
+Categories=System;Utility;
