@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build the NEXORA OS Hyper Lightweight XFCE live ISO.
+# Build the NEXORA OS Minimal terminal-only live ISO.
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
@@ -22,15 +22,12 @@ if [ ! -x auto/config ]; then
     exit 1
 fi
 
-# GitHub's text-file API stores new hook files as 0644; live-build needs executable hooks.
-find config/hooks -type f -name '*.hook.chroot' -exec chmod 0755 {} +
-
 mkdir -p build-output
 
-echo "==> Configuring NEXORA OS 0.2.0 (Debian Trixie / amd64 / XFCE4)..."
+echo "==> Configuring NEXORA OS Minimal 0.1.0 (Debian Trixie / amd64 / terminal-only)..."
 lb config
 
-echo "==> Building the Hyper Lightweight ISO..."
+echo "==> Building the NEXORA Minimal ISO..."
 lb build
 
 iso=$(find "$ROOT_DIR" -maxdepth 1 -type f -name '*.iso' -print -quit)
@@ -42,5 +39,7 @@ fi
 destination="$ROOT_DIR/build-output/$(basename "$iso")"
 mv "$iso" "$destination"
 
-echo "==> NEXORA OS image created:"
+size=$(du -h "$destination" | awk '{print $1}')
+echo "==> NEXORA OS Minimal image created:"
 echo "    $destination"
+echo "    ISO size: $size"
