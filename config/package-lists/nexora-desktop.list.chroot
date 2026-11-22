@@ -1,79 +1,54 @@
-# NEXORA OS Desktop — Debian 13 Trixie package baseline
+# NEXORA OS 0.2.0 — Hyper Lightweight XFCE4 desktop
+# Keep this manifest intentionally small. Do not add games or heavyweight desktop suites.
 
-# KDE Plasma desktop and core session
-task-kde-desktop
-sddm
-konsole
-dolphin
-kate
-kdialog
-systemsettings
-plasma-systemmonitor
-plasma-discover
-kcalc
-ark
-filelight
-gwenview
-okular
-kde-spectacle
-partitionmanager
-kwalletmanager
-bluedevil
-print-manager
+# X.Org display server and XFCE desktop
+xserver-xorg
+xfce4-session
+xfce4-panel
+xfdesktop4
+xfwm4
+xfconf
+xfce4-settings
+xfce4-appfinder
+xfce4-terminal
+xfce4-whiskermenu-plugin
 
-# Browser and networking
-chromium
+# File manager and basic desktop integration
+thunar
+thunar-volman
+gvfs
+gvfs-backends
+dbus-x11
+lightdm
+lightdm-gtk-greeter
+
+# Network and removable-device support
 network-manager
-plasma-nm
-curl
-wget
-ca-certificates
-
-# Audio, device integration and desktop services
-pipewire
-pipewire-audio
-wireplumber
-alsa-utils
+network-manager-gnome
 udisks2
 upower
 polkitd
-pkexec
-dbus-user-session
 
-# Games — KDE, platform, racing, arcade and puzzle games
-kmines
-kpat
-ksudoku
-kmahjongg
-bomber
-granatier
-kbreakout
-supertux
-supertuxkart
-neverball
-kapman
-chromium-bsu
+# Audio without a heavyweight desktop stack
+pipewire-audio
+wireplumber
+xfce4-pulseaudio-plugin
 
-# System tools and user experience
+# Flatpak support — applications and games are user-installed, never bundled
+flatpak
+xdg-desktop-portal
+xdg-desktop-portal-gtk
+
+# Essential system utilities
 sudo
 locales
 keyboard-configuration
 xdg-utils
 xdg-user-dirs
-fonts-noto-core
-fonts-noto-color-emoji
-git
-bash-completion
-vim-tiny
-htop
+ca-certificates
+curl
+wget
 nano
-unzip
-zip
-7zip
-rsync
-tree
-ncdu
+htop
 fastfetch
-lm-sensors
-usbutils
-pciutils
+bash-completion
