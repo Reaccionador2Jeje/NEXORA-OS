@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=NEXORA Store
+GenericName=Software Center
+Comment=Browse and manage Flatpak applications from Flathub
+Exec=python3 /usr/bin/nexora-store
+Icon=/usr/share/pixmaps/nexora-icon.svg
+Terminal=false
+Categories=System;PackageManager;
+StartupNotify=true
