@@ -1,14 +1,27 @@
 # Installer integration
 
-NEXORA OS Minimal uses Debian Installer GTK as its installer foundation.
+NEXORA OS Minimal uses Debian Installer GTK. The ISO embeds the `desktop-overlay/` tree and two Preseed profiles.
 
-The ISO build embeds two preseed profiles under `/nexora/preseed/`:
+## Minimal Terminal
 
-- `minimal.cfg`: standard system utilities only; no desktop environment.
-- `desktop.cfg`: standard system utilities plus `xfce-desktop`.
+The Minimal profile installs standard system utilities only and does not select a desktop task. Installer defaults use Chilean Spanish and the Latin American keyboard layout. Disk partitioning remains interactive.
 
-Use the boot arguments in [BOOT-OPTIONS.md](BOOT-OPTIONS.md) to select a profile. Debian Installer remains responsible for hardware detection, networking, package installation and bootloader setup.
+## NEXORA XFCE Desktop
 
-**Safety:** both profiles intentionally leave disk partitioning interactive. They do not define an automatic partition recipe or silently authorize formatting.
+The XFCE profile installs Debian's XFCE task plus Flatpak, GTK3/PyGObject, PolicyKit and XFCE utilities. Its late-command copies the NEXORA overlay into the target system and applies desktop defaults.
 
-The installer interface is still Debian's upstream GTK interface. NEXORA branding, a graphical profile chooser, localization polish, and automatic NEXORA desktop theming are future milestones.
+Included desktop features:
+
+- Five NEXORA wallpapers under `/usr/share/backgrounds/nexora`.
+- Four GTK themes: NEXORA, NEXORA Midnight, NEXORA Ocean and NEXORA Light.
+- NEXORA Welcome, NEXORA Store and NEXORA Control Center.
+- NEXORA AI client, configurable for a local Ollama-compatible endpoint or another OpenAI-compatible service.
+- NEXORA updater launcher and PolicyKit agent.
+
+The AI client is integrated as a desktop application, but it does not bundle a model or provider credentials. Configure an available local or compatible service in its Connection dialog. No API key is shipped in the ISO.
+
+## Installer interface status
+
+The current graphical installer still uses Debian's upstream GTK screens. Boot menu inspection is automated so the next step can add NEXORA profile entries without guessing BIOS/UEFI config paths. A fully re-skinned GTK installer is not claimed yet.
+
+**Safety:** neither preseed profile defines automatic partitioning or silently confirms disk formatting.
