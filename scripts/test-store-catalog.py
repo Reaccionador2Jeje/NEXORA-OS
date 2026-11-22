@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "config/includes.chroot/usr/share/nexora-store/catalog.json"
-APP_ID = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z][A-Za-z0-9_-]*){2,}$")
+APP_ID = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*(?:\.[A-Za-z][A-Za-z0-9_-]*){2,}$")
 CATEGORIES = {
     "Productivity",
     "Graphics",
