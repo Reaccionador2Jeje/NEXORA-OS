@@ -22,12 +22,18 @@ The AI client is integrated as a desktop application, but it does not bundle a m
 
 ## NEXORA installer branding
 
-The ISO now embeds original NEXORA installer artwork at `/nexora/branding/nexora-installer.svg` and a generated 1024×640 background at `/nexora/nexora-installer-background.png`. The visual identity uses midnight navy, cyan and violet, with the NEXORA wordmark and installation label. The build verifies that these assets are present.
+The ISO embeds original NEXORA artwork at `/nexora/branding/nexora-installer.svg` and a generated 1024×640 boot background. The build also creates 800×75 light and dark GTK banner logos and replaces all four upstream logo assets inside the installer's compressed initrd:
+- `/usr/share/graphics/logo_debian.png`
+- `/usr/share/graphics/logo_debian_dark.png`
+- `/usr/share/graphics/logo_installer.png`
+- `/usr/share/graphics/logo_installer_dark.png`
+
+The GTK banner therefore displays NEXORA branding in both standard and dark theme variants, rather than Debian's logo. The initrd is unpacked, patched, repacked and checked during the ISO build.
 
 ## Installer interface status
 
 The NEXORA artwork is now wired into both verified boot selectors: Syslinux/ISOLINUX for BIOS and GRUB for UEFI. The menu offers **NEXORA OS Minimal Terminal** and **NEXORA OS XFCE Desktop**, while retaining Debian's upstream rescue, expert and standard installer entries as fallback. Both NEXORA entries select the matching preseed and request the installer's built-in dark theme.
 
-The GTK installer screens themselves still use Debian Installer's upstream interface. The built-in dark theme changes the palette only; it does not replace Debian logos, titles, icons or dialogs with NEXORA artwork. A fully branded GTK frontend requires rebuilding and testing the relevant Debian Installer udebs/frontend assets, and is not claimed in this stage.
+The GTK frontend now carries the NEXORA banner logo in both theme variants. The installer workflow, controls, dialog wording, package names and underlying GTK components remain Debian Installer components; this change does not claim to replace or fork the full frontend. The dark theme is Debian's built-in high-contrast theme, not a custom NEXORA color theme.
 
 **Safety:** neither preseed profile defines automatic partitioning or silently confirms disk formatting.
