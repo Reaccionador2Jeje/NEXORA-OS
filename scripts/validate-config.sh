@@ -23,6 +23,14 @@ check_file installer/profiles/desktop.md
 check_file installer/preseed/minimal.cfg
 check_file installer/preseed/desktop.cfg
 check_file installer/BOOT-OPTIONS.md
+check_file installer/BOOT-MENU-DESIGN.md
+check_file installer/desktop-overlay/usr/local/sbin/nexora-postinstall
+check_file installer/desktop-overlay/usr/bin/nexora-ai
+check_file installer/desktop-overlay/usr/bin/nexora-center
+check_file installer/desktop-overlay/usr/bin/nexora-store
+check_file installer/desktop-overlay/usr/bin/nexora-welcome
+check_file installer/desktop-overlay/usr/share/backgrounds/nexora/nexora-aurora.svg
+check_file installer/desktop-overlay/usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css
 
 sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/inspect-boot-layout.sh scripts/validate-config.sh
 
@@ -36,6 +44,11 @@ grep -q -- '-map "$ROOT_DIR/installer/preseed" /nexora/preseed' scripts/build-ne
 grep -q 'minimal.cfg' scripts/build-netinst.sh || fail "Minimal preseed profile is not embedded."
 grep -q 'desktop.cfg' scripts/build-netinst.sh || fail "Desktop preseed profile is not embedded."
 grep -q ' -ls /nexora/preseed' scripts/build-netinst.sh || fail "Build must verify the embedded preseed directory."
+grep -q -- '-map "$ROOT_DIR/installer/desktop-overlay" /nexora/desktop-overlay' scripts/build-netinst.sh || fail "Desktop overlay is not embedded in the ISO."
+grep -q 'preseed/late_command' installer/preseed/desktop.cfg || fail "XFCE profile does not install the desktop overlay."
+grep -q 'es_CL.UTF-8' installer/preseed/desktop.cfg || fail "Desktop installer locale must default to Chilean Spanish."
+grep -q 'priority=high' installer/preseed/desktop.cfg || fail "Desktop profile must retain interactive installer questions."
+python3 -c 'import ast,pathlib; [ast.parse(pathlib.Path(p).read_text()) for p in ["installer/desktop-overlay/usr/bin/nexora-ai", "installer/desktop-overlay/usr/bin/nexora-center", "installer/desktop-overlay/usr/bin/nexora-store"]]'
 grep -q 'tasksel tasksel/first multiselect standard$' installer/preseed/minimal.cfg || fail "Minimal profile must select standard utilities only."
 grep -q 'tasksel tasksel/first multiselect standard, xfce-desktop' installer/preseed/desktop.cfg || fail "XFCE profile task selection is missing."
 if grep -Eq 'auto=true|priority=critical' installer/preseed/*.cfg installer/BOOT-OPTIONS.md; then
