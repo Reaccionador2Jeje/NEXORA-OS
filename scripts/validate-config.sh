@@ -41,6 +41,7 @@ check_file config/includes.chroot/usr/share/backgrounds/nexora/nexora-default.sv
 check_file config/includes.chroot/usr/bin/nexora-welcome
 check_file config/includes.chroot/usr/bin/nexora-store
 check_file config/includes.chroot/usr/share/applications/nexora-store.desktop
+check_file config/includes.chroot/usr/share/nexora-store/catalog.json
 check_file config/hooks/normal/0500-enable-flathub.hook.chroot
 check_file branding/logo/nexora-logo.svg
 check_file branding/logo/nexora-icon.svg
@@ -51,6 +52,7 @@ grep -q -- '--apt-recommends false' auto/config || fail "APT recommends must rem
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
 sh -n config/hooks/normal/0500-enable-flathub.hook.chroot
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
+python3 -c 'import json, pathlib; json.loads(pathlib.Path("config/includes.chroot/usr/share/nexora-store/catalog.json").read_text(encoding="utf-8"))'
 
 for package in xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
     check_package "$package"
