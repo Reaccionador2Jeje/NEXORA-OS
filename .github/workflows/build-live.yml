@@ -20,7 +20,7 @@ on:
       - ".github/workflows/build-live.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: nexora-xfce-live-ci-${{ github.ref }}
@@ -70,3 +70,28 @@ jobs:
             build-output/nexora-os-xfce4-live-amd64.iso.sha256
           if-no-files-found: error
           retention-days: 7
+
+      - name: Publish automatic alpha release
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/feature/nexora-minimal-terminal'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.0-alpha.${{ github.run_number }}.${{ github.run_attempt }}
+          target_commitish: ${{ github.sha }}
+          name: NEXORA OS XFCE4 Live v0.1.0-alpha.${{ github.run_number }}.${{ github.run_attempt }}
+          prerelease: true
+          generate_release_notes: true
+          body: |
+            ## NEXORA OS XFCE4 Live — automatic alpha
+
+            Published automatically after the Live ISO passes configuration validation, ISO/checksum verification and the QEMU boot smoke test.
+
+            - Base: Debian GNU/Linux 13 (Trixie)
+            - Architecture: amd64 (x86_64)
+            - Desktop: XFCE4 NEXORA Live session
+            - Image: hybrid Live ISO for USB and virtual machines
+            - Installer: Debian Installer Live, launched from NEXORA's branded welcome app
+
+            Experimental alpha. Test in a virtual machine first and carefully review disk and partition choices before installing.
+          files: |
+            build-output/nexora-os-xfce4-live-amd64.iso
+            build-output/nexora-os-xfce4-live-amd64.iso.sha256
