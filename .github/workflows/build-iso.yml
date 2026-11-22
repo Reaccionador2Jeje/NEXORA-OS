@@ -39,7 +39,7 @@ jobs:
       - name: Install ISO and VM tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl xorriso cpio gzip qemu-system-x86
+          sudo apt-get install -y curl xorriso cpio gzip qemu-system-x86 qemu-utils
 
       - name: Check build dependencies
         run: sh ./scripts/check-dependencies.sh
