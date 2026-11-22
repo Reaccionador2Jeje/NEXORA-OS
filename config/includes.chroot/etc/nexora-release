@@ -1,7 +1,7 @@
-NEXORA OS 0.2.0
+NEXORA OS Minimal 0.1.0
 Base: Debian GNU/Linux 13 (Trixie)
-Desktop: XFCE4 (NEXORA theme)
+Desktop: None (terminal-only)
+Init: systemd
 Architecture: amd64
-Profile: Hyper Lightweight
-Applications: Flatpak-ready; no games preinstalled
+Profile: Minimal
 Tagline: Your Terminal. Your Universe.
