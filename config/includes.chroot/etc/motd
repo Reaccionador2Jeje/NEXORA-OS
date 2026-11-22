@@ -1,13 +1,16 @@
 ====================================================
-  NEXORA OS MINIMAL 0.1.0
+  NEXORA OS MINIMAL 0.2.0
   Your Terminal. Your Universe.
 ====================================================
 
   Debian 13 (Trixie) | amd64 | systemd
-  Edition: terminal-only
+  Desktop: optional (install with NEXORA Setup)
+
+  Start the interactive setup:
+    sudo nexora-setup
 
   Useful commands:
-    ip addr       Show network interfaces
+    ip addr
     sudo apt update
     sudo apt install <package>
 
