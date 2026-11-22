@@ -6,7 +6,7 @@ import threading
 
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk, GLib, Pango
 
 
 class NexoraStore(Gtk.ApplicationWindow):
@@ -126,7 +126,7 @@ class NexoraStore(Gtk.ApplicationWindow):
 
             title = Gtk.Label(label=name)
             title.set_xalign(0)
-            title.set_ellipsize(3)
+            title.set_ellipsize(Pango.EllipsizeMode.END)
             title.get_style_context().add_class("heading")
             details.pack_start(title, False, False, 0)
 
