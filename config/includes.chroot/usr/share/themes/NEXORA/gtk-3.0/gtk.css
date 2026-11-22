@@ -1,4 +1,4 @@
-/* NEXORA Aurora: shared GTK3 visual language. */
+/* NEXORA Aurora — Windows-style full-width XFCE taskbar. */
 @define-color theme_bg_color #080d1b;
 @define-color theme_fg_color #edf4ff;
 @define-color theme_base_color #101a30;
@@ -7,17 +7,78 @@
 @define-color theme_selected_fg_color #ffffff;
 @define-color borders #263957;
 @define-color accent_color #22d3ee;
+
 * { -GtkWidget-focus-line-width: 1; -GtkWidget-focus-line-pattern: ''; }
 window, .background { background-color: @theme_bg_color; color: @theme_fg_color; }
-headerbar, .titlebar { background-image: linear-gradient(to right,#11152b,#102943); color:#f8fbff; border-bottom:1px solid #263957; box-shadow:none; min-height:42px; }
-#XfcePanelWindow { background-color:rgba(8,13,27,0.94); color:#edf4ff; border:1px solid rgba(91,113,160,.65); border-radius:18px; }
-#XfcePanelWindow button { background:none; border:0; border-radius:12px; color:#edf4ff; box-shadow:none; padding:5px 9px; }
-#XfcePanelWindow button:hover { background-color:rgba(34,211,238,.16); }
-button { color:@theme_fg_color; background-image:linear-gradient(to bottom,#202d49,#15233b); border:1px solid #344968; border-radius:9px; box-shadow:none; padding:6px 11px; }
-button:hover { background-image:linear-gradient(to bottom,#293d60,#1c3450); border-color:@accent_color; }
-button:checked, button:active { background-image:none; background-color:#4435a5; border-color:#8b7cff; }
-entry, textview, spinbutton, combobox, .view { color:@theme_fg_color; background-color:@theme_base_color; border:1px solid @borders; border-radius:8px; caret-color:@accent_color; padding:7px; }
+headerbar, .titlebar {
+  background-image: linear-gradient(to right,#11152b,#102943);
+  color:#f8fbff; border-bottom:1px solid #263957; box-shadow:none; min-height:42px;
+}
+
+/* Full-width taskbar: square outer edge, subtle top separator, no floating-dock look. */
+#XfcePanelWindow {
+  background-color: rgba(8,13,27,0.97);
+  color:#edf4ff;
+  border:0;
+  border-top:1px solid rgba(91,113,160,.55);
+  border-radius:0;
+  box-shadow:0 -3px 18px rgba(0,0,0,.22);
+}
+#XfcePanelWindow button {
+  background:none;
+  border:0;
+  border-radius:7px;
+  color:#edf4ff;
+  box-shadow:none;
+  padding:5px 10px;
+  margin:3px 2px;
+  min-height:34px;
+}
+#XfcePanelWindow button:hover {
+  background-color:rgba(34,211,238,.15);
+}
+#XfcePanelWindow button:checked,
+#XfcePanelWindow button:active {
+  background-color:rgba(85,66,200,.30);
+  border-bottom:2px solid #22d3ee;
+  border-radius:7px;
+}
+
+/* Consistent NEXORA application styling. */
+button {
+  color:@theme_fg_color;
+  background-image:linear-gradient(to bottom,#202d49,#15233b);
+  border:1px solid #344968;
+  border-radius:9px;
+  box-shadow:none;
+  padding:6px 11px;
+}
+button:hover {
+  background-image:linear-gradient(to bottom,#293d60,#1c3450);
+  border-color:@accent_color;
+}
+button:checked, button:active {
+  background-image:none;
+  background-color:#4435a5;
+  border-color:#8b7cff;
+}
+entry, textview, spinbutton, combobox, .view {
+  color:@theme_fg_color;
+  background-color:@theme_base_color;
+  border:1px solid @borders;
+  border-radius:8px;
+  caret-color:@accent_color;
+  padding:7px;
+}
 entry:focus { border-color:@accent_color; }
-menubar, menu, popover, .menu { background-color:#10182b; color:@theme_fg_color; border:1px solid @borders; }
-tooltip { background-color:#070b16; color:#fff; border:1px solid #5542c8; }
+menubar, menu, popover, .menu {
+  background-color:#10182b;
+  color:@theme_fg_color;
+  border:1px solid @borders;
+}
+tooltip {
+  background-color:#070b16;
+  color:#fff;
+  border:1px solid #5542c8;
+}
 selection { background-color:@theme_selected_bg_color; color:@theme_selected_fg_color; }
