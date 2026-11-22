@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build the NEXORA OS Minimal netinst prototype using Debian Installer GTK.
+# Build a NEXORA OS Minimal or XFCE4 netinst image using Debian Installer GTK.
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
