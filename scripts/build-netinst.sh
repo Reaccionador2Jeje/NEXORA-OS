@@ -43,6 +43,12 @@ if [ "$size_bytes" -lt 40000000 ]; then
     exit 1
 fi
 
+echo "==> Preparing NEXORA BIOS and UEFI boot menus..."
+BOOT_BRANDING_DIR="$ROOT_DIR/build-output/boot-branding"
+rm -rf "$BOOT_BRANDING_DIR"
+python3 "$ROOT_DIR/scripts/brand-installer-boot.py" "$SOURCE_ISO" "$BOOT_BRANDING_DIR"
+SYSLINUX_MENU_PATH=$(cat "$BOOT_BRANDING_DIR/menu-path.txt")
+
 echo "==> Embedding NEXORA installer profiles and preserving boot records..."
 xorriso -indev "$SOURCE_ISO" \
     -outdev "$OUTPUT_ISO" \
@@ -52,6 +58,8 @@ xorriso -indev "$SOURCE_ISO" \
     -map "$ROOT_DIR/installer/BOOT-OPTIONS.md" /nexora/BOOT-OPTIONS.md \
     -map "$ROOT_DIR/installer/branding" /nexora/branding \
     -map "$ROOT_DIR/build-output/nexora-installer-background.png" /nexora/nexora-installer-background.png \
+    -map "$BOOT_BRANDING_DIR/grub.cfg" /boot/grub/grub.cfg \
+    -map "$BOOT_BRANDING_DIR/menu.cfg" "$SYSLINUX_MENU_PATH" \
     -boot_image any replay \
     -commit \
     -end
@@ -103,5 +111,5 @@ echo
 echo "Profiles embedded:"
 echo "    /nexora/preseed/minimal.cfg"
 echo "    /nexora/preseed/desktop.cfg"
-echo "Use the boot arguments documented in /nexora/BOOT-OPTIONS.md."
-echo "NOTE: The graphical installer still uses Debian's upstream GTK interface."
+echo "Boot menu: NEXORA Minimal / NEXORA XFCE, with Debian fallback entries."
+echo "NOTE: Debian Installer GTK dialogs still use the upstream Debian theme."
