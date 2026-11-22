@@ -38,7 +38,7 @@ El resultado esperado es `OK`. Si la verificación falla, no utilices esa imagen
 
 ## Reportar un problema
 
-[Crear un informe de error](https://github.com/Reaccionador2Jeje/NEXORA-OS/issues/new/choose).
+[Enviar informe de pruebas](https://github.com/Reaccionador2Jeje/NEXORA-OS/issues/new?template=nexora-tester-report.yml).
 
 Incluye la edición, el enlace de la ejecución, el programa de máquina virtual y el paso donde ocurrió el problema. No incluyas contraseñas, claves privadas ni información personal.
 
