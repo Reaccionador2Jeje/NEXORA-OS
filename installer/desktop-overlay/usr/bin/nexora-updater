@@ -1,0 +1,4 @@
+#!/bin/sh
+# Run Debian package updates in a visible terminal with PolicyKit authorization.
+set -eu
+exec xfce4-terminal --hold --title=NEXORA-System-Update --command="sh -c 'pkexec apt-get update && pkexec apt-get upgrade'"
