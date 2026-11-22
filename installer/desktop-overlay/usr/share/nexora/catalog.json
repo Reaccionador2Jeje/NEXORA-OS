@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "source": "NEXORA OS curated catalog",
+  "applications": [
+    {
+      "id": "org.libreoffice.LibreOffice",
+      "name": "LibreOffice",
+      "category": "Productivity",
+      "description": "Office suite for documents, spreadsheets and presentations."
+    },
+    {
+      "id": "org.mozilla.firefox",
+      "name": "Firefox",
+      "category": "Productivity",
+      "description": "Open-source web browser."
+    },
+    {
+      "id": "org.gimp.GIMP",
+      "name": "GIMP",
+      "category": "Graphics",
+      "description": "Image editor for photographs and digital artwork."
+    },
+    {
+      "id": "org.inkscape.Inkscape",
+      "name": "Inkscape",
+      "category": "Graphics",
+      "description": "Vector graphics editor."
+    },
+    {
+      "id": "org.kde.krita",
+      "name": "Krita",
+      "category": "Graphics",
+      "description": "Digital painting and illustration application."
+    },
+    {
+      "id": "org.blender.Blender",
+      "name": "Blender",
+      "category": "Graphics",
+      "description": "3D creation suite. Optional download; not included in the base system."
+    },
+    {
+      "id": "org.godotengine.Godot",
+      "name": "Godot Engine",
+      "category": "Development",
+      "description": "Open-source 2D and 3D game engine."
+    },
+    {
+      "id": "org.videolan.VLC",
+      "name": "VLC",
+      "category": "Multimedia",
+      "description": "Media player for audio and video."
+    },
+    {
+      "id": "org.audacityteam.Audacity",
+      "name": "Audacity",
+      "category": "Multimedia",
+      "description": "Audio recording and editing application."
+    },
+    {
+      "id": "net.supertuxkart.SuperTuxKart",
+      "name": "SuperTuxKart",
+      "category": "Games",
+      "description": "Optional kart racing game. Downloaded only when the user chooses Install."
+    },
+    {
+      "id": "org.supertuxproject.SuperTux",
+      "name": "SuperTux",
+      "category": "Games",
+      "description": "Optional 2D platform game. Downloaded only when the user chooses Install."
+    },
+    {
+      "id": "com.github.tchx84.Flatseal",
+      "name": "Flatseal",
+      "category": "System",
+      "description": "Manage permissions for installed Flatpak applications."
+    }
+  ]
+}
