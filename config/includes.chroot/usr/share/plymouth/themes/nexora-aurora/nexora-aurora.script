@@ -60,13 +60,17 @@ fun refresh_callback()
 Plymouth.SetRefreshFunction(refresh_callback);
 
 # Keep password prompts readable if the installation uses encrypted storage.
-fun DisplayPasswordCallback(prompt, bullets)
+fun DisplayPasswordCallback(nil, bullet_count)
 {
-    prompt_image = Image.Text(prompt, 0.92, 0.95, 1.0, 1.0, "Sans 12");
+    prompt_image = Image.Text("Unlock encrypted system",
+                              0.92, 0.95, 1.0, 1.0, "Sans 12");
     prompt_sprite = Sprite(prompt_image);
     prompt_sprite.SetPosition(center_x - prompt_image.GetWidth() / 2,
                               center_y + 190);
-    bullet_image = Image.Text(bullets, 0.92, 0.95, 1.0, 1.0, "Sans 12");
+    bullet_text = "";
+    for (i = 0; i < bullet_count; i++)
+        bullet_text = bullet_text + "*";
+    bullet_image = Image.Text(bullet_text, 0.92, 0.95, 1.0, 1.0, "Sans 12");
     bullet_sprite = Sprite(bullet_image);
     bullet_sprite.SetPosition(center_x - bullet_image.GetWidth() / 2,
                               center_y + 218);
