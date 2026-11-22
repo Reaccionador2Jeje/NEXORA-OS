@@ -49,6 +49,7 @@ grep -q 'boot_image any replay' scripts/build-netinst.sh || fail "ISO boot metad
 grep -q 'NEXORA_MINIMAL' scripts/build-netinst.sh || fail "NEXORA Minimal ISO volume label is missing."
 grep -q 'NEXORA_XFCE' scripts/build-netinst.sh || fail "NEXORA XFCE ISO volume label is missing."
 grep -q 'NEXORA_DEFAULT_PROFILE' scripts/brand-installer-boot.py || fail "Edition-specific boot profile selection is missing."
+grep -q 'NEXORA OS XFCE Desktop' scripts/brand-installer-boot.py || fail "XFCE boot entry is missing."
 grep -q -- '-map "$ROOT_DIR/installer/preseed" /nexora/preseed' scripts/build-netinst.sh || fail "Preseed directory is not embedded in the ISO."
 grep -q 'minimal.cfg' scripts/build-netinst.sh || fail "Minimal preseed profile is not embedded."
 grep -q 'desktop.cfg' scripts/build-netinst.sh || fail "Desktop preseed profile is not embedded."
