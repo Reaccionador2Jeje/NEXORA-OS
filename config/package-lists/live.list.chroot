@@ -1,0 +1,5 @@
+# Explicit Debian Live package selection for NEXORA XFCE4.
+# Keep the live-config backend aligned with the systemd init system.
+live-boot
+live-config
+live-config-systemd
