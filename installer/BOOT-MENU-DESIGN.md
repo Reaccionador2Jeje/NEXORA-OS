@@ -32,3 +32,15 @@ The profile menu must use `priority=high` with the preseed path so ordinary inst
 ## GTK banner branding
 
 The GTK installer reads its banner artwork from the `rootskel-gtk` assets in the initrd. NEXORA generates matching 800×75 light/dark PNGs and replaces the four logo paths (`logo_debian.png`, `logo_debian_dark.png`, `logo_installer.png`, `logo_installer_dark.png`) under `/usr/share/graphics`. The build verifies that these paths survive initrd repacking. The GTK workflow and dialog content remain upstream Debian Installer code; only the banner identity is replaced at this stage.
+
+
+## Implemented splash branding
+
+Both netinst and XFCE4 Live builders now generate a NEXORA aurora splash with the NEXORA OS wordmark and place it at the standard BIOS and UEFI splash paths:
+
+- BIOS / ISOLINUX: `/isolinux/splash.png`
+- UEFI / GRUB: `/boot/grub/splash.png`
+
+The netinst builder also retains the explicit NEXORA background reference in its custom GRUB and Syslinux menu configurations. Both builders extract the resulting artwork from the ISO and compare it against the generated source, so a build fails rather than silently shipping Debian's default splash.
+
+The XFCE4 Live desktop's **Install NEXORA OS** launcher opens a branded GTK welcome screen before starting Debian Installer Live. It explains the flow and reminds the user to review disk changes. Debian Installer's actual installation engine and its GTK screens remain upstream; the NEXORA welcome screen is the first UX improvement, not a claim that the installer has been fully forked.
