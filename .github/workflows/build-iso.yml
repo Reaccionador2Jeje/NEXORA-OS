@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - feature/nexora-xfce-hyperlight-ci
+      - feature/nexora-desktop-2.0
     paths:
       - "auto/**"
       - "config/**"
