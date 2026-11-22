@@ -11,7 +11,7 @@ NEXORA OS is an open-source Linux distribution based on **Debian 13 (Trixie)**. 
 ## What makes this edition NEXORA?
 
 - A Debian 13 foundation, with the upstream base and package licenses respected.
-- A lightweight **XFCE4** desktop configured with NEXORA defaults.
+- A lightweight **XFCE4** desktop configured with NEXORA defaults, including permanent full-width top and bottom panels and a window task list for switching between open applications.
 - NEXORA GTK theme, wallpaper, LightDM greeter branding and desktop panel settings.
 - **NEXORA Store**, a GTK application for browsing a curated Flatpak catalog.
 - A custom **Fastfetch** profile with original NEXORA ASCII branding and live system information.
@@ -71,7 +71,7 @@ python3 /usr/lib/nexora/nexora-upgrade.py
 This is a development convenience installer for an existing Debian 13 XFCE desktop. It copies the current NEXORA branding, wallpaper, GTK theme, XFCE defaults, Fastfetch profile, Welcome launcher and Store into the installed system. It also installs the required desktop dependencies and configures the system Flathub remote.
 
 ```bash
-git clone --branch feature/nexora-xfce-hyperlight-ci https://github.com/Reaccionador2Jeje/NEXORA-OS.git
+git clone --branch feature/nexora-desktop-2.0 https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
 chmod +x scripts/install-nexora-desktop.sh
 sudo ./scripts/install-nexora-desktop.sh
