@@ -133,7 +133,10 @@ grep -q "NEXORA OS Minimal" "$MENU_VERIFY_DIR/menu.cfg" || {
     echo "BIOS NEXORA Minimal boot entry is missing from the embedded Syslinux menu." >&2
     exit 1
 }
-grep -q "NEXORA OS XFCE Desktop" "$MENU_VERIFY_DIR/menu.cfg" || {
+# Syslinux uses '^' as a keyboard-shortcut marker inside menu labels,
+# so the visible label is "NEXORA OS ^XFCE Desktop" in the config file.
+grep -q "NEXORA OS" "$MENU_VERIFY_DIR/menu.cfg" &&
+    grep -q "XFCE Desktop" "$MENU_VERIFY_DIR/menu.cfg" || {
     echo "BIOS NEXORA XFCE boot entry is missing from the embedded Syslinux menu." >&2
     exit 1
 }
