@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=NEXORA PolicyKit Agent
+Comment=Authentication agent for desktop administration
+Exec=lxpolkit
+OnlyShowIn=XFCE;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
