@@ -21,6 +21,7 @@ gvfs-backends
 dbus-x11
 lightdm
 lightdm-gtk-greeter
+adwaita-icon-theme
 
 # Network and removable-device support
 network-manager
@@ -31,6 +32,7 @@ polkitd
 
 # Audio without a heavyweight desktop stack
 pipewire-audio
+pipewire-pulse
 wireplumber
 xfce4-pulseaudio-plugin
 
