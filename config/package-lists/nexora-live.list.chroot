@@ -9,6 +9,8 @@ polkitd
 pkexec
 lxpolkit
 xfce4-goodies
+xfce4-whiskermenu-plugin
+xfce4-pulseaudio-plugin
 firefox-esr
 gparted
 debian-installer-launcher
