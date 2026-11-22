@@ -32,6 +32,7 @@ check_file config/includes.chroot/etc/locale.gen
 check_file config/includes.chroot/etc/default/locale
 check_file config/includes.chroot/etc/default/keyboard
 check_file config/includes.chroot/etc/lightdm/lightdm-gtk-greeter.conf
+check_file config/includes.chroot/etc/xdg/autostart/nexora-polkit-agent.desktop
 check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
 check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
@@ -49,7 +50,7 @@ grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture 
 grep -q -- '--apt-recommends false' auto/config || fail "APT recommends must remain disabled for the lightweight profile."
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
 sh -n config/hooks/normal/0500-enable-flathub.hook.chroot
-python3 -m py_compile config/includes.chroot/usr/bin/nexora-store
+python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
 
 for package in xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
     check_package "$package"
