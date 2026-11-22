@@ -1,7 +1,5 @@
 #!/bin/sh
-# NEXORA OS - central live-build configuration.
-# This script is called automatically by "lb config".
-
+# NEXORA OS — Debian Live configuration (Hyper Lightweight XFCE edition).
 set -eu
 
 lb config noauto \
@@ -10,15 +8,15 @@ lb config noauto \
     --architecture amd64 \
     --binary-image iso-hybrid \
     --archive-areas "main contrib non-free non-free-firmware" \
-    --apt-recommends true \
+    --apt-recommends false \
     --apt-secure true \
     --debian-installer none \
     --firmware-binary true \
     --firmware-chroot true \
     --iso-application "NEXORA OS" \
     --iso-publisher "NEXORA OS Project" \
-    --iso-volume "NEXORA_OS_0_1_0" \
-    --image-name "nexora-os-0.1.0-amd64" \
+    --iso-volume "NEXORA_OS_0_2_0_XFCE" \
+    --image-name "nexora-os-0.2.0-xfce-amd64" \
     --linux-packages "linux-image" \
     --memtest none \
     --bootappend-live "boot=live components locales=es_CL.UTF-8 keyboard-layouts=latam" \
