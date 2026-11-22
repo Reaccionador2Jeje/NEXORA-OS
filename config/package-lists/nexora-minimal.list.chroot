@@ -5,7 +5,9 @@
 live-boot
 live-config
 live-config-systemd
+live-tools
 systemd-sysv
+user-setup
 
 # Kernel installed through APT; live-build kernel discovery is disabled.
 linux-image-amd64
@@ -27,6 +29,13 @@ hostname
 login
 passwd
 sudo
+locales
+keyboard-configuration
+console-setup
+
+# Basic wired networking (DHCP) and package management.
+ifupdown
+isc-dhcp-client
 
 # Package management, certificates and basic network access.
 apt
