@@ -41,9 +41,9 @@ jobs:
 
       - name: Validate shell syntax
         run: |
-          sh -n auto/config
-          sh -n scripts/*.sh
-          sh -n config/hooks/normal/*.hook.chroot
+          for file in auto/config scripts/*.sh config/hooks/normal/*.hook.chroot; do
+            sh -n "$file"
+          done
 
       - name: Validate NEXORA configuration
         run: sh ./scripts/validate-config.sh
