@@ -1,9 +1,15 @@
-# NEXORA XFCE profile — task selection guidance
+# NEXORA XFCE4 desktop profile
 
-In Debian Installer's graphical **Software selection** (tasksel) screen:
+The NEXORA XFCE4 profile installs Debian's `xfce-desktop` task together with the NEXORA desktop overlay.
 
-- Keep **standard system utilities** selected.
-- Select **Debian desktop environment** and **Xfce**.
-- Leave GNOME, KDE Plasma and other desktop environments unchecked.
+The overlay configures the new desktop with:
 
-Debian tasksel identifies the Xfce task as `xfce-desktop`. The current prototype installs upstream Debian Xfce; the next stage will add NEXORA's theme, wallpaper, Store and Welcome integration automatically.
+- Five NEXORA wallpapers and a default NEXORA background.
+- Four GTK themes: NEXORA, NEXORA Midnight, NEXORA Ocean and NEXORA Light.
+- NEXORA Welcome, Store, Control Center and Updater launchers.
+- NEXORA AI desktop client, configurable for an OpenAI-compatible endpoint or a local Ollama-compatible service.
+- PolicyKit agent and XFCE defaults for new and existing user accounts.
+
+The XFCE4 release image selects this profile by default from both BIOS and UEFI boot menus. Minimal Terminal remains available as an alternate profile.
+
+The installer requires a working network connection to download Debian packages. Disk partitioning remains interactive; the profile does not configure automatic partitioning or silently confirm formatting.
