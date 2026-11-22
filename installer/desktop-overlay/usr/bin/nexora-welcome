@@ -1,7 +1,6 @@
 #!/bin/sh
-# NEXORA Welcome — minimal terminal-based launcher for the XFCE edition.
+# NEXORA Welcome — quick launcher for the XFCE edition.
 set -eu
-
 while :; do
     printf '\n'
     printf '  NEXORA OS 0.2.0 — XFCE4\n'
@@ -10,8 +9,9 @@ while :; do
     printf '  2) Browse files\n'
     printf '  3) Desktop settings\n'
     printf '  4) Open NEXORA Store\n'
-    printf '  5) Flatpak / Flathub help\n'
-    printf '  6) About NEXORA\n'
+    printf '  5) NEXORA AI\n'
+    printf '  6) NEXORA Control Center\n'
+    printf '  7) About NEXORA\n'
     printf '  0) Exit\n\n'
     printf 'Choose: '
     IFS= read -r choice || exit 0
@@ -19,16 +19,12 @@ while :; do
         1) (xfce4-terminal >/dev/null 2>&1 &) ;;
         2) (thunar >/dev/null 2>&1 &) ;;
         3) (xfce4-settings-manager >/dev/null 2>&1 &) ;;
-        4) (python3 /usr/bin/nexora-store >/dev/null 2>&1 &) ;;
-        5)
-            printf '\nFlatpak is ready. Flathub is configured as the system remote.\n'
-            printf 'Open NEXORA Store to search, install, remove and update applications.\n\n'
-            printf 'Press Enter to continue... '
-            IFS= read -r _
-            ;;
-        6)
-            printf '\nNEXORA OS 0.2.0\nDebian 13 Trixie · XFCE4 · Hyper Lightweight\n'
-            printf 'No games are preinstalled. Install only what you choose.\n'
+        4) (nexora-store >/dev/null 2>&1 &) ;;
+        5) (nexora-ai >/dev/null 2>&1 &) ;;
+        6) (nexora-center >/dev/null 2>&1 &) ;;
+        7)
+            printf '\nNEXORA OS 0.2.0\nDebian 13 Trixie · XFCE4\n'
+            printf 'Your Terminal. Your Universe.\n'
             printf 'https://github.com/Reaccionador2Jeje/NEXORA-OS\n\n'
             printf 'Press Enter to continue... '
             IFS= read -r _
