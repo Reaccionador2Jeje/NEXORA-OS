@@ -44,6 +44,9 @@ gir1.2-gtk-3.0
 xdg-desktop-portal
 xdg-desktop-portal-gtk
 
+# Web browser
+chromium
+
 # Essential system utilities
 sudo
 locales
