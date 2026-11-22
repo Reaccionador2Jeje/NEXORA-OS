@@ -22,55 +22,26 @@ check_file installer/profiles/desktop.md
 check_file installer/preseed/minimal.cfg
 check_file installer/preseed/desktop.cfg
 check_file installer/BOOT-OPTIONS.md
-check_file installer/preseed/minimal.cfg
-check_file installer/preseed/desktop.cfg
-check_file installer/BOOT-OPTIONS.md
 
 sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/validate-config.sh
 
-grep -q 'DEBIAN_FRONTEND=gtk' installer/README.md || fail "GTK frontend must be documented."
+grep -q 'Debian Installer GTK' installer/README.md || fail "GTK installer must be documented."
 grep -q 'standard system utilities' installer/profiles/minimal.md || fail "Minimal task selection guidance is missing."
 grep -q 'xfce-desktop' installer/profiles/desktop.md || fail "XFCE task selection guidance is missing."
 grep -q 'installer-amd64/current/images/netboot/gtk' scripts/build-netinst.sh || fail "Build must use the official Debian GTK netboot image."
 grep -q 'boot_image any replay' scripts/build-netinst.sh || fail "ISO boot metadata must be preserved."
 grep -q 'NEXORA_MINIMAL' scripts/build-netinst.sh || fail "NEXORA ISO volume label is missing."
+grep -q -- '-map "$ROOT_DIR/installer/preseed" /nexora/preseed' scripts/build-netinst.sh || fail "Preseed directory is not embedded in the ISO."
 grep -q 'minimal.cfg' scripts/build-netinst.sh || fail "Minimal preseed profile is not embedded."
 grep -q 'desktop.cfg' scripts/build-netinst.sh || fail "Desktop preseed profile is not embedded."
-grep -q 'standardgrep -q 'minimal.cfg' scripts/build-netinst.sh || fail "Minimal preseed profile is not embedded."
-grep -q 'desktop.cfg' scripts/build-netinst.sh || fail "Desktop preseed profile is not embedded."
-grep -q 'standard
-if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netinst.sh; then
-    fail "Minimal netinst build must not invoke Debian Live."
+grep -q 'tasksel tasksel/first multiselect standard$' installer/preseed/minimal.cfg || fail "Minimal profile must select standard utilities only."
+grep -q 'tasksel tasksel/first multiselect standard, xfce-desktop' installer/preseed/desktop.cfg || fail "XFCE profile task selection is missing."
+if grep -Eq 'partman-auto|partman/early_command|partman/confirm.*true' installer/preseed/*.cfg; then
+    fail "Preseed profiles must not automate or silently confirm disk partitioning."
 fi
-
-printf '\nNEXORA GTK netinst static checks passed. The actual ISO still needs CI and interactive QEMU testing.\n'
- installer/preseed/minimal.cfg || fail "Minimal preseed must select standard utilities only."
-grep -q 'standard, xfce-desktop' installer/preseed/desktop.cfg || fail "XFCE preseed task selection is missing."
-grep -q 'partman/confirm_write_new_label boolean false' installer/preseed/minimal.cfg || fail "Minimal profile must not auto-confirm partition labels."
-grep -q 'partman/confirm_write_new_label boolean false' installer/preseed/desktop.cfg || fail "Desktop profile must not auto-confirm partition labels."
 
 if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netinst.sh; then
     fail "Minimal netinst build must not invoke Debian Live."
 fi
 
-printf '\nNEXORA GTK netinst static checks passed. The actual ISO still needs CI and interactive QEMU testing.\n'
- installer/preseed/minimal.cfg || fail "Minimal preseed must select standard utilities only."
-grep -q 'standard, xfce-desktop' installer/preseed/desktop.cfg || fail "XFCE preseed task selection is missing."
-grep -q 'minimal.cfg' scripts/build-netinst.sh || fail "Minimal preseed profile is not embedded."
-grep -q 'desktop.cfg' scripts/build-netinst.sh || fail "Desktop preseed profile is not embedded."
-grep -q 'standard
-if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netinst.sh; then
-    fail "Minimal netinst build must not invoke Debian Live."
-fi
-
-printf '\nNEXORA GTK netinst static checks passed. The actual ISO still needs CI and interactive QEMU testing.\n'
- installer/preseed/minimal.cfg || fail "Minimal preseed must select standard utilities only."
-grep -q 'standard, xfce-desktop' installer/preseed/desktop.cfg || fail "XFCE preseed task selection is missing."
-grep -q 'partman/confirm_write_new_label boolean false' installer/preseed/minimal.cfg || fail "Minimal profile must not auto-confirm partition labels."
-grep -q 'partman/confirm_write_new_label boolean false' installer/preseed/desktop.cfg || fail "Desktop profile must not auto-confirm partition labels."
-
-if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netinst.sh; then
-    fail "Minimal netinst build must not invoke Debian Live."
-fi
-
-printf '\nNEXORA GTK netinst static checks passed. The actual ISO still needs CI and interactive QEMU testing.\n'
+printf '\nNEXORA GTK netinst static checks passed. A real ISO build and interactive install test are still required.\n'
