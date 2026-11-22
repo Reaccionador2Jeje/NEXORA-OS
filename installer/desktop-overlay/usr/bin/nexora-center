@@ -14,7 +14,7 @@ class Center(Gtk.Window):
    ("Wallpapers","xfdesktop-settings"),("Themes and appearance","xfce4-appearance-settings"),
    ("NEXORA AI","nexora-ai"),("NEXORA Store","nexora-store"),
    ("System monitor","xfce4-taskmanager"),("All settings","xfce4-settings-manager"),
-   ("Update system","xfce4-terminal --title=NEXORA-System-Update --command=sh -c 'pkexec apt-get update && pkexec apt-get upgrade; echo; read -p "Press Enter to close..."'")]:
+   ("Update system","nexora-updater")]:
    button=Gtk.Button(label=label); button.set_size_request(-1,42); button.connect("clicked",self.launch,cmd); box.pack_start(button,False,False,0)
   self.show_all()
  def launch(self,_button,command):
