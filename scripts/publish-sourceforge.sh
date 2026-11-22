@@ -13,6 +13,10 @@ set -eu
 case "$SF_PROJECT" in
   *[!a-z0-9-]*|"") echo "ERROR: SF_PROJECT must contain only lowercase letters, numbers and hyphens." >&2; exit 2 ;;
 esac
+if [ "${#SF_PROJECT}" -lt 3 ] || [ "${#SF_PROJECT}" -gt 30 ]; then
+  echo "ERROR: SF_PROJECT must be between 3 and 30 characters." >&2
+  exit 2
+fi
 case "$SF_USERNAME" in
   *[!A-Za-z0-9._-]*|"") echo "ERROR: SF_USERNAME contains unsupported characters." >&2; exit 2 ;;
 esac
