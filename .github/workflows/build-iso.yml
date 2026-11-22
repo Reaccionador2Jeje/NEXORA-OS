@@ -60,8 +60,11 @@ jobs:
           ISO="build-output/nexora-os-minimal-netinst-amd64.iso"
           test -s "$ISO"
           sh ./scripts/test-qemu-boot.sh "$ISO"
-          sha256sum "$ISO" > "$ISO.sha256"
-          sha256sum --check "$ISO.sha256"
+          (
+            cd "$(dirname "$ISO")"
+            sha256sum "$(basename "$ISO")" > "$(basename "$ISO").sha256"
+            sha256sum --check "$(basename "$ISO").sha256"
+          )
 
       - name: Make build output readable
         if: success()
