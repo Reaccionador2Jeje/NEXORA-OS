@@ -11,6 +11,15 @@ on:
       - "branding/**"
       - "scripts/**"
       - ".github/workflows/build-iso.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "auto/**"
+      - "config/**"
+      - "branding/**"
+      - "scripts/**"
+      - ".github/workflows/build-iso.yml"
 
 permissions:
   contents: read
@@ -51,7 +60,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: nexora-os-desktop-amd64
+          name: nexora-os-xfce-hyperlight-amd64
           path: build-output/*.iso
           if-no-files-found: error
           retention-days: 7
