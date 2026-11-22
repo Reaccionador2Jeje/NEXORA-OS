@@ -18,6 +18,7 @@ check_file config/package-lists/nexora-live.list.chroot
 check_file installer/desktop-overlay/usr/share/applications/nexora-installer.desktop
 check_file scripts/check-dependencies.sh
 check_file scripts/clean.sh
+check_file scripts/install-nexora-desktop.sh
 check_file scripts/test-qemu-boot.sh
 check_file scripts/inspect-boot-layout.sh
 check_file scripts/create-installer-background.py
@@ -47,7 +48,7 @@ check_file installer/desktop-overlay/etc/xdg/autostart/nexora-polkit-agent.deskt
 check_file installer/desktop-overlay/usr/share/pixmaps/nexora-icon.svg
 
 bash -n scripts/build-live.sh
-sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/inspect-boot-layout.sh scripts/validate-config.sh installer/desktop-overlay/usr/local/sbin/nexora-postinstall installer/desktop-overlay/usr/bin/nexora-welcome installer/desktop-overlay/usr/bin/nexora-updater
+sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/inspect-boot-layout.sh scripts/validate-config.sh scripts/install-nexora-desktop.sh installer/desktop-overlay/usr/local/sbin/nexora-postinstall installer/desktop-overlay/usr/bin/nexora-welcome installer/desktop-overlay/usr/bin/nexora-updater
 
 grep -q 'Debian Installer GTK' installer/README.md || fail "GTK netinst installer must be documented."
 grep -q -- '--debian-installer live' scripts/build-live.sh || fail "XFCE4 must be built with Debian Live Installer support."
@@ -93,5 +94,19 @@ if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netin
 fi
 
 python3 tests/test-nexora-desktop.py
+
+# The Minimal terminal install must be able to add the complete NEXORA XFCE desktop later.
+grep -q 'task-xfce-desktop' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must install the Debian XFCE task."
+grep -q 'lightdm' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must install LightDM."
+grep -q 'nexora-postinstall' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must apply the NEXORA overlay."
+grep -q 'nexora-desktop' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must register the nexora-desktop command."
+grep -q 'Path("/usr/share/nexora/catalog.json")' installer/desktop-overlay/usr/bin/nexora-store || fail "NEXORA Store catalog path must match the installed overlay."
+
+for panel in config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml installer/desktop-overlay/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml; do
+    [ "$(grep -c '<property name="mode" type="uint" value="0"/>' "$panel")" -eq 2 ] || fail "Both NEXORA panels must be horizontal in $panel."
+    [ "$(grep -c '<property name="length-adjust" type="bool" value="false"/>' "$panel")" -eq 2 ] || fail "Both NEXORA panels must keep fixed lengths in $panel."
+    [ "$(grep -c '<property name="length" type="uint" value="100"/>' "$panel")" -eq 2 ] || fail "Both NEXORA panels must span the full width in $panel."
+    grep -q '<property name="plugin-3" type="string" value="tasklist">' "$panel" || fail "The NEXORA window task list is missing in $panel."
+done
 
 printf '\nNEXORA netinst and XFCE4 Live static checks passed. A real ISO build and interactive install test are still required.\n'
