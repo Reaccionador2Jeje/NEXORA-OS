@@ -23,6 +23,8 @@ The Live image includes:
 
 The Live desktop itself can be used without installing. An Internet connection is recommended for browsing, updates and services that need network access.
 
+The desktop's **Install NEXORA OS** shortcut opens a NEXORA welcome screen first. It explains the installation steps and warns users to review disk and partition selections; continuing launches Debian Installer Live. This keeps the proven Debian installation engine while giving users a branded, clearer entry point. The installer screens themselves are still Debian Installer GTK and are not yet a fully custom NEXORA installer.
+
 ## NEXORA Minimal netinst
 
 The Minimal image continues to use Debian Installer GTK. It embeds the `preseed/minimal.cfg` and `preseed/desktop.cfg` profiles and the NEXORA installer branding. Minimal remains terminal-focused; the old XFCE preseed is retained for the separate netinst workflow.
@@ -33,4 +35,4 @@ The installer uses Chilean Spanish and the Latin American keyboard layout by def
 
 The netinst image embeds NEXORA artwork at `/nexora/branding/nexora-installer.svg` and a generated boot background. The GTK initrd banner is rebranded for the installer-based Minimal image.
 
-The XFCE4 Live image instead uses Debian Live boot menus and starts the XFCE session. It does not boot directly into the GTK installer.
+The XFCE4 Live image uses a custom NEXORA aurora/wordmark splash in the standard BIOS (ISOLINUX) and UEFI (GRUB) splash locations, then starts the XFCE session. The boot menu's underlying options remain Debian Live's tested entries; the branded splash replaces the stock Debian artwork.
