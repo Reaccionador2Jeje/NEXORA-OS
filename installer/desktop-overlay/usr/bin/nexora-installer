@@ -3,16 +3,11 @@
 import os
 import shutil
 import subprocess
-import sys
-
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GdkPixbuf, GLib
+from gi.repository import Gtk, Gdk
 
 TITLE = "Instalar NEXORA OS"
-ACCENT = "#39c5f5"
-DARK = "#101827"
-
 class InstallerWelcome(Gtk.Window):
     def __init__(self):
         super().__init__(title=TITLE)
@@ -20,6 +15,9 @@ class InstallerWelcome(Gtk.Window):
         self.set_resizable(False)
         self.set_position(Gtk.WindowPosition.CENTER)
         self.set_border_width(0)
+        icon_path = "/usr/share/nexora/branding/nexora-icon.svg"
+        if os.path.exists(icon_path):
+            self.set_icon_from_file(icon_path)
         self.connect("delete-event", lambda *_args: Gtk.main_quit())
 
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
