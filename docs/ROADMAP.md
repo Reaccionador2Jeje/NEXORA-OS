@@ -21,16 +21,16 @@ The roadmap describes source milestones, not guaranteed release dates. A checked
 - [x] Configure a custom XFCE panel and user defaults.
 - [x] Add Flatpak and configure Flathub.
 - [x] Port NEXORA Welcome away from KDE dependencies.
-- [x] Implement NEXORA Store with search, install, remove and update actions.
+- [x] Implement NEXORA Store with a curated catalog, search, categories, install, remove and update actions.
 - [ ] Build and boot-test the XFCE ISO.
 - [ ] Measure idle RAM, boot time and installed image size.
 
 ## 0.3.0 — NEXORA Store improvements
 
-- [ ] Add application categories, including Games.
-- [ ] Add screenshots, ratings and app detail pages.
+- [ ] Add app screenshots and detail pages.
 - [ ] Add update notifications and safer progress reporting.
 - [ ] Add a configurable per-user or system-wide install mode.
+- [ ] Expand the curated catalog through reviewed changes.
 
 ## 0.4.0 — NEXORA integration
 
