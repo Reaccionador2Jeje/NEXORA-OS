@@ -53,9 +53,17 @@ install_desktop() {
   read -r -p "¿Continuar? [s/N]: " answer
   [[ "$answer" =~ ^[sS]$ ]] || return
   mapfile -t packages < <(grep -Ev '^[[:space:]]*(#|$)' "$DESKTOP_PACKAGES")
-  apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
-  flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+  if ! apt-get update; then
+    echo "No se pudieron actualizar los índices APT."
+    pause
+    return
+  fi
+  if ! DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"; then
+    echo "La instalación del escritorio no terminó. Revisa el error de APT."
+    pause
+    return
+  fi
+  flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || echo "Aviso: no se pudo configurar Flathub; puedes reintentarlo luego."
   systemctl enable NetworkManager
   systemctl enable lightdm
   systemctl set-default graphical.target
