@@ -39,6 +39,12 @@ NEXORA is more than a wallpaper applied to Debian: this branch maintains its own
 
 The separate Minimal GTK Netinst work is not the same image as this XFCE4 Live branch.
 
+## NEXORA Aurora boot theme
+
+The XFCE Live image includes **NEXORA Aurora**, an original lightweight Plymouth script theme. It uses a deep blue gradient, a centered NEXORA wordmark, a subtle cyan animated loading ring and a short Spanish status line. The theme is selected during the chroot hook and its configuration is rebuilt into the initramfs.
+
+The kernel command line enables `quiet splash` so the graphical boot screen can replace most routine boot messages. Hardware and firmware support varies; if a graphics driver cannot provide Plymouth's graphical renderer, the system may fall back to text-mode boot output.
+
 ## NEXORA Store
 
 NEXORA Store presents a curated catalog with categories and search. It can install, remove and update optional Flatpak applications after administrator authentication.
