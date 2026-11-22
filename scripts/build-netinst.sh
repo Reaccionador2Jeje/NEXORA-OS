@@ -52,8 +52,18 @@ xorriso -indev "$SOURCE_ISO" \
     -commit \
     -end
 
-echo "==> Verifying ISO9660 and El Torito boot metadata..."
+echo "==> Verifying embedded NEXORA profiles and El Torito boot metadata..."
 xorriso -indev "$OUTPUT_ISO" -toc >/dev/null
+profile_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/preseed 2>&1)
+printf '%s\\n' "$profile_listing"
+printf '%s\\n' "$profile_listing" | grep -q 'minimal.cfg' || {
+    echo "Minimal preseed profile is missing from the ISO." >&2
+    exit 1
+}
+printf '%s\\n' "$profile_listing" | grep -q 'desktop.cfg' || {
+    echo "XFCE preseed profile is missing from the ISO." >&2
+    exit 1
+}
 boot_report=$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1)
 printf '%s\n' "$boot_report"
 printf '%s\n' "$boot_report" | grep -qi 'El Torito' || {
