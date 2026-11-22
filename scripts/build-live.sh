@@ -77,6 +77,7 @@ echo "==> Configuring Debian Live for NEXORA XFCE4..."
 lb config \
     --mode debian \
     --distribution trixie \
+    --initsystem systemd \
     --architectures amd64 \
     --mirror-bootstrap "https://deb.debian.org/debian" \
     --mirror-chroot "https://deb.debian.org/debian" \
