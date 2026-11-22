@@ -12,6 +12,9 @@ if len(sys.argv) != 3:
 iso = Path(sys.argv[1]).resolve()
 out = Path(sys.argv[2]).resolve()
 out.mkdir(parents=True, exist_ok=True)
+default_profile = os.environ.get("NEXORA_DEFAULT_PROFILE", "minimal").lower()
+if default_profile not in {"minimal", "xfce"}:
+    raise SystemExit("NEXORA_DEFAULT_PROFILE must be minimal or xfce")
 
 
 def extract(iso_path: str, destination: Path) -> bool:
@@ -30,6 +33,11 @@ if not extract("/boot/grub/grub.cfg", grub_src):
     raise SystemExit("Expected UEFI GRUB config /boot/grub/grub.cfg was not found.")
 
 grub = grub_src.read_text(encoding="utf-8")
+if default_profile == "xfce":
+    if re.search(r"(?m)^set default=.*$", grub):
+        grub = re.sub(r"(?m)^set default=.*$", "set default='NEXORA OS XFCE Desktop'", grub, count=1)
+    else:
+        grub = "set default='NEXORA OS XFCE Desktop'\n" + grub
 if "NEXORA OS Minimal" not in grub:
     # Prefer the NEXORA artwork; retain Debian's original splash as fallback.
     marker = "if background_image /isolinux/splash.png; then"
@@ -88,7 +96,6 @@ if "NEXORA OS Minimal" not in menu:
     entries = """\
 label nexora-minimal
   menu label ^NEXORA OS Minimal Terminal
-  menu default
   kernel /linux
   append vga=788 initrd=/initrd.gz priority=high preseed/file=/cdrom/nexora/preseed/minimal.cfg theme=dark --- quiet
 
@@ -98,6 +105,11 @@ label nexora-xfce
   append vga=788 initrd=/initrd.gz priority=high preseed/file=/cdrom/nexora/preseed/desktop.cfg theme=dark --- quiet
 
 """
+    entries = entries.replace("  menu default\n", "")
+    if default_profile == "minimal":
+        entries = entries.replace("  menu label ^NEXORA OS Minimal Terminal\n", "  menu label ^NEXORA OS Minimal Terminal\n  menu default\n")
+    else:
+        entries = entries.replace("  menu label NEXORA OS ^XFCE Desktop\n", "  menu label NEXORA OS ^XFCE Desktop\n  menu default\n")
     # Place our choices before Debian's regular Install entry, preserving all
     # upstream rescue, expert, and fallback entries untouched.
     install = re.search(r"(?m)^label install\b", menu)
