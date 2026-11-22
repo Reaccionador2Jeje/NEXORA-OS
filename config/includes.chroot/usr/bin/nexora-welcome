@@ -9,8 +9,9 @@ while :; do
     printf '  1) Open terminal\n'
     printf '  2) Browse files\n'
     printf '  3) Desktop settings\n'
-    printf '  4) Flatpak / Flathub setup help\n'
-    printf '  5) About NEXORA\n'
+    printf '  4) Open NEXORA Store\n'
+    printf '  5) Flatpak / Flathub help\n'
+    printf '  6) About NEXORA\n'
     printf '  0) Exit\n\n'
     printf 'Choose: '
     IFS= read -r choice || exit 0
@@ -18,16 +19,16 @@ while :; do
         1) (xfce4-terminal >/dev/null 2>&1 &) ;;
         2) (thunar >/dev/null 2>&1 &) ;;
         3) (xfce4-settings-manager >/dev/null 2>&1 &) ;;
-        4)
+        4) (python3 /usr/bin/nexora-store >/dev/null 2>&1 &) ;;
+        5)
             printf '\nFlatpak is ready. Flathub is configured as the system remote.\n'
-            printf 'Install applications with: flatpak install flathub APP_ID\n'
-            printf 'List available remotes with: flatpak remotes\n\n'
+            printf 'Open NEXORA Store to search, install, remove and update applications.\n\n'
             printf 'Press Enter to continue... '
             IFS= read -r _
             ;;
-        5)
+        6)
             printf '\nNEXORA OS 0.2.0\nDebian 13 Trixie · XFCE4 · Hyper Lightweight\n'
-            printf 'No games are preinstalled. Choose what to install.\n'
+            printf 'No games are preinstalled. Install only what you choose.\n'
             printf 'https://github.com/Reaccionador2Jeje/NEXORA-OS\n\n'
             printf 'Press Enter to continue... '
             IFS= read -r _
