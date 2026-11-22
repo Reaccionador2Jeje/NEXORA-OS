@@ -18,6 +18,7 @@ lb config noauto \
     --iso-publisher "NEXORA OS Project" \
     --iso-volume "NEXORA_OS_0_2_0_XFCE" \
     --linux-packages none \
+    --initsystem systemd \
     --memtest none \
     --bootappend-live "boot=live components locales=es_CL.UTF-8 keyboard-layouts=latam" \
     "${@}"
