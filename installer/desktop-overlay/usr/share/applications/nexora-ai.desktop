@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=NEXORA AI
+GenericName=AI Assistant
+Comment=Chat with a local or compatible AI service
+Exec=nexora-ai
+Icon=system-search
+Terminal=false
+Categories=Utility;Network;
+StartupNotify=true
