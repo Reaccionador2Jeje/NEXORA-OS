@@ -10,7 +10,8 @@
   <property name="panel-1" type="empty">
     <property name="position" type="string" value="p=12;x=0;y=0"/>
     <property name="length" type="uint" value="100"/>
-    <property name="length-adjust" type="bool" value="true"/>
+    <property name="mode" type="uint" value="0"/>
+    <property name="length-adjust" type="bool" value="false"/>
     <property name="position-locked" type="bool" value="true"/>
     <property name="size" type="uint" value="50"/>
     <property name="icon-size" type="uint" value="26"/>
@@ -30,7 +31,7 @@
   <property name="panel-2" type="empty">
     <property name="position" type="string" value="p=11;x=0;y=0"/>
     <property name="length" type="uint" value="100"/>
-    <property name="length-adjust" type="bool" value="true"/>
+    <property name="length-adjust" type="bool" value="false"/>
     <property name="position-locked" type="bool" value="true"/>
     <property name="size" type="uint" value="36"/>
     <property name="icon-size" type="uint" value="22"/>
