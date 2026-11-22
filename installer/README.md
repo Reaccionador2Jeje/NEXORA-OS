@@ -1,9 +1,14 @@
-# Installer workspace
+# Installer integration
 
-NEXORA OS Minimal uses Debian Installer with the GTK frontend as its netinst foundation.
+NEXORA OS Minimal uses Debian Installer GTK as its installer foundation.
 
-- [Minimal profile guidance](profiles/minimal.md)
-- [NEXORA XFCE profile guidance](profiles/desktop.md)
-- [Installer architecture](../docs/ARCHITECTURE.md)
+The ISO build embeds two preseed profiles under `/nexora/preseed/`:
 
-The current prototype downloads Debian's official Trixie amd64 GTK mini ISO and changes its volume label while preserving its boot metadata. The tasksel profile guidance is not yet injected into the installer; users select the profile interactively in Debian Installer.
+- `minimal.cfg`: standard system utilities only; no desktop environment.
+- `desktop.cfg`: standard system utilities plus `xfce-desktop`.
+
+Use the boot arguments in [BOOT-OPTIONS.md](BOOT-OPTIONS.md) to select a profile. Debian Installer remains responsible for hardware detection, networking, package installation and bootloader setup.
+
+**Safety:** both profiles intentionally leave disk partitioning interactive. They do not define an automatic partition recipe or silently authorize formatting.
+
+The installer interface is still Debian's upstream GTK interface. NEXORA branding, a graphical profile chooser, localization polish, and automatic NEXORA desktop theming are future milestones.
