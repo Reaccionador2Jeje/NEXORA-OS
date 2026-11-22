@@ -100,6 +100,8 @@ grep -q 'task-xfce-desktop' scripts/install-nexora-desktop.sh || fail "Minimal d
 grep -q 'lightdm' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must install LightDM."
 grep -q 'nexora-postinstall' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must apply the NEXORA overlay."
 grep -q 'nexora-desktop' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must register the nexora-desktop command."
+grep -q 'SOURCE_INSTALLER' scripts/install-nexora-desktop.sh || fail "nexora-desktop command must retain a valid installer path."
+grep -q 'chmod 0755 "\$SCRIPT_PATH"' scripts/install-nexora-desktop.sh || fail "Desktop installer must make its registered command executable." 
 grep -q 'Path("/usr/share/nexora/catalog.json")' installer/desktop-overlay/usr/bin/nexora-store || fail "NEXORA Store catalog path must match the installed overlay."
 
 for panel in config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml installer/desktop-overlay/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml; do
