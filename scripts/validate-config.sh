@@ -38,7 +38,7 @@ check_file installer/desktop-overlay/usr/share/applications/nexora-center.deskto
 check_file installer/desktop-overlay/etc/xdg/autostart/nexora-polkit-agent.desktop
 check_file installer/desktop-overlay/usr/share/pixmaps/nexora-icon.svg
 
-sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/inspect-boot-layout.sh scripts/validate-config.sh installer/desktop-overlay/usr/local/sbin/nexora-postinstall installer/desktop-overlay/usr/bin/nexora-welcome
+sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/inspect-boot-layout.sh scripts/validate-config.sh installer/desktop-overlay/usr/local/sbin/nexora-postinstall installer/desktop-overlay/usr/bin/nexora-welcome installer/desktop-overlay/usr/bin/nexora-updater
 
 grep -q 'Debian Installer GTK' installer/README.md || fail "GTK installer must be documented."
 grep -q 'standard system utilities' installer/profiles/minimal.md || fail "Minimal task selection guidance is missing."
@@ -54,7 +54,7 @@ grep -q -- '-map "$ROOT_DIR/installer/desktop-overlay" /nexora/desktop-overlay' 
 grep -q 'preseed/late_command' installer/preseed/desktop.cfg || fail "XFCE profile does not install the desktop overlay."
 grep -q 'es_CL.UTF-8' installer/preseed/desktop.cfg || fail "Desktop installer locale must default to Chilean Spanish."
 grep -q 'priority=high' installer/preseed/desktop.cfg || fail "Desktop profile must retain interactive installer questions."
-python3 -c 'import ast,json,pathlib,xml.etree.ElementTree as ET; [ast.parse(pathlib.Path(p).read_text()) for p in ["installer/desktop-overlay/usr/bin/nexora-ai", "installer/desktop-overlay/usr/bin/nexora-center", "installer/desktop-overlay/usr/bin/nexora-store", "installer/desktop-overlay/usr/bin/nexora-updater"]]; json.loads(pathlib.Path("installer/desktop-overlay/usr/share/nexora/catalog.json").read_text()); [ET.parse(p) for p in pathlib.Path("installer/desktop-overlay").rglob("*.xml")]'
+python3 -c 'import ast,json,pathlib,xml.etree.ElementTree as ET; [ast.parse(pathlib.Path(p).read_text()) for p in ["installer/desktop-overlay/usr/bin/nexora-ai", "installer/desktop-overlay/usr/bin/nexora-center", "installer/desktop-overlay/usr/bin/nexora-store"]]; json.loads(pathlib.Path("installer/desktop-overlay/usr/share/nexora/catalog.json").read_text()); [ET.parse(p) for p in pathlib.Path("installer/desktop-overlay").rglob("*.xml")]'
 grep -q 'tasksel tasksel/first multiselect standard$' installer/preseed/minimal.cfg || fail "Minimal profile must select standard utilities only."
 grep -q 'tasksel tasksel/first multiselect standard, xfce-desktop' installer/preseed/desktop.cfg || fail "XFCE profile task selection is missing."
 if grep -Eq 'auto=true|priority=critical' installer/preseed/*.cfg installer/BOOT-OPTIONS.md; then
