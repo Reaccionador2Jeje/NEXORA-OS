@@ -12,7 +12,7 @@ usage() {
 NEXORA Desktop installer — Debian 13 (Trixie)
 
 Usage:
-  sudo ./scripts/install-nexora-desktop.sh install
+  sudo sh ./scripts/install-nexora-desktop.sh install
   nexora-desktop status
   nexora-desktop help
 
