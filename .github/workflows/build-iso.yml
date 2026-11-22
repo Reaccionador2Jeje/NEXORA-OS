@@ -50,6 +50,9 @@ jobs:
       - name: Build NEXORA GTK netinst
         run: sudo sh ./scripts/build.sh
 
+      - name: Inspect ISO boot menu layout
+        run: sh ./scripts/inspect-boot-layout.sh build-output/nexora-os-minimal-netinst-amd64.iso
+
       - name: Boot ISO in QEMU (BIOS smoke test)
         env:
           NEXORA_QEMU_BOOT_SECONDS: "90"
