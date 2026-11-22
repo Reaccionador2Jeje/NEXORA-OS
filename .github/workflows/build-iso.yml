@@ -1,14 +1,13 @@
-name: Build NEXORA OS ISO
+name: Build NEXORA OS Minimal ISO
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - feature/nexora-minimal-terminal
     paths:
       - "auto/**"
       - "config/**"
-      - "branding/**"
       - "scripts/**"
       - ".github/workflows/build-iso.yml"
   pull_request:
@@ -17,7 +16,6 @@ on:
     paths:
       - "auto/**"
       - "config/**"
-      - "branding/**"
       - "scripts/**"
       - ".github/workflows/build-iso.yml"
 
@@ -25,12 +23,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: nexora-iso-${{ github.ref }}
+  group: nexora-minimal-iso-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  build-desktop-iso:
-    name: Build Desktop ISO (Debian Trixie / amd64)
+  build-minimal-iso:
+    name: Build Minimal ISO (Debian Trixie / amd64)
     runs-on: ubuntu-24.04
     timeout-minutes: 180
 
@@ -46,10 +44,10 @@ jobs:
       - name: Check build dependencies
         run: sudo ./scripts/check-dependencies.sh
 
-      - name: Validate NEXORA configuration
+      - name: Validate Minimal configuration
         run: sh ./scripts/validate-config.sh
 
-      - name: Build NEXORA OS
+      - name: Build NEXORA OS Minimal
         run: sudo ./scripts/build.sh
 
       - name: Install QEMU for ISO boot test
@@ -73,7 +71,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: nexora-os-xfce-hyperlight-amd64
+          name: nexora-os-minimal-terminal-amd64
           path: build-output/*.iso
           if-no-files-found: error
           retention-days: 7
