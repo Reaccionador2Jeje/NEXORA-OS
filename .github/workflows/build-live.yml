@@ -46,6 +46,9 @@ jobs:
       - name: Check SourceForge uploader shell syntax
         run: sh -n ./scripts/publish-sourceforge.sh
 
+      - name: Test live-build Contents index compatibility fix
+        run: python3 ./tests/test-live-build-contents-index.py
+
       - name: Build XFCE4 Live ISO
         run: sudo bash ./scripts/build-live.sh
 
