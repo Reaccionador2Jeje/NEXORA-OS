@@ -1,0 +1,72 @@
+name: Build NEXORA OS XFCE4 Live
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/nexora-minimal-terminal
+    paths:
+      - "config/**"
+      - "installer/**"
+      - "scripts/**"
+      - ".github/workflows/build-live.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "config/**"
+      - "installer/**"
+      - "scripts/**"
+      - ".github/workflows/build-live.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nexora-xfce-live-ci-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-live:
+    name: Build and smoke-test XFCE4 Live ISO
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install Debian Live and VM tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y live-build debootstrap xorriso squashfs-tools qemu-system-x86
+
+      - name: Validate NEXORA configuration
+        run: sh ./scripts/validate-config.sh
+
+      - name: Build XFCE4 Live ISO
+        run: sudo ./scripts/build-live.sh
+
+      - name: Verify and boot-test ISO
+        env:
+          NEXORA_QEMU_BOOT_SECONDS: "90"
+        run: |
+          ISO="build-output/nexora-os-xfce4-live-amd64.iso"
+          test -s "$ISO"
+          test -s "$ISO.sha256"
+          sha256sum --check "$ISO.sha256"
+          sh ./scripts/test-qemu-boot.sh "$ISO"
+
+      - name: Upload Live ISO artifact
+        if: success()
+        run: sudo chown -R "$USER:$USER" build-output
+
+      - name: Archive XFCE4 Live ISO
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexora-os-xfce4-live-amd64
+          path: |
+            build-output/nexora-os-xfce4-live-amd64.iso
+            build-output/nexora-os-xfce4-live-amd64.iso.sha256
+          if-no-files-found: error
+          retention-days: 7
