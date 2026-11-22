@@ -57,7 +57,7 @@
       "description": "Audio recording and editing application."
     },
     {
-      "id": "org.supertuxkart.SuperTuxKart",
+      "id": "net.supertuxkart.SuperTuxKart",
       "name": "SuperTuxKart",
       "category": "Games",
       "description": "Optional kart racing game. Downloaded only when the user chooses Install."
