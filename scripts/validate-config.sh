@@ -28,7 +28,7 @@ sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh sc
 grep -q 'Debian Installer GTK' installer/README.md || fail "GTK installer must be documented."
 grep -q 'standard system utilities' installer/profiles/minimal.md || fail "Minimal task selection guidance is missing."
 grep -q 'xfce-desktop' installer/profiles/desktop.md || fail "XFCE task selection guidance is missing."
-grep -q 'installer-amd64/current/images/netboot/gtk' scripts/build-netinst.sh || fail "Build must use the official Debian GTK netboot image."
+grep -q 'installer-${ARCH}/current/images/netboot/gtk' scripts/build-netinst.sh || fail "Build must use the official Debian GTK netboot image."
 grep -q 'boot_image any replay' scripts/build-netinst.sh || fail "ISO boot metadata must be preserved."
 grep -q 'NEXORA_MINIMAL' scripts/build-netinst.sh || fail "NEXORA ISO volume label is missing."
 grep -q -- '-map "$ROOT_DIR/installer/preseed" /nexora/preseed' scripts/build-netinst.sh || fail "Preseed directory is not embedded in the ISO."
