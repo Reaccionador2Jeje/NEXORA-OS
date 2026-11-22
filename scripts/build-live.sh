@@ -95,7 +95,7 @@ printf '%s\n' "$LIVE_CONTENTS" | grep -Eq 'vmlinuz|linux' || {
     echo "The live kernel is missing from the ISO." >&2
     exit 1
 }
-BOOT_REPORT="$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1)"
+BOOT_REPORT="$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1 || true)"
 printf '%s\n' "$BOOT_REPORT"
 printf '%s\n' "$BOOT_REPORT" | grep -qi 'El Torito' || {
     echo "The ISO has no El Torito boot catalog." >&2
