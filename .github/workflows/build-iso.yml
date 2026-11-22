@@ -1,5 +1,6 @@
 name: Build NEXORA OS Minimal GTK Netinst
 
+# Re-run the validated build after SourceForge publishing credentials were configured.
 on:
   workflow_dispatch:
   push:
