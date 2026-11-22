@@ -1,1 +1,2 @@
 One-time trigger for the first NEXORA XFCE4 alpha release build. This file is intentionally not used by the build scripts.
+Retry trigger: use the extracted BIOS/UEFI menu verification before publishing the first alpha ISO.
