@@ -43,6 +43,9 @@ jobs:
       - name: Validate NEXORA configuration
         run: sh ./scripts/validate-config.sh
 
+      - name: Check SourceForge uploader shell syntax
+        run: sh -n ./scripts/publish-sourceforge.sh
+
       - name: Build XFCE4 Live ISO
         run: sudo bash ./scripts/build-live.sh
 
