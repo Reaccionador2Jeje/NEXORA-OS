@@ -23,8 +23,8 @@ check_file installer/profiles/desktop.md
 sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/validate-config.sh
 
 grep -q 'DEBIAN_FRONTEND=gtk' installer/README.md || fail "GTK frontend must be documented."
-grep -q 'tasksel' installer/profiles/minimal.tasksel || fail "Minimal tasksel profile is missing."
-grep -q 'xfce-desktop' installer/profiles/desktop.tasksel || fail "XFCE tasksel profile is missing."
+grep -q 'standard system utilities' installer/profiles/minimal.md || fail "Minimal task selection guidance is missing."
+grep -q 'xfce-desktop' installer/profiles/desktop.md || fail "XFCE task selection guidance is missing."
 grep -q 'installer-amd64/current/images/netboot/gtk' scripts/build-netinst.sh || fail "Build must use the official Debian GTK netboot image."
 grep -q 'boot_image any replay' scripts/build-netinst.sh || fail "ISO boot metadata must be preserved."
 grep -q 'NEXORA_MINIMAL' scripts/build-netinst.sh || fail "NEXORA ISO volume label is missing."
