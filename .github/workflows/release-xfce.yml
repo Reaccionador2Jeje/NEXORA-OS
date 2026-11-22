@@ -44,7 +44,7 @@ jobs:
         run: sh ./scripts/validate-config.sh
 
       - name: Build NEXORA XFCE4 Live ISO
-        run: sudo ./scripts/build-live.sh
+        run: sudo bash ./scripts/build-live.sh
 
       - name: Verify Live ISO and checksum
         run: |
