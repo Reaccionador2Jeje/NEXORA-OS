@@ -70,7 +70,7 @@ grep -q '^deb http://security.debian.org/debian-security trixie-security ' confi
 if grep -R -n 'trixie/updates' auto config; then
     fail "Obsolete Debian security suite trixie/updates detected."
 fi
-sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
+sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh scripts/test-qemu-boot.sh
 sh -n scripts/install-nexora-desktop.sh config/hooks/normal/0400-configure-nexora-desktop.hook.chroot config/hooks/normal/0500-enable-flathub.hook.chroot config/hooks/normal/0600-enable-nexora-plymouth.hook.chroot
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/lib/nexora/nexora-upgrade.py").read_text(encoding="utf-8"))'
