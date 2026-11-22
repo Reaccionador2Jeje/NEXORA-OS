@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">NEXORA OS Installer</title>
+  <desc id="desc">NEXORA installer branding in midnight navy, cyan and violet.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070b18"/>
+      <stop offset=".55" stop-color="#101b38"/>
+      <stop offset="1" stop-color="#171044"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#62e6ff"/>
+      <stop offset="1" stop-color="#8a78ff"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#24cfff" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#24cfff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M44 0H0V44" fill="none" stroke="#9acfff" stroke-opacity=".08" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#grid)"/>
+  <circle cx="1030" cy="170" r="390" fill="url(#glow)"/>
+  <circle cx="160" cy="650" r="300" fill="url(#glow)" opacity=".65"/>
+  <path d="M0 570C260 480 400 760 710 620S1080 430 1280 520" fill="none" stroke="url(#accent)" stroke-opacity=".22" stroke-width="2"/>
+  <g transform="translate(150 190)">
+    <path d="M0 0h32l108 150V0h34v210h-32L34 60v150H0z" fill="url(#accent)"/>
+    <path d="M218 0h170v31H252v56h119v31H252v61h136v31H218z" fill="#f4f8ff"/>
+    <path d="M420 0h40l56 78 56-78h40l-76 105 80 105h-41l-59-79-59 79h-41l80-105z" fill="#f4f8ff"/>
+    <path d="M650 0h34l108 150V0h34v210h-32L684 60v150h-34z" fill="url(#accent)"/>
+    <text x="0" y="275" fill="#b9c8e8" font-family="sans-serif" font-size="24" letter-spacing="8">YOUR TERMINAL. YOUR UNIVERSE.</text>
+  </g>
+  <g transform="translate(150 555)">
+    <rect width="250" height="5" rx="2.5" fill="url(#accent)"/>
+    <text x="0" y="48" fill="#e8f1ff" font-family="sans-serif" font-size="19" letter-spacing="3">SYSTEM INSTALLATION</text>
+  </g>
+  <text x="1125" y="665" fill="#9baed2" font-family="sans-serif" font-size="16" text-anchor="end">NEXORA OS</text>
+</svg>
