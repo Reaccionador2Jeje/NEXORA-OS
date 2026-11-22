@@ -1,22 +1,29 @@
 # NEXORA OS Branding
 
-This directory contains the visual identity source materials for NEXORA OS.
+This directory contains original visual identity materials for NEXORA OS.
 
 ## Identity
 
 - **Name:** NEXORA OS
 - **Tagline:** Your Terminal. Your Universe.
 - **Base:** Debian GNU/Linux 13 (Trixie)
-- **Desktop:** KDE Plasma
+- **Desktop:** XFCE4
+- **Profile:** Hyper Lightweight
 - **Initial target:** amd64 Desktop edition
+
+## Visual direction
+
+- Deep navy and near-black surfaces.
+- Violet-to-cyan orbital accents.
+- NEXORA GTK theme for GTK3 applications.
+- NEXORA wallpaper and LightDM greeter background.
+- Existing SVG logo and icon remain the primary brand marks.
 
 ## Planned assets
 
-- Desktop wallpaper (16:9 and 16:10)
-- Logo in SVG format
-- Plymouth boot splash theme
-- SDDM login screen theme
-- KDE Plasma color scheme and desktop defaults
-- Icons and application menu artwork
+- GTK2 compatibility theme where required.
+- Expanded icon theme.
+- Plymouth boot artwork.
+- NEXORA Store identity and application artwork.
 
-Artwork will be original project material. Debian, KDE Plasma and other upstream trademarks and assets remain subject to their respective terms.
+Artwork is original project material. Debian, XFCE and other upstream trademarks and assets remain subject to their respective terms.

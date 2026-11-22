@@ -5,23 +5,54 @@ on:
   push:
     branches:
       - main
+      - feature/nexora-xfce-hyperlight-ci
     paths:
       - "auto/**"
       - "config/**"
       - "branding/**"
       - "scripts/**"
-      - ".github/workflows/build-iso.yml"
+      - ".github/workflows/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "auto/**"
+      - "config/**"
+      - "branding/**"
+      - "scripts/**"
+      - ".github/workflows/**"
 
 permissions:
   contents: read
 
 concurrency:
-  group: nexora-iso-${{ github.ref }}
+  group: nexora-iso-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
+  validate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    name: Validate source and configuration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Validate shell syntax
+        run: |
+          for file in auto/config scripts/*.sh config/hooks/normal/*.hook.chroot; do
+            sh -n "$file"
+          done
+
+      - name: Validate NEXORA configuration
+        run: sh ./scripts/validate-config.sh
+
   build-desktop-iso:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     name: Build Desktop ISO (Debian Trixie / amd64)
+    needs: validate
     runs-on: ubuntu-24.04
     timeout-minutes: 180
 
@@ -37,13 +68,23 @@ jobs:
       - name: Check build dependencies
         run: sudo ./scripts/check-dependencies.sh
 
-      - name: Validate NEXORA configuration
-        run: sh ./scripts/validate-config.sh
-
       - name: Build NEXORA OS
         run: sudo ./scripts/build.sh
 
-      - name: Make artifact readable
+      - name: Install QEMU for ISO process smoke test
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+      - name: Run QEMU ISO process smoke test (not guest boot verification)
+        env:
+          NEXORA_QEMU_BOOT_SECONDS: "120"
+        run: |
+          ISO="$(find build-output -maxdepth 1 -type f -name '*.iso' -print -quit)"
+          test -n "$ISO"
+          sh ./scripts/test-qemu-boot.sh "$ISO"
+
+      - name: Make ISO artifact readable
         if: success()
         run: sudo chown -R "$USER:$USER" build-output
 
@@ -51,7 +92,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: nexora-os-desktop-amd64
+          name: nexora-os-xfce-hyperlight-amd64
           path: build-output/*.iso
           if-no-files-found: error
           retention-days: 7

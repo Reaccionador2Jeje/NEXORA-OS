@@ -1,5 +1,8 @@
-NEXORA OS 0.1.0
+NEXORA OS 0.2.0
 Base: Debian GNU/Linux 13 (Trixie)
-Desktop: KDE Plasma
+Desktop: XFCE4 (NEXORA theme)
+Boot theme: NEXORA Aurora (Plymouth)
 Architecture: amd64
+Profile: Hyper Lightweight
+Applications: Flatpak-ready; no games preinstalled
 Tagline: Your Terminal. Your Universe.

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=NEXORA Upgrade Assistant
+Comment=Diagnóstico de compatibilidad para futuras versiones de NEXORA OS
+Exec=python3 /usr/lib/nexora/nexora-upgrade.py
+Icon=system-software-update
+Terminal=true
+Categories=System;Settings;

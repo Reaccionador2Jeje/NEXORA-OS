@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070b18"/>
+      <stop offset=".55" stop-color="#111333"/>
+      <stop offset="1" stop-color="#071d31"/>
+    </linearGradient>
+    <radialGradient id="glow"><stop stop-color="#6045d8" stop-opacity=".55"/><stop offset="1" stop-color="#6045d8" stop-opacity="0"/></radialGradient>
+    <linearGradient id="orbit" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d946ef"/><stop offset=".52" stop-color="#7455f5"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <circle cx="1450" cy="440" r="560" fill="url(#glow)"/>
+  <g fill="none" stroke="url(#orbit)" opacity=".65">
+    <ellipse cx="1450" cy="440" rx="560" ry="205" transform="rotate(-28 1450 440)" stroke-width="3"/>
+    <ellipse cx="1450" cy="440" rx="430" ry="155" transform="rotate(-28 1450 440)" stroke-width="2"/>
+    <path d="M1080 770 1430 220 1775 770" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" opacity=".22"/>
+  </g>
+  <circle cx="1810" cy="190" r="11" fill="#67e8f9"/>
+  <circle cx="1085" cy="700" r="7" fill="#e879f9"/>
+  <g opacity=".16" fill="#a5b4fc">
+    <circle cx="190" cy="170" r="2"/><circle cx="360" cy="360" r="2"/><circle cx="700" cy="150" r="2"/>
+    <circle cx="890" cy="850" r="2"/><circle cx="1550" cy="900" r="2"/><circle cx="1750" cy="620" r="2"/>
+  </g>
+  <g font-family="Inter,Montserrat,Arial,sans-serif">
+    <text x="150" y="770" font-size="86" font-weight="700" letter-spacing="12" fill="#f4f7ff">NEXORA <tspan fill="#22d3ee">OS</tspan></text>
+    <text x="158" y="830" font-size="25" letter-spacing="5" fill="#b9b7f7">YOUR TERMINAL. YOUR UNIVERSE.</text>
+    <path d="M158 865h340" stroke="url(#orbit)" stroke-width="5" stroke-linecap="round"/>
+  </g>
+</svg>

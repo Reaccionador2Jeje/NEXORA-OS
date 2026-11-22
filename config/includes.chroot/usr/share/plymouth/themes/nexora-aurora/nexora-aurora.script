@@ -1,0 +1,85 @@
+# NEXORA Aurora — original lightweight Plymouth script theme.
+# Designed for a calm, modern boot experience on different screen sizes.
+
+Window.SetBackgroundTopColor(0.025, 0.045, 0.085);
+Window.SetBackgroundBottomColor(0.015, 0.025, 0.055);
+
+screen_w = Window.GetWidth();
+screen_h = Window.GetHeight();
+center_x = screen_w / 2;
+center_y = screen_h / 2;
+
+# Main wordmark and understated tagline.
+brand_image = Image.Text("NEXORA", 0.93, 0.97, 1.0, 1.0, "Sans Bold 34");
+brand_sprite = Sprite(brand_image);
+brand_sprite.SetPosition(center_x - brand_image.GetWidth() / 2,
+                         center_y - 92);
+
+tagline_image = Image.Text("YOUR TERMINAL. YOUR UNIVERSE.",
+                           0.42, 0.67, 0.78, 1.0, "Sans 10");
+tagline_sprite = Sprite(tagline_image);
+tagline_sprite.SetPosition(center_x - tagline_image.GetWidth() / 2,
+                           center_y + 92);
+
+status_image = Image.Text("Preparando tu universo digital",
+                          0.62, 0.72, 0.82, 1.0, "Sans 11");
+status_sprite = Sprite(status_image);
+status_sprite.SetPosition(center_x - status_image.GetWidth() / 2,
+                          center_y + 142);
+
+# Twelve softly pulsing points form the Aurora loading ring.
+dots = [];
+dot_count = 12;
+radius = 34;
+for (i = 0; i < dot_count; i++)
+{
+    dots[i].image = Image.Text("●", 0.20, 0.72, 0.88, 1.0, "Sans 15");
+    dots[i].sprite = Sprite(dots[i].image);
+    angle = (i * 6.28318530718) / dot_count - 1.57079632679;
+    x = center_x + Math.Cos(angle) * radius;
+    y = center_y + 24 + Math.Sin(angle) * radius;
+    dots[i].sprite.SetPosition(x - dots[i].image.GetWidth() / 2,
+                               y - dots[i].image.GetHeight() / 2);
+}
+
+frame = 0;
+fun refresh_callback()
+{
+    active = Math.Int(frame / 3) % dot_count;
+    for (i = 0; i < dot_count; i++)
+    {
+        distance = (i - active + dot_count) % dot_count;
+        opacity = 0.18;
+        if (distance == 0) opacity = 1.0;
+        else if (distance == 1) opacity = 0.72;
+        else if (distance == 2) opacity = 0.46;
+        dots[i].sprite.SetOpacity(opacity);
+    }
+    frame++;
+}
+Plymouth.SetRefreshFunction(refresh_callback);
+
+# Keep password prompts readable if the installation uses encrypted storage.
+fun DisplayPasswordCallback(nil, bullet_count)
+{
+    prompt_image = Image.Text("Unlock encrypted system",
+                              0.92, 0.95, 1.0, 1.0, "Sans 12");
+    prompt_sprite = Sprite(prompt_image);
+    prompt_sprite.SetPosition(center_x - prompt_image.GetWidth() / 2,
+                              center_y + 190);
+    bullet_text = "";
+    for (i = 0; i < bullet_count; i++)
+        bullet_text = bullet_text + "*";
+    bullet_image = Image.Text(bullet_text, 0.92, 0.95, 1.0, 1.0, "Sans 12");
+    bullet_sprite = Sprite(bullet_image);
+    bullet_sprite.SetPosition(center_x - bullet_image.GetWidth() / 2,
+                              center_y + 218);
+}
+Plymouth.SetDisplayPasswordFunction(DisplayPasswordCallback);
+
+fun DisplayNormalCallback()
+{
+    prompt_sprite = null;
+    bullet_sprite = null;
+}
+Plymouth.SetDisplayNormalFunction(DisplayNormalCallback);

@@ -1,79 +1,72 @@
-# NEXORA OS Desktop — Debian 13 Trixie package baseline
+# NEXORA OS 0.2.0 — Hyper Lightweight XFCE4 desktop
+# Keep this manifest intentionally small. No games or heavyweight desktop suites.
 
-# KDE Plasma desktop and core session
-task-kde-desktop
-sddm
-konsole
-dolphin
-kate
-kdialog
-systemsettings
-plasma-systemmonitor
-plasma-discover
-kcalc
-ark
-filelight
-gwenview
-okular
-kde-spectacle
-partitionmanager
-kwalletmanager
-bluedevil
-print-manager
+# Kernel is installed as a normal APT package; live-build kernel discovery is disabled.
 
-# Browser and networking
-chromium
+# Match the selected systemd init system in Debian Live.
+live-config-systemd
+linux-image-amd64
+
+# X.Org display server and XFCE desktop
+xserver-xorg
+xfce4-session
+xfce4-panel
+xfdesktop4
+xfwm4
+xfconf
+xfce4-settings
+xfce4-appfinder
+xfce4-terminal
+xfce4-whiskermenu-plugin
+
+# File manager and desktop integration
+thunar
+thunar-volman
+gvfs
+dbus-x11
+lightdm
+lightdm-gtk-greeter
+adwaita-icon-theme
+
+# Network, removable devices and authorization prompts
 network-manager
-plasma-nm
-curl
-wget
-ca-certificates
-
-# Audio, device integration and desktop services
-pipewire
-pipewire-audio
-wireplumber
-alsa-utils
+network-manager-gnome
 udisks2
 upower
 polkitd
 pkexec
-dbus-user-session
+lxpolkit
 
-# Games — KDE, platform, racing, arcade and puzzle games
-kmines
-kpat
-ksudoku
-kmahjongg
-bomber
-granatier
-kbreakout
-supertux
-supertuxkart
-neverball
-kapman
-chromium-bsu
+# Audio
+pipewire-audio
+pipewire-pulse
+wireplumber
+xfce4-pulseaudio-plugin
 
-# System tools and user experience
+# Flatpak and the lightweight NEXORA Store (GTK3 + Python bindings)
+flatpak
+python3-gi
+gir1.2-gtk-3.0
+xdg-desktop-portal
+xdg-desktop-portal-gtk
+
+# Web browser
+chromium
+
+# Plymouth boot animation
+plymouth
+plymouth-themes
+
+# Essential system utilities
 sudo
 locales
 keyboard-configuration
 xdg-utils
 xdg-user-dirs
-fonts-noto-core
-fonts-noto-color-emoji
-git
-bash-completion
-vim-tiny
-htop
+ca-certificates
+curl
+wget
 nano
-unzip
-zip
-7zip
-rsync
-tree
-ncdu
+htop
 fastfetch
-lm-sensors
-usbutils
-pciutils
+bash-completion

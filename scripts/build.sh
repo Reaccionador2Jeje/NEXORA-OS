@@ -1,6 +1,5 @@
 #!/bin/sh
-# Build the NEXORA OS Desktop live ISO.
-
+# Build the NEXORA OS Hyper Lightweight XFCE live ISO.
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
@@ -11,22 +10,27 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-if ! command -v lb >/dev/null 2>&1; then
-    echo "live-build is missing. Install it with: apt install live-build" >&2
-    exit 1
-fi
+for command in lb debootstrap mksquashfs xorriso; do
+    if ! command -v "$command" >/dev/null 2>&1; then
+        echo "Required build command is missing: $command" >&2
+        exit 1
+    fi
+done
 
 if [ ! -x auto/config ]; then
     echo "auto/config must be executable. Run: chmod +x auto/config" >&2
     exit 1
 fi
 
+# GitHub's text-file API stores new hook files as 0644; live-build needs executable hooks.
+find config/hooks -type f -name '*.hook.chroot' -exec chmod 0755 {} +
+
 mkdir -p build-output
 
-echo "==> Configuring NEXORA OS for Debian 13 Trixie (amd64)..."
+echo "==> Configuring NEXORA OS 0.2.0 (Debian Trixie / amd64 / XFCE4)..."
 lb config
 
-echo "==> Building the live ISO. This may take a while..."
+echo "==> Building the Hyper Lightweight ISO..."
 lb build
 
 iso=$(find "$ROOT_DIR" -maxdepth 1 -type f -name '*.iso' -print -quit)
