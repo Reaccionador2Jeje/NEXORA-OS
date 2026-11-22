@@ -43,12 +43,20 @@ check_file config/includes.chroot/usr/bin/nexora-store
 check_file config/includes.chroot/usr/share/applications/nexora-store.desktop
 check_file config/includes.chroot/usr/share/nexora-store/catalog.json
 check_file config/hooks/normal/0500-enable-flathub.hook.chroot
+check_file config/archives/nexora-security.list.chroot
+check_file config/archives/nexora-security.list.binary
 check_file branding/logo/nexora-logo.svg
 check_file branding/logo/nexora-icon.svg
 
 grep -q -- '--distribution trixie' auto/config || fail "Distribution must remain Debian Trixie."
 grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture must remain amd64."
 grep -q -- '--apt-recommends false' auto/config || fail "APT recommends must remain disabled for the lightweight profile."
+grep -q -- '--security false' auto/config || fail "Use the explicit Trixie security source instead of live-build's obsolete default suite."
+grep -q '^deb http://security.debian.org/debian-security trixie-security ' config/archives/nexora-security.list.chroot || fail "Build chroot must use the Debian Trixie security suite."
+grep -q '^deb http://security.debian.org/debian-security trixie-security ' config/archives/nexora-security.list.binary || fail "Installed system must use the Debian Trixie security suite."
+if grep -R -n 'trixie/updates' auto config; then
+    fail "Obsolete Debian security suite trixie/updates detected."
+fi
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
 sh -n config/hooks/normal/0500-enable-flathub.hook.chroot
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
