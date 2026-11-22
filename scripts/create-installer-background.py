@@ -78,15 +78,14 @@ draw_text("YOUR TERMINAL YOUR UNIVERSE", 136, 322, 4, (112, 199, 231), spacing=2
 
 # Large angular N emblem at the right, as a soft brand signature.
 for y in range(155, 475):
-    left = 700 + int((y-155)*.34)
-    right = 875 - int((y-155)*.34)
+    left = 700
+    right = 875
     rect(left, y, 9, 1, (49, 177, 228))
     rect(right, y, 9, 1, (49, 177, 228))
 for i in range(0, 320):
-    x = 709 + i//1
+    x = 875 - int(i * .55)
     y = 155 + i
-    if x < 884 and y < 475:
-        rect(x, y, 7, 1, (42, 139, 204))
+    rect(x, y, 7, 1, (42, 139, 204))
 
 # Footer label and progress-like accent.
 rect(132, 430, 290, 2, (35, 89, 133))
