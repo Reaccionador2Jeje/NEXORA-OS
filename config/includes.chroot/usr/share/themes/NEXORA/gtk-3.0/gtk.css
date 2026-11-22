@@ -1,4 +1,4 @@
-/* NEXORA Aurora — Windows-style full-width XFCE taskbar. */
+/* NEXORA Aurora — two permanent, full-width desktop bars. */
 @define-color theme_bg_color #080d1b;
 @define-color theme_fg_color #edf4ff;
 @define-color theme_base_color #101a30;
@@ -15,36 +15,33 @@ headerbar, .titlebar {
   color:#f8fbff; border-bottom:1px solid #263957; box-shadow:none; min-height:42px;
 }
 
-/* Full-width taskbar: square outer edge, subtle top separator, no floating-dock look. */
+/* Both XFCE panels stay fixed, span the complete screen width and have square edges. */
 #XfcePanelWindow {
   background-color: rgba(8,13,27,0.97);
   color:#edf4ff;
   border:0;
-  border-top:1px solid rgba(91,113,160,.55);
   border-radius:0;
-  box-shadow:0 -3px 18px rgba(0,0,0,.22);
+  box-shadow:0 2px 12px rgba(0,0,0,.22);
 }
 #XfcePanelWindow button {
   background:none;
   border:0;
-  border-radius:7px;
+  border-radius:6px;
   color:#edf4ff;
   box-shadow:none;
-  padding:5px 10px;
-  margin:3px 2px;
-  min-height:34px;
+  padding:4px 10px;
+  margin:2px;
+  min-height:28px;
 }
-#XfcePanelWindow button:hover {
-  background-color:rgba(34,211,238,.15);
-}
+#XfcePanelWindow button:hover { background-color:rgba(34,211,238,.15); }
 #XfcePanelWindow button:checked,
 #XfcePanelWindow button:active {
   background-color:rgba(85,66,200,.30);
   border-bottom:2px solid #22d3ee;
-  border-radius:7px;
+  border-radius:6px;
 }
 
-/* Consistent NEXORA application styling. */
+/* NEXORA application styling. */
 button {
   color:@theme_fg_color;
   background-image:linear-gradient(to bottom,#202d49,#15233b);
@@ -76,9 +73,5 @@ menubar, menu, popover, .menu {
   color:@theme_fg_color;
   border:1px solid @borders;
 }
-tooltip {
-  background-color:#070b16;
-  color:#fff;
-  border:1px solid #5542c8;
-}
+tooltip { background-color:#070b16; color:#fff; border:1px solid #5542c8; }
 selection { background-color:@theme_selected_bg_color; color:@theme_selected_fg_color; }
