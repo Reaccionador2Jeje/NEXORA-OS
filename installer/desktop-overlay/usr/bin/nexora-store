@@ -12,7 +12,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Pango
 
 
-CATALOG_PATH = Path("/usr/share/nexora-store/catalog.json")
+CATALOG_PATH = Path("/usr/share/nexora/catalog.json")
 APP_ID_PATTERN = re.compile(r"^[A-Za-z0-9_.]+$")
 
 
