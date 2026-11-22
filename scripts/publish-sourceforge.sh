@@ -37,10 +37,10 @@ if [ ! -s "$CHECKSUM_PATH" ]; then
   exit 1
 fi
 
-# Never publish an image that does not match the checksum produced by CI.
+# Validate the CI-provided checksum against the ISO before preparing upload.
 (
   cd "$(dirname "$ISO_PATH")"
-  sha256sum --check "$(basename "$CHECKSUM_PATH")"
+  sha256sum --check --status "$(basename "$CHECKSUM_PATH")"
 )
 
 WORK_DIR=$(mktemp -d)
@@ -62,7 +62,9 @@ mkdir -p "$RELEASE_PATH"
 cp "$ISO_PATH" "$RELEASE_PATH/$ISO_NAME"
 (
   cd "$RELEASE_PATH"
+  # Generate a fresh, single-entry checksum for the exact file being uploaded.
   sha256sum "$ISO_NAME" > "$ISO_NAME.sha256"
+  sha256sum --check --status "$ISO_NAME.sha256"
 )
 
 cat > "$RELEASE_PATH/README.md" <<EOF
@@ -103,5 +105,9 @@ SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHo
 DESTINATION="$SF_USERNAME@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/"
 
 echo "Uploading $NEXORA_RELEASE_DIR to SourceForge project $SF_PROJECT..."
-rsync -avP -e "$SSH_COMMAND" "$PAYLOAD_DIR/" "$DESTINATION"
+# SourceForge FRS does not allow rsync to preserve the remote directory's
+# ownership, group, permissions, or directory timestamps. Transfer file data
+# and timestamps only; avoid archive mode (-a), which attempts chmod/chown.
+rsync -rltvP --no-perms --no-owner --no-group --omit-dir-times \
+  -e "$SSH_COMMAND" "$PAYLOAD_DIR/" "$DESTINATION"
 echo "SourceForge upload completed."
