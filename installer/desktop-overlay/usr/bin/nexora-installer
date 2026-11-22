@@ -1,0 +1,117 @@
+#!/usr/bin/python3
+"""NEXORA's friendly, branded front door to Debian Installer Live."""
+import os
+import shutil
+import subprocess
+import sys
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GdkPixbuf, GLib
+
+TITLE = "Instalar NEXORA OS"
+ACCENT = "#39c5f5"
+DARK = "#101827"
+
+class InstallerWelcome(Gtk.Window):
+    def __init__(self):
+        super().__init__(title=TITLE)
+        self.set_default_size(560, 430)
+        self.set_resizable(False)
+        self.set_position(Gtk.WindowPosition.CENTER)
+        self.set_border_width(0)
+        self.connect("delete-event", Gtk.main_quit)
+
+        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        self.add(root)
+
+        hero = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        hero.set_border_width(28)
+        hero.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.055, 0.085, 0.145, 1))
+        root.pack_start(hero, False, False, 0)
+
+        logo_path = "/usr/share/nexora/branding/nexora-logo.svg"
+        if os.path.exists(logo_path):
+            try:
+                logo = Gtk.Image.new_from_file(logo_path)
+                logo.set_pixel_size(72)
+                hero.pack_start(logo, False, False, 0)
+            except Exception:
+                pass
+
+        title = Gtk.Label()
+        title.set_markup('<span foreground="#f3f8ff" size="xx-large" weight="bold">NEXORA OS</span>')
+        title.set_xalign(0)
+        hero.pack_start(title, False, False, 0)
+        subtitle = Gtk.Label(label="Tu escritorio. Tu universo.")
+        subtitle.set_xalign(0)
+        subtitle.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.56, 0.82, 0.94, 1))
+        hero.pack_start(subtitle, False, False, 0)
+
+        body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        body.set_border_width(24)
+        root.pack_start(body, True, True, 0)
+
+        intro = Gtk.Label()
+        intro.set_markup("<b>Listo para instalar NEXORA en tu equipo</b>")
+        intro.set_xalign(0)
+        body.pack_start(intro, False, False, 0)
+
+        details = Gtk.Label(label="El asistente te guiará por el idioma, la red, las cuentas y la configuración del sistema.")
+        details.set_line_wrap(True)
+        details.set_xalign(0)
+        body.pack_start(details, False, False, 0)
+
+        warning = Gtk.Label()
+        warning.set_markup('<span foreground="#c47b16"><b>Antes de continuar</b></span>\nLa instalación puede modificar el disco que selecciones. Revisa cuidadosamente cada pantalla y no confirmes cambios si no estás seguro.')
+        warning.set_line_wrap(True)
+        warning.set_xalign(0)
+        body.pack_start(warning, False, False, 0)
+
+        buttons = Gtk.ButtonBox(orientation=Gtk.Orientation.HORIZONTAL)
+        buttons.set_layout(Gtk.ButtonBoxStyle.END)
+        buttons.set_spacing(10)
+        buttons.set_border_width(18)
+        root.pack_start(buttons, False, False, 0)
+
+        cancel = Gtk.Button(label="Volver al escritorio")
+        cancel.connect("clicked", Gtk.main_quit)
+        buttons.add(cancel)
+
+        install = Gtk.Button(label="Continuar con la instalación")
+        install.get_style_context().add_class("suggested-action")
+        install.connect("clicked", self.launch_installer)
+        buttons.add(install)
+        install.grab_focus()
+
+    def launch_installer(self, _button):
+        launcher = shutil.which("debian-installer-launcher")
+        if not launcher:
+            dialog = Gtk.MessageDialog(
+                transient_for=self, flags=Gtk.DialogFlags.MODAL,
+                message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.CLOSE,
+                text="No se encontró el instalador",
+            )
+            dialog.format_secondary_text("El componente Debian Installer Live no está disponible en esta imagen.")
+            dialog.run()
+            dialog.destroy()
+            return
+        self.hide()
+        try:
+            subprocess.Popen([launcher, "live"], start_new_session=True)
+            Gtk.main_quit()
+        except OSError as error:
+            self.show()
+            dialog = Gtk.MessageDialog(
+                transient_for=self, flags=Gtk.DialogFlags.MODAL,
+                message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.CLOSE,
+                text="No se pudo iniciar el instalador",
+            )
+            dialog.format_secondary_text(str(error))
+            dialog.run()
+            dialog.destroy()
+
+if __name__ == "__main__":
+    win = InstallerWelcome()
+    win.show_all()
+    Gtk.main()
