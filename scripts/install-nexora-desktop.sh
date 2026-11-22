@@ -148,8 +148,8 @@ case "${1:-status}" in
         echo "Usage: nexora-desktop {status|help|install}"
         ;;
     install)
-        if [ -x "$SCRIPT_PATH" ]; then
-            exec "$SCRIPT_PATH" install
+        if [ -x "$SOURCE_INSTALLER" ]; then
+            exec "$SOURCE_INSTALLER" install
         fi
         echo "Reinstall from the NEXORA-OS source checkout: sudo ./scripts/install-nexora-desktop.sh install" >&2
         exit 1
