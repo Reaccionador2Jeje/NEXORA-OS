@@ -10,7 +10,7 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-for command in curl xorriso; do
+for command in curl xorriso cpio gzip python3; do
     if ! command -v "$command" >/dev/null 2>&1; then
         echo "Required command is missing: $command" >&2
         exit 1
@@ -26,6 +26,11 @@ OUTPUT_ISO="$ROOT_DIR/build-output/nexora-os-minimal-netinst-${ARCH}.iso"
 mkdir -p "$ROOT_DIR/build-output"
 rm -f "$SOURCE_ISO" "$OUTPUT_ISO"
 python3 "$ROOT_DIR/scripts/create-installer-background.py" "$ROOT_DIR/build-output/nexora-installer-background.png"
+GTK_LOGO_DIR="$ROOT_DIR/build-output/gtk-logos"
+mkdir -p "$GTK_LOGO_DIR"
+python3 "$ROOT_DIR/scripts/create-installer-logo.py" \
+    "$GTK_LOGO_DIR/nexora-logo-light.png" \
+    "$GTK_LOGO_DIR/nexora-logo-dark.png"
 
 echo "==> Downloading the official Debian ${VERSION} GTK netboot mini ISO..."
 curl --fail --location --retry 4 --retry-delay 3 \
@@ -42,6 +47,14 @@ if [ "$size_bytes" -lt 40000000 ]; then
     echo "Downloaded image is unexpectedly small; refusing to package it." >&2
     exit 1
 fi
+
+echo "==> Rebranding the GTK installer banner inside initrd..."
+INITRD_BRANDING_DIR="$ROOT_DIR/build-output/initrd-branding"
+rm -rf "$INITRD_BRANDING_DIR"
+python3 "$ROOT_DIR/scripts/brand-installer-initrd.py" \
+    "$SOURCE_ISO" "$INITRD_BRANDING_DIR" \
+    "$GTK_LOGO_DIR/nexora-logo-light.png" \
+    "$GTK_LOGO_DIR/nexora-logo-dark.png"
 
 echo "==> Preparing NEXORA BIOS and UEFI boot menus..."
 BOOT_BRANDING_DIR="$ROOT_DIR/build-output/boot-branding"
@@ -60,6 +73,7 @@ xorriso -indev "$SOURCE_ISO" \
     -map "$ROOT_DIR/build-output/nexora-installer-background.png" /nexora/nexora-installer-background.png \
     -map "$BOOT_BRANDING_DIR/grub.cfg" /boot/grub/grub.cfg \
     -map "$BOOT_BRANDING_DIR/menu.cfg" "$SYSLINUX_MENU_PATH" \
+    -map "$INITRD_BRANDING_DIR/initrd-nexora.gz" /initrd.gz \
     -boot_image any replay \
     -commit \
     -end
@@ -121,5 +135,6 @@ echo
 echo "Profiles embedded:"
 echo "    /nexora/preseed/minimal.cfg"
 echo "    /nexora/preseed/desktop.cfg"
-echo "Boot menu: NEXORA Minimal / NEXORA XFCE, with Debian fallback entries."
-echo "NOTE: Debian Installer GTK dialogs still use the upstream Debian theme."
+echo "Boot menu: NEXORA Minimal / NEXORA XFCE, with upstream fallback entries."
+echo "GTK banner: NEXORA logos embedded in both light and dark installer variants."
+echo "GTK controls and workflow remain Debian Installer components."
