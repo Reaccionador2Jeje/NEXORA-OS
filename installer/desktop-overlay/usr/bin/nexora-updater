@@ -1,4 +1,190 @@
-#!/bin/sh
-# Run Debian package updates in a visible terminal with PolicyKit authorization.
-set -eu
-exec xfce4-terminal --hold --title=NEXORA-System-Update --command="sh -c 'pkexec apt-get update && pkexec apt-get upgrade'"
+#!/usr/bin/python3
+"""NEXORA Update — safe GTK frontend for Debian APT upgrades."""
+
+import shutil
+import subprocess
+import threading
+
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk, GLib
+
+
+class Updater(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="NEXORA Update")
+        self.set_default_size(760, 540)
+        self.set_border_width(18)
+        self.busy = False
+        self.upgradable = []
+
+        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        self.add(root)
+
+        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        title = Gtk.Label()
+        title.set_markup("<span size='xx-large' weight='bold'>NEXORA Update</span>")
+        title.set_xalign(0)
+        header.pack_start(title, True, True, 0)
+        self.check_button = Gtk.Button(label="Check for updates")
+        self.check_button.connect("clicked", self.check_updates)
+        header.pack_end(self.check_button, False, False, 0)
+        root.pack_start(header, False, False, 0)
+
+        intro = Gtk.Label(label="Keep NEXORA OS secure and up to date using Debian APT.")
+        intro.set_xalign(0)
+        intro.set_line_wrap(True)
+        root.pack_start(intro, False, False, 0)
+
+        self.status = Gtk.Label(label="Ready. Check for updates to begin.")
+        self.status.set_xalign(0)
+        root.pack_start(self.status, False, False, 0)
+
+        self.progress = Gtk.ProgressBar()
+        self.progress.set_show_text(True)
+        self.progress.set_text("Idle")
+        root.pack_start(self.progress, False, False, 0)
+
+        frame = Gtk.Frame(label="Update details")
+        scroll = Gtk.ScrolledWindow()
+        scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        self.log = Gtk.TextView()
+        self.log.set_editable(False)
+        self.log.set_cursor_visible(False)
+        self.log.set_monospace(True)
+        self.log.get_buffer().set_text(
+            "NEXORA Update uses APT and the configured Debian/NEXORA repositories.\n"
+            "It installs regular upgrades only; it does not run dist-upgrade or autoremove.\n"
+        )
+        scroll.add(self.log)
+        frame.add(scroll)
+        frame.set_vexpand(True)
+        root.pack_start(frame, True, True, 0)
+
+        footer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        self.apply_button = Gtk.Button(label="Install updates")
+        self.apply_button.set_sensitive(False)
+        self.apply_button.connect("clicked", self.apply_updates)
+        footer.pack_end(self.apply_button, False, False, 0)
+        close = Gtk.Button(label="Close")
+        close.connect("clicked", lambda *_: self.destroy())
+        footer.pack_end(close, False, False, 0)
+        root.pack_start(footer, False, False, 0)
+
+        if not shutil.which("apt-get") or not shutil.which("pkexec"):
+            self.status.set_text("Required system tools are missing.")
+            self.check_button.set_sensitive(False)
+        self.show_all()
+
+    def append_log(self, text):
+        buffer = self.log.get_buffer()
+        end = buffer.get_end_iter()
+        buffer.insert(end, text.rstrip() + "\n")
+        mark = buffer.create_mark(None, buffer.get_end_iter(), False)
+        self.log.scroll_to_mark(mark, 0.0, True, 0.0, 1.0)
+
+    def set_busy(self, busy, message):
+        self.busy = busy
+        self.status.set_text(message)
+        self.check_button.set_sensitive(not busy)
+        self.apply_button.set_sensitive(not busy and bool(self.upgradable))
+        self.progress.set_pulse_step(0.08)
+        if busy:
+            self.progress.set_text("Working…")
+            self.progress.pulse()
+        else:
+            self.progress.set_fraction(1.0 if self.upgradable else 0.0)
+            self.progress.set_text("Updates available" if self.upgradable else "Up to date")
+
+    def run_task(self, label, command, callback, timeout=1800):
+        if self.busy:
+            return
+        self.set_busy(True, label)
+        self.append_log("$ " + " ".join(command))
+
+        def worker():
+            try:
+                result = subprocess.run(
+                    command, text=True, stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT, timeout=timeout, check=False
+                )
+                GLib.idle_add(self.task_finished, result.returncode, result.stdout, callback)
+            except Exception as error:
+                GLib.idle_add(self.task_finished, 1, str(error), callback)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def task_finished(self, code, output, callback):
+        self.append_log(output or "(no output)")
+        self.set_busy(False, "Operation completed." if code == 0 else "Operation failed.")
+        callback(code, output)
+        return False
+
+    def check_updates(self, *_):
+        self.upgradable = []
+        self.apply_button.set_sensitive(False)
+
+        def finished(code, output):
+            if code != 0:
+                self.status.set_text("Could not refresh package lists. Check your network and repositories.")
+                return
+            result = subprocess.run(
+                ["apt", "list", "--upgradable"],
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                timeout=120, check=False
+            )
+            lines = [
+                line for line in result.stdout.splitlines()
+                if "/" in line and "upgradable" in line
+            ]
+            self.upgradable = lines
+            self.append_log("\n".join(lines) if lines else "No package upgrades are available.")
+            count = len(lines)
+            self.status.set_text(
+                f"{count} package update(s) available." if count
+                else "NEXORA OS is up to date."
+            )
+            self.apply_button.set_sensitive(count > 0)
+            self.progress.set_fraction(1.0 if count == 0 else 0.0)
+            self.progress.set_text("Up to date" if count == 0 else f"{count} updates")
+
+        self.run_task(
+            "Refreshing package lists…",
+            ["pkexec", "apt-get", "update"],
+            finished
+        )
+
+    def apply_updates(self, *_):
+        if not self.upgradable:
+            return
+
+        def finished(code, _output):
+            if code == 0:
+                self.upgradable = []
+                self.apply_button.set_sensitive(False)
+                self.status.set_text("Updates installed successfully. Check again for remaining updates.")
+                self.progress.set_fraction(1.0)
+                self.progress.set_text("Updated")
+            else:
+                self.status.set_text("Some updates could not be installed. Review the details above.")
+
+        self.run_task(
+            "Installing available package upgrades…",
+            [
+                "pkexec", "env", "DEBIAN_FRONTEND=noninteractive",
+                "apt-get", "-o", "Dpkg::Options::=--force-confold",
+                "upgrade", "-y"
+            ],
+            finished,
+            timeout=3600
+        )
+
+
+def main():
+    window = Updater()
+    window.connect("destroy", Gtk.main_quit)
+    Gtk.main()
+
+
+if __name__ == "__main__":
+    main()

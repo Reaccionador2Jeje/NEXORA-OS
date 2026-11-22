@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=NEXORA Update
+GenericName=System Updater
+Comment=Check for and install NEXORA OS updates
+Exec=nexora-updater
+Icon=system-software-update
+Terminal=false
+Categories=System;Settings;
+StartupNotify=true

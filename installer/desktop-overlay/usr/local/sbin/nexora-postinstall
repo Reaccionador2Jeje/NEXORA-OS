@@ -1,11 +1,42 @@
 #!/bin/sh
 set -eu
-# Configure the NEXORA desktop after Debian Installer has copied the overlay.
+# Apply NEXORA identity and XFCE defaults without replacing Debian packages or licenses.
 mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
 mkdir -p /usr/share/backgrounds/nexora /usr/share/themes
+cat > /etc/nexora-release <<'RELEASE'
+NEXORA OS 0.2.0
+Based on Debian GNU/Linux 13 (Trixie)
+Desktop: XFCE
+Your Terminal. Your Universe.
+RELEASE
+cat > /etc/issue <<'ISSUE'
+\n
+NEXORA OS 0.2.0 — Debian GNU/Linux 13 (Trixie)
+Your Terminal. Your Universe.
+\n
+ISSUE
+cat > /etc/motd <<'MOTD'
+
+  NEXORA OS 0.2.0
+  Based on Debian GNU/Linux 13 (Trixie)
+  Your Terminal. Your Universe.
+
+MOTD
+mkdir -p /etc/profile.d
+cat > /etc/profile.d/nexora.sh <<'PROFILE'
+# NEXORA identity for interactive POSIX-compatible shells.
+if [ -n "${PS1-}" ] && [ -z "${NEXORA_PROMPT_SHOWN-}" ]; then
+    NEXORA_PROMPT_SHOWN=1
+    export NEXORA_PROMPT_SHOWN
+    printf '\n  NEXORA OS 0.2.0 | Debian 13 Trixie\n  Your Terminal. Your Universe.\n\n'
+fi
+PROFILE
+chmod 0644 /etc/profile.d/nexora.sh /etc/nexora-release /etc/issue /etc/motd
+
 if command -v flatpak >/dev/null 2>&1; then
     flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
 fi
+
 if [ -f /usr/share/backgrounds/nexora/nexora-default.svg ]; then
     cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'XML'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -24,7 +55,8 @@ cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml <<'XML'
  <property name="Xft" type="empty"><property name="DPI" type="int" value="96"/><property name="Antialias" type="int" value="1"/><property name="Hinting" type="int" value="1"/></property>
 </channel>
 XML
-# Apply defaults to any accounts created before the post-install hook.
+
+# Apply the defaults to accounts created before the installer hook ran.
 for home in /home/*; do
     [ -d "$home" ] || continue
     user=$(basename "$home")
@@ -32,7 +64,10 @@ for home in /home/*; do
     cp -f /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/*.xml "$home/.config/xfce4/xfconf/xfce-perchannel-xml/"
     chown -R "$user":"$(id -gn "$user" 2>/dev/null || echo "$user")" "$home/.config" 2>/dev/null || true
 done
-chmod 755 /usr/bin/nexora-ai /usr/bin/nexora-center /usr/bin/nexora-store /usr/bin/nexora-welcome /usr/bin/nexora-updater 2>/dev/null || true
-chmod 755 /usr/local/sbin/nexora-postinstall
-if command -v update-desktop-database >/dev/null 2>&1; then update-desktop-database /usr/share/applications >/dev/null 2>&1 || true; fi
+
+chmod 0755 /usr/bin/nexora-ai /usr/bin/nexora-center /usr/bin/nexora-store /usr/bin/nexora-welcome /usr/bin/nexora-updater 2>/dev/null || true
+chmod 0755 /usr/local/sbin/nexora-postinstall
+if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+fi
 exit 0

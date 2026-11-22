@@ -36,6 +36,8 @@ check_file installer/desktop-overlay/usr/bin/nexora-installer
 check_file installer/desktop-overlay/usr/share/applications/nexora-installer.desktop
 check_file installer/desktop-overlay/usr/bin/nexora-welcome
 check_file installer/desktop-overlay/usr/bin/nexora-updater
+check_file installer/desktop-overlay/usr/share/applications/nexora-updater.desktop
+check_file tests/test-nexora-desktop.py
 check_file installer/desktop-overlay/usr/share/backgrounds/nexora/nexora-aurora.svg
 check_file installer/desktop-overlay/usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css
 check_file installer/desktop-overlay/usr/share/backgrounds/nexora/nexora-nebula.svg
@@ -89,5 +91,7 @@ fi
 if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netinst.sh; then
     fail "Minimal netinst build must not invoke Debian Live."
 fi
+
+python3 tests/test-nexora-desktop.py
 
 printf '\nNEXORA netinst and XFCE4 Live static checks passed. A real ISO build and interactive install test are still required.\n'
