@@ -56,6 +56,11 @@ cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml <<'XML'
 </channel>
 XML
 
+# Make NEXORA XFCE defaults available system-wide as well as through /etc/skel.
+SYSTEM_XFCE="/etc/xdg/xfce4/xfconf/xfce-perchannel-xml"
+mkdir -p "$SYSTEM_XFCE"
+cp -f /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/*.xml "$SYSTEM_XFCE/"
+
 # Apply the defaults to accounts created before the installer hook ran.
 for home in /home/*; do
     [ -d "$home" ] || continue
