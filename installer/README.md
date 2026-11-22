@@ -31,6 +31,19 @@ The Minimal image continues to use Debian Installer GTK. It embeds the `preseed/
 
 The installer uses Chilean Spanish and the Latin American keyboard layout by default. Disk partitioning remains interactive.
 
+## Add the desktop after a Minimal terminal installation
+
+A machine installed with the terminal-only NEXORA Minimal profile can receive the same XFCE desktop later. From the installed system, clone the project and run:
+
+```sh
+git clone --branch feature/nexora-minimal-terminal https://github.com/Reaccionador2Jeje/NEXORA-OS.git
+cd NEXORA-OS
+sudo sh ./scripts/install-nexora-desktop.sh install
+sudo reboot
+```
+
+The script installs Debian's XFCE task and LightDM, applies the desktop overlay, backs up existing XFCE user settings, enables graphical boot and installs the `nexora-desktop` status command. It does not modify disk partitioning. The separate Desktop profile in the GTK netinst installer remains available when choosing the desktop during the initial installation.
+
 ## Installer branding
 
 The netinst image embeds NEXORA artwork at `/nexora/branding/nexora-installer.svg` and a generated boot background. The GTK initrd banner is rebranded for the installer-based Minimal image.
