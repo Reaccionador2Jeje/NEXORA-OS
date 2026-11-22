@@ -17,6 +17,7 @@ check_file scripts/check-dependencies.sh
 check_file scripts/clean.sh
 check_file scripts/test-qemu-boot.sh
 check_file scripts/inspect-boot-layout.sh
+check_file scripts/create-installer-background.py
 check_file installer/README.md
 check_file installer/profiles/minimal.md
 check_file installer/profiles/desktop.md
@@ -54,7 +55,7 @@ grep -q -- '-map "$ROOT_DIR/installer/desktop-overlay" /nexora/desktop-overlay' 
 grep -q 'preseed/late_command' installer/preseed/desktop.cfg || fail "XFCE profile does not install the desktop overlay."
 grep -q 'es_CL.UTF-8' installer/preseed/desktop.cfg || fail "Desktop installer locale must default to Chilean Spanish."
 grep -q 'priority=high' installer/preseed/desktop.cfg || fail "Desktop profile must retain interactive installer questions."
-python3 -c 'import ast,json,pathlib,xml.etree.ElementTree as ET; [ast.parse(pathlib.Path(p).read_text()) for p in ["installer/desktop-overlay/usr/bin/nexora-ai", "installer/desktop-overlay/usr/bin/nexora-center", "installer/desktop-overlay/usr/bin/nexora-store"]]; json.loads(pathlib.Path("installer/desktop-overlay/usr/share/nexora/catalog.json").read_text()); [ET.parse(p) for p in pathlib.Path("installer/desktop-overlay").rglob("*.xml")]'
+python3 -c 'import ast,json,pathlib,xml.etree.ElementTree as ET; ast.parse(pathlib.Path("scripts/create-installer-background.py").read_text()); [ast.parse(pathlib.Path(p).read_text()) for p in ["installer/desktop-overlay/usr/bin/nexora-ai", "installer/desktop-overlay/usr/bin/nexora-center", "installer/desktop-overlay/usr/bin/nexora-store"]]; json.loads(pathlib.Path("installer/desktop-overlay/usr/share/nexora/catalog.json").read_text()); [ET.parse(p) for p in pathlib.Path("installer/desktop-overlay").rglob("*.xml")]'
 grep -q 'tasksel tasksel/first multiselect standard$' installer/preseed/minimal.cfg || fail "Minimal profile must select standard utilities only."
 grep -q 'tasksel tasksel/first multiselect standard, xfce-desktop' installer/preseed/desktop.cfg || fail "XFCE profile task selection is missing."
 if grep -Eq 'auto=true|priority=critical' installer/preseed/*.cfg installer/BOOT-OPTIONS.md; then
