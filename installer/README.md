@@ -20,8 +20,12 @@ Included desktop features:
 
 The AI client is integrated as a desktop application, but it does not bundle a model or provider credentials. Configure an available local or compatible service in its Connection dialog. No API key is shipped in the ISO.
 
+## NEXORA installer branding
+
+The ISO now embeds original NEXORA installer artwork at `/nexora/branding/nexora-installer.svg` and a generated 1024×640 background at `/nexora/nexora-installer-background.png`. The visual identity uses midnight navy, cyan and violet, with the NEXORA wordmark and installation label. The build verifies that these assets are present.
+
 ## Installer interface status
 
-The current graphical installer still uses Debian's upstream GTK screens. Boot menu inspection is automated so the next step can add NEXORA profile entries without guessing BIOS/UEFI config paths. A fully re-skinned GTK installer is not claimed yet.
+The artwork is packaged, but Debian Installer's GTK dialogs are not yet re-skinned and the artwork is not yet wired into the live GTK frontend. The boot-menu inspection is automated; the next implementation step is to apply a branded boot menu to verified BIOS/UEFI configuration files while preserving the upstream fallback. A fully re-skinned GTK installer is not claimed yet.
 
 **Safety:** neither preseed profile defines automatic partitioning or silently confirms disk formatting.
