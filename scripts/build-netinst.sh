@@ -19,9 +19,15 @@ done
 
 VERSION="${NEXORA_DEBIAN_VERSION:-trixie}"
 ARCH="${NEXORA_ARCH:-amd64}"
+EDITION="${NEXORA_EDITION:-minimal}"
+case "$EDITION" in
+    minimal) ISO_EDITION="minimal"; ISO_VOLUME="NEXORA_MINIMAL" ;;
+    xfce) ISO_EDITION="xfce4"; ISO_VOLUME="NEXORA_XFCE" ;;
+    *) echo "Unsupported NEXORA_EDITION: $EDITION (use minimal or xfce)" >&2; exit 2 ;;
+esac
 BASE_URL="https://deb.debian.org/debian/dists/${VERSION}/main/installer-${ARCH}/current/images/netboot/gtk"
 SOURCE_ISO="$ROOT_DIR/build-output/debian-installer-${VERSION}-${ARCH}-gtk-mini.iso"
-OUTPUT_ISO="$ROOT_DIR/build-output/nexora-os-minimal-netinst-${ARCH}.iso"
+OUTPUT_ISO="$ROOT_DIR/build-output/nexora-os-${ISO_EDITION}-netinst-${ARCH}.iso"
 
 mkdir -p "$ROOT_DIR/build-output"
 rm -f "$SOURCE_ISO" "$OUTPUT_ISO"
@@ -59,13 +65,13 @@ python3 "$ROOT_DIR/scripts/brand-installer-initrd.py" \
 echo "==> Preparing NEXORA BIOS and UEFI boot menus..."
 BOOT_BRANDING_DIR="$ROOT_DIR/build-output/boot-branding"
 rm -rf "$BOOT_BRANDING_DIR"
-python3 "$ROOT_DIR/scripts/brand-installer-boot.py" "$SOURCE_ISO" "$BOOT_BRANDING_DIR"
+NEXORA_DEFAULT_PROFILE="$EDITION" python3 "$ROOT_DIR/scripts/brand-installer-boot.py" "$SOURCE_ISO" "$BOOT_BRANDING_DIR"
 SYSLINUX_MENU_PATH=$(cat "$BOOT_BRANDING_DIR/menu-path.txt")
 
 echo "==> Embedding NEXORA installer profiles and preserving boot records..."
 xorriso -indev "$SOURCE_ISO" \
     -outdev "$OUTPUT_ISO" \
-    -volid "NEXORA_MINIMAL" \
+    -volid "$ISO_VOLUME" \
     -map "$ROOT_DIR/installer/preseed" /nexora/preseed \
     -map "$ROOT_DIR/installer/desktop-overlay" /nexora/desktop-overlay \
     -map "$ROOT_DIR/installer/BOOT-OPTIONS.md" /nexora/BOOT-OPTIONS.md \
@@ -127,7 +133,7 @@ size_human=$(du -h "$OUTPUT_ISO" | awk '{print $1}')
 sha256=$(sha256sum "$OUTPUT_ISO" | awk '{print $1}')
 
 echo
-echo "==> NEXORA OS Minimal GTK netinst prototype created:"
+echo "==> NEXORA OS $EDITION GTK netinst image created:"
 echo "    $OUTPUT_ISO"
 echo "    ISO size: $size_human"
 echo "    SHA256: $sha256"
@@ -135,6 +141,6 @@ echo
 echo "Profiles embedded:"
 echo "    /nexora/preseed/minimal.cfg"
 echo "    /nexora/preseed/desktop.cfg"
-echo "Boot menu: NEXORA Minimal / NEXORA XFCE, with upstream fallback entries."
+echo "Boot menu: NEXORA Minimal / NEXORA XFCE, with upstream fallback entries. Default: $EDITION."
 echo "GTK banner: NEXORA logos embedded in both light and dark installer variants."
 echo "GTK controls and workflow remain Debian Installer components."
