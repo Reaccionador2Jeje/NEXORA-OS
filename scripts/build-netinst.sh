@@ -86,7 +86,7 @@ xorriso -indev "$SOURCE_ISO" \
 
 echo "==> Verifying embedded NEXORA profiles and El Torito boot metadata..."
 xorriso -indev "$OUTPUT_ISO" -toc >/dev/null
-profile_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/preseed 2>&1)
+profile_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/preseed 2>&1 || true)
 printf '%s\n' "$profile_listing"
 printf '%s\n' "$profile_listing" | grep -q 'minimal.cfg' || {
     echo "Minimal preseed profile is missing from the ISO." >&2
@@ -96,33 +96,33 @@ printf '%s\n' "$profile_listing" | grep -q 'desktop.cfg' || {
     echo "XFCE preseed profile is missing from the ISO." >&2
     exit 1
 }
-branding_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora 2>&1)
+branding_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora 2>&1 || true)
 printf '%s\n' "$branding_listing" | grep -q 'nexora-installer-background.png' || {
     echo "NEXORA installer background is missing from the ISO." >&2
     exit 1
 }
-grub_menu=$(xorriso -indev "$OUTPUT_ISO" -cat /boot/grub/grub.cfg 2>&1)
+grub_menu=$(xorriso -indev "$OUTPUT_ISO" -cat /boot/grub/grub.cfg 2>&1 || true)
 printf '%s\n' "$grub_menu" | grep -q "NEXORA OS Minimal" || {
     echo "UEFI NEXORA boot entry is missing." >&2
     exit 1
 }
-syslinux_menu=$(xorriso -indev "$OUTPUT_ISO" -cat "$SYSLINUX_MENU_PATH" 2>&1)
+syslinux_menu=$(xorriso -indev "$OUTPUT_ISO" -cat "$SYSLINUX_MENU_PATH" 2>&1 || true)
 printf '%s\n' "$syslinux_menu" | grep -q "NEXORA OS Minimal" || {
     echo "BIOS NEXORA boot entry is missing." >&2
     exit 1
 }
-installer_branding=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/branding 2>&1)
+installer_branding=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/branding 2>&1 || true)
 printf '%s\n' "$installer_branding" | grep -q 'nexora-installer.svg' || {
     echo "NEXORA installer SVG branding is missing from the ISO." >&2
     exit 1
 }
-overlay_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/desktop-overlay/usr/share/backgrounds/nexora 2>&1)
+overlay_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/desktop-overlay/usr/share/backgrounds/nexora 2>&1 || true)
 printf '%s\n' "$overlay_listing"
 printf '%s\n' "$overlay_listing" | grep -q 'nexora-aurora.svg' || {
     echo "NEXORA desktop overlay is missing its wallpapers." >&2
     exit 1
 }
-boot_report=$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1)
+boot_report=$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1 || true)
 printf '%s\n' "$boot_report"
 printf '%s\n' "$boot_report" | grep -qi 'El Torito' || {
     echo "No El Torito boot catalog was found in the resulting ISO." >&2
