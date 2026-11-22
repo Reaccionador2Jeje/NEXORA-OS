@@ -1,0 +1,75 @@
+#!/usr/bin/python3
+"""NEXORA AI — lightweight GTK client for local or OpenAI-compatible assistants."""
+import json, os, threading, urllib.request, urllib.error
+from pathlib import Path
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk, GLib
+
+CONFIG=Path.home()/".config/nexora/ai.json"
+DEFAULT={"endpoint":"http://127.0.0.1:11434/v1/chat/completions","model":"llama3.2","api_key":""}
+
+class NexoraAI(Gtk.Window):
+    def __init__(self):
+        super().__init__(title="NEXORA AI")
+        self.set_default_size(820,620); self.set_border_width(12)
+        self.config=self.load_config(); self.messages=[]
+        header=Gtk.HeaderBar(title="NEXORA AI",show_close_button=True); self.set_titlebar(header)
+        settings=Gtk.Button(label="Connection"); settings.connect("clicked",self.settings); header.pack_end(settings)
+        root=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=8); self.add(root)
+        intro=Gtk.Label(label="Your assistant, inside NEXORA OS"); intro.set_xalign(0); root.pack_start(intro,False,False,0)
+        scroll=Gtk.ScrolledWindow(); scroll.set_vexpand(True); root.pack_start(scroll,True,True,0)
+        self.view=Gtk.TextView(); self.view.set_editable(False); self.view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR); self.buffer=self.view.get_buffer(); scroll.add(self.view)
+        bar=Gtk.Box(spacing=8); root.pack_start(bar,False,False,0)
+        self.entry=Gtk.Entry(); self.entry.set_placeholder_text("Ask NEXORA AI…"); self.entry.set_hexpand(True); self.entry.connect("activate",self.send); bar.pack_start(self.entry,True,True,0)
+        send=Gtk.Button(label="Send"); send.connect("clicked",self.send); bar.pack_start(send,False,False,0)
+        self.status=Gtk.Label(label="Connect a local Ollama server or an OpenAI-compatible endpoint."); self.status.set_xalign(0); root.pack_start(self.status,False,False,0)
+        self.append("NEXORA AI","Welcome! Open Connection to configure a local or compatible AI endpoint. No API key is bundled.")
+        self.show_all()
+    def load_config(self):
+        try: return {**DEFAULT,**json.loads(CONFIG.read_text())}
+        except Exception: return DEFAULT.copy()
+    def append(self,who,text):
+        end=self.buffer.get_end_iter(); self.buffer.insert(end,f"\n{who}\n{text}\n")
+        self.view.scroll_to_iter(self.buffer.get_end_iter(),0.0,False,0,0)
+    def settings(self,_):
+        dialog=Gtk.Dialog(title="NEXORA AI connection",transient_for=self,flags=0)
+        dialog.add_buttons("Cancel",Gtk.ResponseType.CANCEL,"Save",Gtk.ResponseType.OK)
+        grid=Gtk.Grid(column_spacing=10,row_spacing=10,margin=12); dialog.get_content_area().add(grid)
+        fields={}
+        for i,(key,label) in enumerate((("endpoint","API endpoint"),("model","Model"),("api_key","API key (optional)"))):
+            grid.attach(Gtk.Label(label=label,xalign=0),0,i,1,1)
+            entry=Gtk.Entry(); entry.set_hexpand(True); entry.set_text(self.config.get(key,""))
+            if key=="api_key": entry.set_visibility(False)
+            grid.attach(entry,1,i,1,1); fields[key]=entry
+        dialog.show_all()
+        if dialog.run()==Gtk.ResponseType.OK:
+            self.config={k:v.get_text().strip() for k,v in fields.items()}
+            CONFIG.parent.mkdir(parents=True,exist_ok=True); CONFIG.write_text(json.dumps(self.config,indent=2)+"\n"); os.chmod(CONFIG,0o600)
+            self.status.set_text("Connection saved. The API key is stored only in your user profile.")
+        dialog.destroy()
+    def send(self,_):
+        prompt=self.entry.get_text().strip()
+        if not prompt: return
+        self.entry.set_text(""); self.append("You",prompt); self.messages.append({"role":"user","content":prompt})
+        self.status.set_text("Contacting assistant…")
+        threading.Thread(target=self.request,args=(),daemon=True).start()
+    def request(self):
+        try:
+            endpoint=self.config["endpoint"]; model=self.config["model"]
+            payload={"model":model,"messages":self.messages,"stream":False}
+            req=urllib.request.Request(endpoint,data=json.dumps(payload).encode(),headers={"Content-Type":"application/json"},method="POST")
+            if self.config.get("api_key"): req.add_header("Authorization","Bearer "+self.config["api_key"])
+            with urllib.request.urlopen(req,timeout=90) as response: data=json.loads(response.read().decode())
+            answer=(data.get("choices",[{}])[0].get("message",{}).get("content") or data.get("message",{}).get("content") or "The provider returned no text.")
+            GLib.idle_add(self.received,answer)
+        except Exception as error: GLib.idle_add(self.failed,str(error))
+    def received(self,answer):
+        self.messages.append({"role":"assistant","content":answer}); self.append("NEXORA AI",answer); self.status.set_text("Ready.")
+    def failed(self,error):
+        self.status.set_text("Could not reach the configured AI service.")
+        self.append("Connection error",error+"\nCheck the endpoint, model, network and provider availability.")
+
+def main():
+    win=NexoraAI(); win.connect("destroy",Gtk.main_quit); Gtk.main()
+if __name__=="__main__": main()
