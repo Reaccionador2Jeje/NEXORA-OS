@@ -31,6 +31,13 @@ check_file branding/logo/nexora-logo.svg
 check_file config/includes.chroot/usr/local/bin/nexora-setup
 check_file config/includes.chroot/usr/share/nexora/desktop-packages.list
 check_file config/hooks/normal/0600-nexora-setup-permissions.hook.chroot
+check_file config/includes.chroot/usr/bin/nexora-store
+check_file config/includes.chroot/usr/bin/nexora-welcome
+check_file config/includes.chroot/usr/share/applications/nexora-store.desktop
+check_file config/includes.chroot/usr/share/applications/nexora-welcome.desktop
+check_file config/includes.chroot/usr/share/nexora-store/catalog.json
+check_file config/includes.chroot/usr/share/themes/NEXORA/gtk-3.0/gtk.css
+check_file config/includes.chroot/usr/share/backgrounds/nexora/nexora-default.svg
 
 grep -q -- '--distribution trixie' auto/config || fail "Base must remain Debian Trixie."
 grep -q -- '--architecture amd64' auto/config || fail "Architecture must remain amd64."
@@ -49,10 +56,11 @@ fi
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
 bash -n config/includes.chroot/usr/local/bin/nexora-setup
 sh -n config/hooks/normal/0600-nexora-setup-permissions.hook.chroot
+python3 -m py_compile config/includes.chroot/usr/bin/nexora-store
 if grep -Eq "^(xserver-xorg|xfce4-session|lightdm|chromium|flatpak)$" config/package-lists/nexora-minimal.list.chroot; then
     fail "Optional desktop package leaked into the Minimal base image."
 fi
-for package in xserver-xorg xfce4-session lightdm chromium flatpak; do
+for package in xserver-xorg xfce4-session lightdm chromium flatpak network-manager python3-gi gir1.2-gtk-3.0; do
     grep -qx "$package" config/includes.chroot/usr/share/nexora/desktop-packages.list || fail "Optional desktop package missing: $package"
 done
 
