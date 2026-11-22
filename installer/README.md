@@ -1,39 +1,36 @@
 # Installer integration
 
-NEXORA OS Minimal uses Debian Installer GTK. The ISO embeds the `desktop-overlay/` tree and two Preseed profiles.
+NEXORA now has two separate image-building paths.
 
-## Minimal Terminal
+## NEXORA XFCE4 Live (main edition)
 
-The Minimal profile installs standard system utilities only and does not select a desktop task. Installer defaults use Chilean Spanish and the Latin American keyboard layout. Disk partitioning remains interactive.
+The main desktop image is built with Debian Live using `scripts/build-live.sh`. It includes the complete XFCE4 desktop, the NEXORA desktop overlay and Debian Installer in Live mode.
 
-## NEXORA XFCE Desktop
+The Live session starts directly at the XFCE desktop. Users can explore the system without installing it. The **Install NEXORA OS** desktop shortcut runs:
 
-The XFCE profile installs Debian's XFCE task plus Flatpak, GTK3/PyGObject, PolicyKit and XFCE utilities. Its late-command copies the NEXORA overlay into the target system and applies desktop defaults.
+```sh
+debian-installer-launcher live
+```
 
-Included desktop features:
+This launches Debian Installer from the desktop. Its Live installer copies the running filesystem to the selected destination and then configures the bootloader and installed system. The installer is interactive; NEXORA does not preselect or silently confirm disk formatting.
 
-- Five NEXORA wallpapers under `/usr/share/backgrounds/nexora`.
-- Four GTK themes: NEXORA, NEXORA Midnight, NEXORA Ocean and NEXORA Light.
-- NEXORA Welcome, NEXORA Store and NEXORA Control Center.
+The Live image includes:
+- Five NEXORA wallpapers and four GTK themes.
+- NEXORA Welcome, Store, Control Center and Updater.
 - NEXORA AI client, configurable for a local Ollama-compatible endpoint or another OpenAI-compatible service.
-- NEXORA updater launcher and PolicyKit agent.
+- XFCE4, NetworkManager, PolicyKit, Flatpak and common desktop utilities.
+- Debian Installer desktop launcher and the Live installer boot option.
 
-The AI client is integrated as a desktop application, but it does not bundle a model or provider credentials. Configure an available local or compatible service in its Connection dialog. No API key is shipped in the ISO.
+The Live desktop itself can be used without installing. An Internet connection is recommended for browsing, updates and services that need network access.
 
-## NEXORA installer branding
+## NEXORA Minimal netinst
 
-The ISO embeds original NEXORA artwork at `/nexora/branding/nexora-installer.svg` and a generated 1024×640 boot background. The build also creates 800×75 light and dark GTK banner logos and replaces all four upstream logo assets inside the installer's compressed initrd:
-- `/usr/share/graphics/logo_debian.png`
-- `/usr/share/graphics/logo_debian_dark.png`
-- `/usr/share/graphics/logo_installer.png`
-- `/usr/share/graphics/logo_installer_dark.png`
+The Minimal image continues to use Debian Installer GTK. It embeds the `preseed/minimal.cfg` and `preseed/desktop.cfg` profiles and the NEXORA installer branding. Minimal remains terminal-focused; the old XFCE preseed is retained for the separate netinst workflow.
 
-The GTK banner therefore displays NEXORA branding in both standard and dark theme variants, rather than Debian's logo. The initrd is unpacked, patched, repacked and checked during the ISO build.
+The installer uses Chilean Spanish and the Latin American keyboard layout by default. Disk partitioning remains interactive.
 
-## Installer interface status
+## Installer branding
 
-The NEXORA artwork is now wired into both verified boot selectors: Syslinux/ISOLINUX for BIOS and GRUB for UEFI. The menu offers **NEXORA OS Minimal Terminal** and **NEXORA OS XFCE Desktop**, while retaining Debian's upstream rescue, expert and standard installer entries as fallback. Both NEXORA entries select the matching preseed and request the installer's built-in dark theme.
+The netinst image embeds NEXORA artwork at `/nexora/branding/nexora-installer.svg` and a generated boot background. The GTK initrd banner is rebranded for the installer-based Minimal image.
 
-The GTK frontend now carries the NEXORA banner logo in both theme variants. The installer workflow, controls, dialog wording, package names and underlying GTK components remain Debian Installer components; this change does not claim to replace or fork the full frontend. The dark theme is Debian's built-in high-contrast theme, not a custom NEXORA color theme.
-
-**Safety:** neither preseed profile defines automatic partitioning or silently confirms disk formatting.
+The XFCE4 Live image instead uses Debian Live boot menus and starts the XFCE session. It does not boot directly into the GTK installer.
