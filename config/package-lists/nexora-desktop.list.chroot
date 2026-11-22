@@ -53,6 +53,10 @@ xdg-desktop-portal-gtk
 # Web browser
 chromium
 
+# Plymouth boot animation
+plymouth
+plymouth-themes
+
 # Essential system utilities
 sudo
 locales
