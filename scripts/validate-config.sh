@@ -13,6 +13,9 @@ check_file() {
 
 check_file scripts/build.sh
 check_file scripts/build-netinst.sh
+check_file scripts/build-live.sh
+check_file config/package-lists/nexora-live.list.chroot
+check_file installer/desktop-overlay/usr/share/applications/nexora-installer.desktop
 check_file scripts/check-dependencies.sh
 check_file scripts/clean.sh
 check_file scripts/test-qemu-boot.sh
@@ -39,9 +42,14 @@ check_file installer/desktop-overlay/usr/share/applications/nexora-center.deskto
 check_file installer/desktop-overlay/etc/xdg/autostart/nexora-polkit-agent.desktop
 check_file installer/desktop-overlay/usr/share/pixmaps/nexora-icon.svg
 
+bash -n scripts/build-live.sh
 sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/inspect-boot-layout.sh scripts/validate-config.sh installer/desktop-overlay/usr/local/sbin/nexora-postinstall installer/desktop-overlay/usr/bin/nexora-welcome installer/desktop-overlay/usr/bin/nexora-updater
 
-grep -q 'Debian Installer GTK' installer/README.md || fail "GTK installer must be documented."
+grep -q 'Debian Installer GTK' installer/README.md || fail "GTK netinst installer must be documented."
+grep -q -- '--debian-installer live' scripts/build-live.sh || fail "XFCE4 must be built with Debian Live Installer support."
+grep -q 'debian-installer-launcher live' installer/desktop-overlay/usr/share/applications/nexora-installer.desktop || fail "Live desktop installer launcher is missing."
+grep -q 'task-xfce-desktop' config/package-lists/nexora-live.list.chroot || fail "Live image must include the XFCE desktop task."
+grep -q 'debian-installer-launcher' config/package-lists/nexora-live.list.chroot || fail "Live image must include the desktop installer launcher."
 grep -q 'standard system utilities' installer/profiles/minimal.md || fail "Minimal task selection guidance is missing."
 grep -q 'xfce-desktop' installer/profiles/desktop.md || fail "XFCE task selection guidance is missing."
 grep -q 'installer-${ARCH}/current/images/netboot/gtk' scripts/build-netinst.sh || fail "Build must use the official Debian GTK netboot image."
@@ -74,4 +82,4 @@ if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netin
     fail "Minimal netinst build must not invoke Debian Live."
 fi
 
-printf '\nNEXORA GTK netinst static checks passed. A real ISO build and interactive install test are still required.\n'
+printf '\nNEXORA netinst and XFCE4 Live static checks passed. A real ISO build and interactive install test are still required.\n'
