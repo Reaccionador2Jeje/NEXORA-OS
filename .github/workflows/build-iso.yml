@@ -26,11 +26,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: nexora-iso-${{ github.ref }}
+  group: nexora-iso-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   validate:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     name: Validate source and configuration
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -49,6 +50,7 @@ jobs:
         run: sh ./scripts/validate-config.sh
 
   build-desktop-iso:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     name: Build Desktop ISO (Debian Trixie / amd64)
     needs: validate
     runs-on: ubuntu-24.04
