@@ -104,6 +104,16 @@ printf '%s\n' "$branding_listing" | grep -q 'nexora-installer-background.png' ||
     echo "NEXORA installer background is missing from the ISO." >&2
     exit 1
 }
+BOOT_SPLASH_VERIFY_DIR="$ROOT_DIR/build-output/boot-splash-verification"
+rm -rf "$BOOT_SPLASH_VERIFY_DIR"
+mkdir -p "$BOOT_SPLASH_VERIFY_DIR"
+xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract /isolinux/splash.png "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png" \
+    -extract /boot/grub/splash.png "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png" \
+    >/dev/null 2>&1
+cmp "$ROOT_DIR/build-output/nexora-installer-background.png" "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png"
+cmp "$ROOT_DIR/build-output/nexora-installer-background.png" "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png"
+
 MENU_VERIFY_DIR="$ROOT_DIR/build-output/menu-verification"
 rm -rf "$MENU_VERIFY_DIR"
 mkdir -p "$MENU_VERIFY_DIR"
