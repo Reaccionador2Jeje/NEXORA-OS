@@ -37,6 +37,15 @@ cp "$ROOT_DIR/config/package-lists/nexora-live.list.chroot" \
 chmod 0755 "$WORK_DIR/config/includes.chroot"/usr/bin/nexora-* \
     "$WORK_DIR/config/includes.chroot/usr/local/sbin/nexora-postinstall"
 
+# Replace Debian's stock boot splash with the NEXORA artwork in both BIOS
+# (ISOLINUX) and UEFI/GRUB locations used by Debian Live's default menus.
+mkdir -p "$WORK_DIR/config/includes.binary/isolinux" \
+    "$WORK_DIR/config/includes.binary/boot/grub"
+python3 "$ROOT_DIR/scripts/create-installer-background.py" \
+    "$WORK_DIR/config/includes.binary/isolinux/splash.png"
+cp "$WORK_DIR/config/includes.binary/isolinux/splash.png" \
+    "$WORK_DIR/config/includes.binary/boot/grub/splash.png"
+
 # Identify the live edition clearly from the running system.
 cat > "$WORK_DIR/config/includes.chroot/etc/nexora-release" <<'RELEASE'
 NEXORA OS XFCE4 Live 0.1.0-alpha.2
