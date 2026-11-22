@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "apps": [
+    {
+      "name": "NEXORA AI",
+      "exec": "nexora-ai",
+      "description": "Local or OpenAI-compatible AI assistant"
+    },
+    {
+      "name": "NEXORA Store",
+      "exec": "nexora-store",
+      "description": "Optional apps from Flathub"
+    },
+    {
+      "name": "NEXORA Control Center",
+      "exec": "nexora-center",
+      "description": "Themes, wallpapers, settings and updates"
+    },
+    {
+      "name": "NEXORA Welcome",
+      "exec": "nexora-welcome",
+      "description": "First-login setup and quick actions"
+    }
+  ]
+}
