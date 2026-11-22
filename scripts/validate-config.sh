@@ -34,6 +34,7 @@ check_file config/includes.chroot/etc/default/keyboard
 check_file config/includes.chroot/etc/lightdm/lightdm-gtk-greeter.conf
 check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
 check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml
+check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 check_file config/includes.chroot/usr/share/themes/NEXORA/gtk-3.0/gtk.css
 check_file config/includes.chroot/usr/share/backgrounds/nexora/nexora-default.svg
 check_file config/includes.chroot/usr/bin/nexora-welcome
@@ -44,8 +45,10 @@ check_file branding/logo/nexora-icon.svg
 grep -q -- '--distribution trixie' auto/config || fail "Distribution must remain Debian Trixie."
 grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture must remain amd64."
 grep -q -- '--apt-recommends false' auto/config || fail "APT recommends must remain disabled for the lightweight profile."
+sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
+sh -n config/hooks/normal/0500-enable-flathub.hook.chroot
 
-for package in xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm flatpak; do
+for package in xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm flatpak adwaita-icon-theme pipewire-pulse; do
     check_package "$package"
 done
 for package in task-kde-desktop sddm plasma-discover konsole dolphin supertux supertuxkart kmines kpat neverball; do
