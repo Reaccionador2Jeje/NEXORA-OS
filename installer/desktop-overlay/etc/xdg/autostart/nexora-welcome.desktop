@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=NEXORA Welcome
+Comment=First login welcome and tools launcher
+Exec=xfce4-terminal --title=NEXORA-Welcome --command=/usr/bin/nexora-welcome
+Terminal=false
+OnlyShowIn=XFCE;
