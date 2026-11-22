@@ -64,10 +64,13 @@ grub_out.write_text(grub, encoding="utf-8")
 
 # BIOS: isolinux.cfg in this image includes menu.cfg from the ISO root.
 menu_src = out / "menu-upstream.cfg"
-if not extract("/menu.cfg", menu_src):
+if extract("/menu.cfg", menu_src):
+    menu_iso_path = "/menu.cfg"
+else:
     # Some Debian builds put the menu under /isolinux instead.
     menu_src = out / "isolinux-menu-upstream.cfg"
-    if not extract("/isolinux/menu.cfg", menu_src):
+    menu_iso_path = "/isolinux/menu.cfg"
+    if not extract(menu_iso_path, menu_src):
         raise SystemExit("Expected Syslinux menu.cfg was not found in either verified location.")
 
 menu = menu_src.read_text(encoding="utf-8")
@@ -105,8 +108,9 @@ label nexora-xfce
 
 menu_out = out / "menu.cfg"
 menu_out.write_text(menu, encoding="utf-8")
+(out / "menu-path.txt").write_text(menu_iso_path + "\n", encoding="utf-8")
 
 print("Prepared NEXORA boot menus:")
 print("  UEFI: /boot/grub/grub.cfg")
-print("  BIOS: /menu.cfg (or /isolinux/menu.cfg)")
+print(f"  BIOS: {menu_iso_path}")
 print("  Debian upstream fallback entries preserved.")
