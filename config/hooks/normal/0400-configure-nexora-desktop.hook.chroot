@@ -17,7 +17,6 @@ install -m 0644 "$SKEL/xfce4-desktop.xml" "$SYSTEM/xfce4-desktop.xml"
 install -m 0644 "$SKEL/xfce4-panel.xml" "$SYSTEM/xfce4-panel.xml"
 install -m 0644 "$SKEL/xsettings.xml" "$SYSTEM/xsettings.xml"
 
-install -D -m 0644 /usr/share/nexora-store/store.css /usr/share/nexora-store/store.css
 
 # Make the NEXORA GTK theme the default for GTK3 applications.
 install -d -m 0755 /etc/gtk-3.0
