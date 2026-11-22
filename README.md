@@ -19,7 +19,7 @@ The ISO embeds two Debian Installer preseed profiles:
 | Minimal Terminal | Standard system utilities only; no desktop environment. |
 | NEXORA XFCE | Standard system utilities plus Debian's `xfce-desktop` task. |
 
-Choose a profile by appending its boot argument, documented in [installer/BOOT-OPTIONS.md](installer/BOOT-OPTIONS.md). The installer still uses Debian's upstream GTK interface; a graphical NEXORA profile chooser and automatic installation of NEXORA theme, Store and desktop assets remain future work.
+Choose a profile by appending its boot argument, documented in [installer/BOOT-OPTIONS.md](installer/BOOT-OPTIONS.md). The desktop profile now embeds NEXORA themes, wallpapers, NEXORA Welcome, Store, Control Center and an AI client. The installer itself still uses Debian's upstream GTK interface; its branded boot profile chooser and custom installer artwork remain in progress.
 
 ## Build
 
@@ -48,7 +48,8 @@ Netinst downloads the installed operating system from Debian repositories. A wor
 - BIOS/UEFI boot metadata: preserved by xorriso and checked during build.
 - Profile selection: embedded Minimal and XFCE preseed files, selected through installer boot arguments.
 - Branded boot-time profile menu: being prepared; CI first identifies the exact upstream BIOS/UEFI boot configuration paths before patching them.
-- NEXORA-branded GTK installer screens and automatic desktop asset deployment: not implemented yet.
+- NEXORA XFCE desktop overlay: integrated in the desktop preseed; CI and real installation testing pending.
+- NEXORA-branded boot menu and custom GTK installer artwork: in progress.
 - Full interactive QEMU installation test: not yet implemented; the current QEMU step is a boot smoke test only.
 
 ## Project principles
