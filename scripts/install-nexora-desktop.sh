@@ -74,7 +74,7 @@ apt-get update
 
 echo "==> Installing the Debian XFCE desktop and NEXORA runtime dependencies..."
 DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    task-xfce-desktop lightdm network-manager network-manager-gnome \
+    task-xfce-desktop lightdm lightdm-gtk-greeter network-manager network-manager-gnome \
     dbus-x11 sudo flatpak python3-gi gir1.2-gtk-3.0 policykit-1 lxpolkit \
     xfce4-taskmanager xfce4-goodies xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin \
     desktop-file-utils xdg-utils fonts-noto fonts-noto-color-emoji \
