@@ -81,6 +81,16 @@ printf '%s\n' "$branding_listing" | grep -q 'nexora-installer-background.png' ||
     echo "NEXORA installer background is missing from the ISO." >&2
     exit 1
 }
+grub_menu=$(xorriso -indev "$OUTPUT_ISO" -cat /boot/grub/grub.cfg 2>&1)
+printf '%s\n' "$grub_menu" | grep -q "NEXORA OS Minimal" || {
+    echo "UEFI NEXORA boot entry is missing." >&2
+    exit 1
+}
+syslinux_menu=$(xorriso -indev "$OUTPUT_ISO" -cat "$SYSLINUX_MENU_PATH" 2>&1)
+printf '%s\n' "$syslinux_menu" | grep -q "NEXORA OS Minimal" || {
+    echo "BIOS NEXORA boot entry is missing." >&2
+    exit 1
+}
 installer_branding=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/branding 2>&1)
 printf '%s\n' "$installer_branding" | grep -q 'nexora-installer.svg' || {
     echo "NEXORA installer SVG branding is missing from the ISO." >&2
