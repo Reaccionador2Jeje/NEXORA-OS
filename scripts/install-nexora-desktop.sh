@@ -130,6 +130,7 @@ systemctl enable lightdm.service
 systemctl set-default graphical.target
 
 # Install a small status/help command that remains usable after the source checkout is removed.
+chmod 0755 "$SCRIPT_PATH"
 install -d -m 0755 /usr/local/bin
 cat > /usr/local/bin/nexora-desktop <<EOF
 #!/bin/sh
