@@ -64,6 +64,11 @@ for file in \
     "$OVERLAY/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml" \
     "$OVERLAY/usr/bin/nexora-store" \
     "$OVERLAY/usr/share/nexora/catalog.json" \
+    "$OVERLAY/usr/share/backgrounds/nexora/nexora-default.svg" \
+    "$OVERLAY/usr/share/backgrounds/nexora/nexora-aurora.svg" \
+    "$OVERLAY/usr/share/backgrounds/nexora/nexora-orbit.svg" \
+    "$OVERLAY/usr/share/backgrounds/nexora/nexora-grid.svg" \
+    "$OVERLAY/usr/share/backgrounds/nexora/nexora-midnight.svg" \
     "$ROOT_DIR/config/includes.chroot/etc/lightdm/lightdm-gtk-greeter.conf"
 do
     [ -s "$file" ] || { echo "Required NEXORA desktop file is missing: $file" >&2; exit 1; }
