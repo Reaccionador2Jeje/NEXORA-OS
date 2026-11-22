@@ -38,6 +38,8 @@ check_file config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-
 check_file config/includes.chroot/usr/share/themes/NEXORA/gtk-3.0/gtk.css
 check_file config/includes.chroot/usr/share/backgrounds/nexora/nexora-default.svg
 check_file config/includes.chroot/usr/bin/nexora-welcome
+check_file config/includes.chroot/usr/bin/nexora-store
+check_file config/includes.chroot/usr/share/applications/nexora-store.desktop
 check_file config/hooks/normal/0500-enable-flathub.hook.chroot
 check_file branding/logo/nexora-logo.svg
 check_file branding/logo/nexora-icon.svg
@@ -47,11 +49,12 @@ grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture 
 grep -q -- '--apt-recommends false' auto/config || fail "APT recommends must remain disabled for the lightweight profile."
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
 sh -n config/hooks/normal/0500-enable-flathub.hook.chroot
+python3 -m py_compile config/includes.chroot/usr/bin/nexora-store
 
-for package in xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm flatpak adwaita-icon-theme pipewire-pulse; do
+for package in xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
     check_package "$package"
 done
-for package in task-kde-desktop sddm plasma-discover konsole dolphin supertux supertuxkart kmines kpat neverball; do
+for package in task-kde-desktop sddm plasma-discover konsole dolphin supertux supertuxkart kmines kpat neverball chromium; do
     reject_package "$package"
 done
 
@@ -59,5 +62,6 @@ grep -q 'Desktop: XFCE4' config/includes.chroot/etc/nexora-release || fail "Rele
 grep -qx 'es_CL.UTF-8 UTF-8' config/includes.chroot/etc/locale.gen || fail "Spanish (Chile) locale is not enabled."
 grep -qx 'LANG=es_CL.UTF-8' config/includes.chroot/etc/default/locale || fail "Spanish (Chile) is not the default locale."
 grep -q 'NEXORA' config/includes.chroot/etc/lightdm/lightdm-gtk-greeter.conf || fail "NEXORA greeter theme is not selected."
+grep -q 'NEXORA Store' config/includes.chroot/usr/share/applications/nexora-store.desktop || fail "NEXORA Store launcher is missing."
 
-printf '\nNEXORA XFCE configuration checks passed. ISO build and boot tests are still required.\n'
+printf '\nNEXORA XFCE and Store configuration checks passed. ISO build and boot tests are still required.\n'
