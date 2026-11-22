@@ -12,7 +12,7 @@ Provide a branded boot-time profile chooser before Debian Installer starts:
 
 The current upstream GTK mini ISO is retained as the base. Before changing boot menus, CI runs `scripts/inspect-boot-layout.sh` to identify the exact Syslinux/ISOLINUX and GRUB configuration paths in the downloaded image.
 
-The next implementation step will patch only verified bootloader configuration files, preserving the original kernel/initrd paths, boot parameters, BIOS boot catalog and UEFI boot path. The two NEXORA entries will append:
+The build patches verified BIOS and UEFI bootloader configuration files, preserving upstream fallback entries and boot records. It also replaces the GTK frontend banner logo assets in the compressed initrd, including the light and dark variants, before mapping the rebuilt initrd back into the ISO. The two NEXORA entries append:
 
 - Minimal: `priority=high preseed/file=/cdrom/nexora/preseed/minimal.cfg`
 - XFCE: `priority=high preseed/file=/cdrom/nexora/preseed/desktop.cfg`
@@ -28,3 +28,7 @@ The next implementation step will patch only verified bootloader configuration f
 ## Interactive partitioning requirement
 
 The profile menu must use `priority=high` with the preseed path so ordinary installer questions and interactive disk setup remain available.
+
+## GTK banner branding
+
+The GTK installer reads its banner artwork from the `rootskel-gtk` assets in the initrd. NEXORA generates matching 800×75 light/dark PNGs and replaces the four logo paths (`logo_debian.png`, `logo_debian_dark.png`, `logo_installer.png`, `logo_installer_dark.png`) under `/usr/share/graphics`. The build verifies that these paths survive initrd repacking. The GTK workflow and dialog content remain upstream Debian Installer code; only the banner identity is replaced at this stage.
