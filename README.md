@@ -13,6 +13,8 @@ NEXORA OS is a Debian 13 Trixie-based operating system with two installation pro
 
 ## Downloads
 
+For temporary test builds, see the [NEXORA OS testing guide](TESTING.md). It explains how to download successful CI artifacts, verify SHA-256 checksums and report problems.
+
 Official ISO distribution is planned through **SourceForge File Release System (FRS)**. Each edition is uploaded only after its build, checksum verification and QEMU boot smoke test pass.
 
 The SourceForge project page will be linked here after the project registration is completed.
