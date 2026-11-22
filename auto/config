@@ -20,5 +20,5 @@ lb config noauto \
     --linux-packages none \
     --initsystem systemd \
     --memtest none \
-    --bootappend-live "boot=live components locales=es_CL.UTF-8 keyboard-layouts=latam" \
+    --bootappend-live "boot=live components quiet splash locales=es_CL.UTF-8 keyboard-layouts=latam" \
     "${@}"
