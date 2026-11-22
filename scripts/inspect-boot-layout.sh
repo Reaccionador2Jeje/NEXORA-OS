@@ -18,7 +18,7 @@ printf '%s\n' "$listing" | grep -Ei 'isolinux|syslinux|grub|efi|menu|cfg' || tru
 # Debian netboot images place Syslinux configuration in different paths
 # across releases. Probe common locations and report only files that exist.
 for file in \
-    /isolinux.cfg /isolinux/isolinux.cfg /isolinux/menu.cfg \
+    /isolinux.cfg /menu.cfg /isolinux/isolinux.cfg /isolinux/menu.cfg \
     /isolinux/stdmenu.cfg /isolinux/txt.cfg /isolinux/adtxt.cfg \
     /isolinux/spk.cfg /isolinux/drk.cfg \
     /boot/grub/grub.cfg /boot/grub/loopback.cfg; do
