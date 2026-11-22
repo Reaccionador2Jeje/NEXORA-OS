@@ -47,6 +47,9 @@ jobs:
       - name: Validate installer configuration
         run: sh ./scripts/validate-config.sh
 
+      - name: Check SourceForge uploader shell syntax
+        run: sh -n ./scripts/publish-sourceforge.sh
+
       - name: Build NEXORA GTK netinst
         run: sudo sh ./scripts/build.sh
 
