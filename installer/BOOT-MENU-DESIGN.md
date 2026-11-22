@@ -14,7 +14,7 @@ The current upstream GTK mini ISO is retained as the base. Before changing boot 
 
 The next implementation step will patch only verified bootloader configuration files, preserving the original kernel/initrd paths, boot parameters, BIOS boot catalog and UEFI boot path. The two NEXORA entries will append:
 
-- Minimal: `auto=true priority=critical preseed/file=/cdrom/nexora/preseed/minimal.cfg`
+- Minimal: `priority=high preseed/file=/cdrom/nexora/preseed/minimal.cfg`
 - XFCE: `auto=true priority=critical preseed/file=/cdrom/nexora/preseed/desktop.cfg`
 
 ## Safety and scope
@@ -23,3 +23,8 @@ The next implementation step will patch only verified bootloader configuration f
 - The original Debian installer entry remains available as a recovery/fallback path.
 - The profile menu is a bootloader menu, not a replacement GTK screen inside Debian Installer.
 - No bootloader file should be rewritten based on guessed paths. The actual ISO layout must be captured by CI first.
+
+
+## Interactive partitioning requirement
+
+The profile menu must use `priority=high` with the preseed path. It must not use `auto=true priority=critical`, because that suppresses ordinary installer questions and is inappropriate for a flow that promises interactive disk setup.
