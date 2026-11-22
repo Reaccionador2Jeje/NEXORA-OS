@@ -52,6 +52,19 @@ jobs:
       - name: Build NEXORA OS
         run: sudo ./scripts/build.sh
 
+      - name: Install QEMU for ISO boot test
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86
+
+      - name: Test ISO boot in QEMU (BIOS, headless)
+        env:
+          NEXORA_QEMU_BOOT_SECONDS: "120"
+        run: |
+          ISO="$(find build-output -maxdepth 1 -type f -name '*.iso' -print -quit)"
+          test -n "$ISO"
+          sh ./scripts/test-qemu-boot.sh "$ISO"
+
       - name: Make artifact readable
         if: success()
         run: sudo chown -R "$USER:$USER" build-output
