@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d1b">
+  <meta name="description" content="Conoce NEXORA OS: una edición Minimal para quienes prefieren la terminal y una edición XFCE con un escritorio personalizable.">
+  <title>NEXORA OS — Your Terminal. Your Universe.</title>
+  <style>
+    :root{color-scheme:dark;--bg:#080d1b;--panel:#101a2d;--panel2:#14213a;--line:#263653;--text:#edf5ff;--muted:#9aacc7;--cyan:#50e5ed;--violet:#a58bff;--max:1120px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#18375b 0,transparent 38%),radial-gradient(ellipse at 0 35%,#151b43 0,transparent 30%),var(--bg);color:var(--text);font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+    a{color:inherit} .wrap{width:min(var(--max),calc(100% - 40px));margin:auto}.nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0;border-bottom:1px solid #ffffff14}.brand{display:flex;gap:12px;align-items:center;text-decoration:none;font-weight:850;letter-spacing:.15em}.mark{width:36px;height:36px;border:1px solid #50e5ed88;border-radius:11px;display:grid;place-items:center;color:var(--cyan);font-weight:900;box-shadow:0 0 24px #50e5ed22}.navlinks{display:flex;gap:25px}.navlinks a{color:var(--muted);text-decoration:none;font-size:14px}.navlinks a:hover{color:var(--cyan)}
+    .hero{padding:94px 0 78px;text-align:center}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase}.hero h1{font-size:clamp(42px,8vw,78px);line-height:1.02;letter-spacing:-.055em;margin:18px 0}.gradient{background:linear-gradient(100deg,#fff 15%,var(--cyan) 55%,var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:690px;margin:22px auto;color:var(--muted);font-size:18px}.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:30px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 19px;border-radius:10px;text-decoration:none;font-weight:750;border:1px solid var(--line);background:#111d32}.btn.primary{background:linear-gradient(100deg,#35cbdc,#7b8dff);border:0;color:#06111e}.btn:hover{transform:translateY(-2px)}
+    .section{padding:65px 0}.section-head{text-align:center;margin:0 auto 32px;max-width:700px}.section h2{font-size:clamp(28px,4vw,42px);line-height:1.1;letter-spacing:-.035em;margin:0 0 12px}.section-head p,.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card{background:linear-gradient(145deg,#14223aee,#0e1729ee);border:1px solid var(--line);border-radius:18px;padding:28px;position:relative;overflow:hidden}.card:before{content:"";position:absolute;inset:0 auto auto 0;width:100%;height:2px;background:linear-gradient(90deg,var(--cyan),var(--violet))}.tag{display:inline-block;color:var(--cyan);font-size:11px;letter-spacing:.14em;font-weight:850;text-transform:uppercase}.card h3{font-size:28px;margin:10px 0 8px}.card p{color:var(--muted);margin:0 0 18px}.features{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px}.features li:before{content:"✓";color:var(--cyan);font-weight:900;margin-right:10px}.note{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px;margin-top:22px}
+    .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.feature{border:1px solid var(--line);border-radius:14px;padding:20px;background:#0e182b99}.feature strong{display:block;margin-bottom:5px}.feature p{color:var(--muted);font-size:14px;margin:0}.status{display:flex;align-items:flex-start;gap:18px;border:1px solid #50e5ed55;background:#102238aa;padding:24px;border-radius:16px}.status-icon{font-size:24px;color:var(--cyan)}.status h3{margin:0 0 5px}.status p{margin:0;color:var(--muted)}.status a{color:var(--cyan)}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;counter-reset:step}.step{border:1px solid var(--line);border-radius:14px;padding:20px;background:#0e182b99}.step:before{counter-increment:step;content:"0" counter(step);display:block;color:var(--cyan);font-size:12px;font-weight:900;letter-spacing:.15em;margin-bottom:12px}.step h3{margin:0 0 7px}.step p{color:var(--muted);font-size:14px;margin:0}
+    footer{border-top:1px solid #ffffff18;padding:28px 0 40px;color:var(--muted);font-size:13px}.foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.foot a{color:var(--cyan);text-decoration:none}
+    @media(max-width:720px){.navlinks{gap:12px}.navlinks a{font-size:12px}.cards,.feature-grid,.steps{grid-template-columns:1fr}.hero{padding:70px 0 55px}.card{padding:23px}.status{padding:18px}}
+    @media(max-width:430px){.navlinks a:nth-child(2){display:none}.wrap{width:min(var(--max),calc(100% - 28px))}.brand{font-size:13px}}
+  </style>
+</head>
+<body>
+  <header class="wrap nav">
+    <a class="brand" href="#inicio" aria-label="NEXORA OS, inicio"><span class="mark">N</span><span>NEXORA OS</span></a>
+    <nav class="navlinks" aria-label="Navegación principal">
+      <a href="#ediciones">Ediciones</a><a href="#caracteristicas">Características</a><a href="#instalacion">Instalación</a><a href="#estado">Estado</a>
+    </nav>
+  </header>
+  <main>
+    <section class="wrap hero" id="inicio">
+      <div class="eyebrow">Un sistema. Dos experiencias.</div>
+      <h1><span class="gradient">YOUR TERMINAL.<br>YOUR UNIVERSE.</span></h1>
+      <p>NEXORA OS es un proyecto basado en Debian que ofrece dos formas de usar tu equipo: un entorno Minimal centrado en la terminal y una experiencia de escritorio XFCE personalizable.</p>
+      <div class="actions"><a class="btn primary" href="#ediciones">Explorar ediciones</a><a class="btn" href="https://github.com/Reaccionador2Jeje/NEXORA-OS">Ver código fuente ↗</a></div>
+    </section>
+    <section class="wrap section" id="ediciones">
+      <div class="section-head"><div class="eyebrow">Elige tu experiencia</div><h2>Dos ediciones. Tu manera de trabajar.</h2><p>Ambas parten de Debian 13 Trixie y comparten el objetivo de mantener el sistema claro, accesible y adaptable.</p></div>
+      <div class="cards">
+        <article class="card"><span class="tag">Ligero · Terminal</span><h3>NEXORA Minimal</h3><p>Una base sencilla para quienes prefieren trabajar desde la línea de comandos y construir su propio entorno.</p><ul class="features"><li>Sin entorno de escritorio preinstalado</li><li>Utilidades estándar del sistema</li><li>Ideal para terminal, desarrollo y personalización</li><li>Instalación mediante Debian Installer</li></ul><div class="note">No incluye navegador, juegos ni escritorio por defecto.</div></article>
+        <article class="card"><span class="tag">Escritorio · XFCE</span><h3>NEXORA XFCE</h3><p>La experiencia gráfica de NEXORA, con un escritorio XFCE y herramientas propias integradas.</p><ul class="features"><li>Entorno de escritorio XFCE</li><li>Fondos y temas visuales NEXORA</li><li>Welcome, Store y Control Center</li><li>Cliente NEXORA AI configurable</li></ul><div class="note">El cliente de IA requiere configurar un servicio compatible; no incluye modelos ni credenciales.</div></article>
+      </div>
+    </section>
+    <section class="wrap section" id="caracteristicas">
+      <div class="section-head"><div class="eyebrow">Diseñado para elegir</div><h2>Lo esencial, sin complicaciones.</h2><p>NEXORA mantiene las ediciones diferenciadas para que instales solamente la experiencia que necesitas.</p></div>
+      <div class="feature-grid">
+        <article class="feature"><strong>Basado en Debian</strong><p>Construido sobre Debian 13 Trixie para amd64 y su ecosistema de paquetes.</p></article>
+        <article class="feature"><strong>Personalización</strong><p>La edición XFCE integra temas y fondos propios para adaptar el escritorio.</p></article>
+        <article class="feature"><strong>Software abierto</strong><p>El proyecto publica su desarrollo y configuración en un repositorio público.</p></article>
+      </div>
+    </section>
+    <section class="wrap section" id="instalacion">
+      <div class="section-head"><div class="eyebrow">Cómo empezar</div><h2>Prepara tu instalación</h2><p>El instalador está basado en Debian Installer GTK. La instalación necesita conexión de red para descargar los paquetes.</p></div>
+      <div class="steps">
+        <article class="step"><h3>Revisa el proyecto</h3><p>Consulta los perfiles, requisitos y estado actual en el repositorio oficial.</p></article>
+        <article class="step"><h3>Obtén la imagen</h3><p>Cuando haya una compilación publicada, estará disponible desde los artefactos o lanzamientos del proyecto.</p></article>
+        <article class="step"><h3>Instala con cuidado</h3><p>Prueba primero en una máquina virtual. Revisa el disco seleccionado: el particionado debe hacerse de forma interactiva.</p></article>
+      </div>
+    </section>
+    <section class="wrap section" id="estado">
+      <div class="status"><div class="status-icon">◈</div><div><h3>Proyecto en desarrollo</h3><p>NEXORA OS todavía está en fase de integración y pruebas. La imagen netinst, el arranque BIOS/UEFI y la instalación completa deben validarse antes de considerarla una versión estable. El instalador gráfico aún conserva la interfaz original de Debian. <a href="https://github.com/Reaccionador2Jeje/NEXORA-OS/actions">Consultar compilaciones y CI ↗</a></p></div></div>
+    </section>
+  </main>
+  <footer><div class="wrap foot"><span>© NEXORA OS · Your Terminal. Your Universe.</span><span><a href="https://github.com/Reaccionador2Jeje/NEXORA-OS">GitHub</a> · Basado en Debian · Proyecto independiente</span></div></footer>
+</body>
+</html>
