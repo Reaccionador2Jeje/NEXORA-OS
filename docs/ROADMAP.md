@@ -15,6 +15,7 @@ The roadmap describes source milestones, not guaranteed release dates. A checked
 - [x] Replace KDE Plasma with XFCE4.
 - [x] Replace SDDM with LightDM GTK Greeter.
 - [x] Remove preinstalled games and game bundles.
+- [x] Include Chromium as the ready-to-use default browser.
 - [x] Disable APT recommended-package installation.
 - [x] Add NEXORA GTK3 dark theme.
 - [x] Add NEXORA wallpaper and LightDM branding.
