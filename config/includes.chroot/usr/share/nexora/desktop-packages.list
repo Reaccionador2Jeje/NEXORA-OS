@@ -34,15 +34,8 @@ gir1.2-gtk-3.0
 xdg-desktop-portal
 xdg-desktop-portal-gtk
 chromium
-sudo
-locales
-keyboard-configuration
 xdg-utils
 xdg-user-dirs
-ca-certificates
-curl
-wget
-nano
 htop
 fastfetch
 bash-completion
