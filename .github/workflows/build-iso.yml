@@ -126,7 +126,7 @@ jobs:
 
           KEY_FILE="$RUNNER_TEMP/sourceforge_deploy_key"
           KNOWN_HOSTS="$RUNNER_TEMP/sourceforge_known_hosts"
-          printf '%s\n' "$SF_SSH_PRIVATE_KEY"
+          printf '%s\n' "$SF_SSH_PRIVATE_KEY" > "$KEY_FILE"
           chmod 600 "$KEY_FILE"
 
           ssh-keyscan -T 15 -t ed25519 frs.sourceforge.net > "$KNOWN_HOSTS" 2>/dev/null
