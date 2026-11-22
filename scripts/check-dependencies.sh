@@ -1,10 +1,8 @@
 #!/bin/sh
-# Check the host tools required to build NEXORA OS.
-
+# Check the host tools required for the NEXORA GTK netinst build.
 set -eu
-
 missing=0
-for command in lb debootstrap mksquashfs xorriso; do
+for command in curl xorriso sha256sum qemu-system-x86_64; do
     if command -v "$command" >/dev/null 2>&1; then
         printf '[OK]      %s\n' "$command"
     else
@@ -12,12 +10,11 @@ for command in lb debootstrap mksquashfs xorriso; do
         missing=1
     fi
 done
-
 if [ "$missing" -ne 0 ]; then
-    printf '\nInstall the build dependencies with:\n'
-    printf '  sudo apt update\n'
-    printf '  sudo apt install live-build debootstrap squashfs-tools xorriso\n'
+    echo
+    echo "Install the required tools with:"
+    echo "  sudo apt update"
+    echo "  sudo apt install curl xorriso qemu-system-x86 qemu-utils"
     exit 1
 fi
-
-printf '\nAll required build commands are available.\n'
+printf '\nAll NEXORA GTK netinst build tools are available.\n'
