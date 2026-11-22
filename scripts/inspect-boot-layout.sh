@@ -12,5 +12,10 @@ for path in /isolinux /syslinux /boot /boot/grub /EFI /EFI/BOOT; do
   echo "==> $path"
   xorriso -indev "$ISO" -ls "$path" 2>&1 || true
 done
+for file in /isolinux.cfg /menu.cfg /stdmenu.cfg /txt.cfg /adtxt.cfg /spk.cfg /drk.cfg /boot/grub/grub.cfg; do
+  echo
+  echo "==> CONFIG $file"
+  xorriso -indev "$ISO" -cat "$file" 2>&1 || true
+done
 echo
 echo "Inspection only: no bootloader configuration has been changed."
