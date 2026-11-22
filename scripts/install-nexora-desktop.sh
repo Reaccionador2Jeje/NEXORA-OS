@@ -38,7 +38,7 @@ for f in \
     config/includes.chroot/usr/bin/nexora-store \
     config/includes.chroot/usr/share/applications/nexora-welcome.desktop \
     config/includes.chroot/usr/share/applications/nexora-store.desktop \
-install -D -m 0644 config/includes.chroot/usr/share/nexora-store/catalog.json /usr/share/nexora-store/catalog.json
+    config/includes.chroot/usr/share/nexora-store/catalog.json \
     config/includes.chroot/usr/share/nexora-store/store.css
 do
     need_file "$f"
@@ -56,7 +56,7 @@ install -D -m 0644 config/includes.chroot/usr/share/backgrounds/nexora/nexora-de
 install -D -m 0644 config/includes.chroot/usr/share/pixmaps/nexora-icon.svg /usr/share/pixmaps/nexora-icon.svg
 install -D -m 0644 config/includes.chroot/usr/share/themes/NEXORA/gtk-3.0/gtk.css /usr/share/themes/NEXORA/gtk-3.0/gtk.css
 install -D -m 0644 config/includes.chroot/usr/share/nexora/fastfetch/nexora.txt /usr/share/nexora/fastfetch/nexora.txt
-    config/includes.chroot/usr/share/nexora-store/catalog.json \
+install -D -m 0644 config/includes.chroot/usr/share/nexora-store/catalog.json /usr/share/nexora-store/catalog.json
 install -D -m 0644 config/includes.chroot/usr/share/nexora-store/store.css /usr/share/nexora-store/store.css
 install -D -m 0755 config/includes.chroot/usr/bin/nexora-welcome /usr/bin/nexora-welcome
 install -D -m 0755 config/includes.chroot/usr/bin/nexora-store /usr/bin/nexora-store
@@ -89,15 +89,16 @@ if [ -n "$TARGET_USER" ] && id "$TARGET_USER" >/dev/null 2>&1 && [ "$TARGET_USER
     HOME_DIR=$(getent passwd "$TARGET_USER" | cut -d: -f6)
     if [ -n "$HOME_DIR" ] && [ -d "$HOME_DIR" ]; then
         USER_CONFIG="$HOME_DIR/.config/xfce4/xfconf/xfce-perchannel-xml"
-        install -d -o "$TARGET_USER" -g "$(id -gn "$TARGET_USER")" "$USER_CONFIG"
+        USER_GROUP=$(id -gn "$TARGET_USER")
+        install -d -o "$TARGET_USER" -g "$USER_GROUP" "$USER_CONFIG"
         for f in xfce4-desktop.xml xfce4-panel.xml xsettings.xml; do
-            if [ -e "$USER_CONFIG/$f" ]; then
-                cp -n "$USER_CONFIG/$f" "$USER_CONFIG/$f.nexora-backup" || true
+            if [ -e "$USER_CONFIG/$f" ] && [ ! -e "$USER_CONFIG/$f.nexora-backup" ]; then
+                cp "$USER_CONFIG/$f" "$USER_CONFIG/$f.nexora-backup"
             fi
             install -m 0644 "$SKEL/$f" "$USER_CONFIG/$f"
         done
         install -D -m 0644 config/includes.chroot/etc/skel/.config/fastfetch/config.jsonc "$HOME_DIR/.config/fastfetch/config.jsonc"
-        chown -R "$TARGET_USER:$(id -gn "$TARGET_USER")" "$HOME_DIR/.config/xfce4" "$HOME_DIR/.config/fastfetch"
+        chown -R "$TARGET_USER:$USER_GROUP" "$HOME_DIR/.config/xfce4" "$HOME_DIR/.config/fastfetch"
     fi
 fi
 
@@ -107,4 +108,4 @@ echo
 echo "NEXORA desktop components installed."
 echo "Log out and back in to reload XFCE settings."
 echo "Run 'fastfetch' to check the NEXORA system identity."
-echo "Note: this does not convert Debian into a fully released NEXORA distribution or install the NEXORA Plymouth boot theme."
+echo "Note: this applies NEXORA customizations to Debian 13 with XFCE; it is not a separate NEXORA distribution installer."
