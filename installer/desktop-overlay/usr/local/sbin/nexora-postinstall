@@ -1,0 +1,36 @@
+#!/bin/sh
+set -eu
+# Configure the NEXORA desktop after Debian Installer has copied the overlay.
+mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
+mkdir -p /usr/share/backgrounds/nexora /usr/share/themes
+if command -v flatpak >/dev/null 2>&1; then
+    flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
+fi
+if [ -f /usr/share/backgrounds/nexora/nexora-default.svg ]; then
+    cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml <<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfce4-desktop" version="1.0">
+ <property name="backdrop" type="empty"><property name="screen0" type="empty"><property name="monitor0" type="empty"><property name="workspace0" type="empty">
+  <property name="last-image" type="string" value="/usr/share/backgrounds/nexora/nexora-default.svg"/>
+  <property name="image-style" type="int" value="5"/>
+ </property></property></property></property>
+</channel>
+XML
+fi
+cat > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml <<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xsettings" version="1.0">
+ <property name="Net" type="empty"><property name="ThemeName" type="string" value="NEXORA"/><property name="IconThemeName" type="string" value="Adwaita"/></property>
+ <property name="Xft" type="empty"><property name="DPI" type="int" value="96"/><property name="Antialias" type="int" value="1"/><property name="Hinting" type="int" value="1"/></property>
+</channel>
+XML
+# Apply defaults to any accounts created before the post-install hook.
+for home in /home/*; do
+    [ -d "$home" ] || continue
+    user=$(basename "$home")
+    mkdir -p "$home/.config/xfce4/xfconf/xfce-perchannel-xml"
+    cp -f /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/*.xml "$home/.config/xfce4/xfconf/xfce-perchannel-xml/"
+    chown -R "$user":"$(id -gn "$user" 2>/dev/null || echo "$user")" "$home/.config" 2>/dev/null || true
+done
+update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+exit 0
