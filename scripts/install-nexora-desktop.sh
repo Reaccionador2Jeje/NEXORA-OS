@@ -90,7 +90,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     network-manager network-manager-gnome udisks2 upower polkitd pkexec lxpolkit \
     pipewire-audio pipewire-pulse wireplumber xfce4-pulseaudio-plugin \
     flatpak python3-gi gir1.2-gtk-3.0 xdg-desktop-portal xdg-desktop-portal-gtk \
-    fastfetch desktop-file-utils locales ca-certificates curl wget
+    fastfetch chromium desktop-file-utils locales ca-certificates curl wget
 
 echo "==> Installing NEXORA branding and applications..."
 install -D -m 0644 config/includes.chroot/etc/nexora-release /etc/nexora-release
