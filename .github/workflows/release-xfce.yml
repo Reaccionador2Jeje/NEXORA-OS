@@ -1,11 +1,12 @@
-name: Build and publish NEXORA OS XFCE4
+name: Build and publish NEXORA OS XFCE4 Live
 
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release tag (for example v0.1.0)"
-        required: true
+        description: "Release tag (for example v0.1.0-alpha.2)"
+        required: false
+        default: "v0.1.0-alpha.2"
         type: string
       prerelease:
         description: "Mark this release as a pre-release"
@@ -22,62 +23,61 @@ permissions:
   contents: write
 
 concurrency:
-  group: nexora-xfce-release-${{ github.ref }}
+  group: nexora-xfce-live-release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build-and-release:
-    name: Build NEXORA XFCE4 and publish release
+    name: Build NEXORA XFCE4 Live and publish release
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install build and VM tools
+      - name: Install Debian Live build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl xorriso cpio gzip qemu-system-x86
+          sudo apt-get install -y live-build debootstrap xorriso squashfs-tools qemu-system-x86
 
       - name: Validate configuration
         run: sh ./scripts/validate-config.sh
 
-      - name: Build XFCE4 installer image
-        env:
-          NEXORA_EDITION: xfce
-        run: sudo -E sh ./scripts/build.sh
+      - name: Build NEXORA XFCE4 Live ISO
+        run: sudo ./scripts/build-live.sh
 
-      - name: Verify XFCE4 image and checksum
+      - name: Verify Live ISO and checksum
         run: |
-          ISO="build-output/nexora-os-xfce4-netinst-amd64.iso"
+          ISO="build-output/nexora-os-xfce4-live-amd64.iso"
           test -s "$ISO"
-          sha256sum "$ISO" | tee "$ISO.sha256"
+          test -s "$ISO.sha256"
+          sha256sum --check "$ISO.sha256"
           sh ./scripts/test-qemu-boot.sh "$ISO"
 
       - name: Make release files readable
-        run: sudo chown "$USER:$USER" build-output/nexora-os-xfce4-netinst-amd64.iso*
+        run: sudo chown "$USER:$USER" build-output/nexora-os-xfce4-live-amd64.iso*
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.version || 'v0.1.0-alpha.1' }}
+          tag_name: ${{ inputs.version || 'v0.1.0-alpha.2' }}
           target_commitish: ${{ github.sha }}
-          name: NEXORA OS XFCE4 ${{ inputs.version || 'v0.1.0-alpha.1' }}
+          name: NEXORA OS XFCE4 Live ${{ inputs.version || 'v0.1.0-alpha.2' }}
           prerelease: ${{ github.event_name == 'push' || inputs.prerelease }}
           generate_release_notes: true
           body: |
-            ## NEXORA OS XFCE4
+            ## NEXORA OS XFCE4 Live
 
-            NEXORA desktop edition based on Debian 13 Trixie with the XFCE desktop task and the NEXORA desktop overlay.
+            The main NEXORA desktop edition. Boots directly into a complete XFCE4 live session; no installation is required to try the system.
 
+            - Base: Debian GNU/Linux 13 (Trixie)
             - Architecture: amd64 (x86_64)
-            - Installer: Debian Installer GTK with NEXORA boot branding
-            - Default boot profile: NEXORA OS XFCE Desktop
-            - Includes NEXORA wallpapers, GTK themes, Welcome, Store, Control Center, Updater and configurable NEXORA AI client
-            - Requires an Internet connection during installation
-            - Disk partitioning remains interactive; review all disk choices carefully
+            - Image: hybrid Live ISO for USB and virtual machines
+            - Desktop: XFCE4 with NEXORA wallpapers, GTK themes and desktop tools
+            - Installer: Debian Installer Live, available from the desktop as "Install NEXORA OS"
+            - Language and keyboard defaults: Chilean Spanish and Latin American layout
 
-            This is an experimental pre-release. Test in a virtual machine before installing on physical hardware. The ISO is a network installer, not a complete offline image.
+            This is an experimental alpha release. Test in a virtual machine first. The installer is interactive; carefully review disk and partition choices before confirming any changes.
           files: |
-            build-output/nexora-os-xfce4-netinst-amd64.iso
-            build-output/nexora-os-xfce4-netinst-amd64.iso.sha256
+            build-output/nexora-os-xfce4-live-amd64.iso
+            build-output/nexora-os-xfce4-live-amd64.iso.sha256
