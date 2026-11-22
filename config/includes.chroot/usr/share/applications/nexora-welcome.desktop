@@ -2,8 +2,8 @@
 Type=Application
 Name=NEXORA Welcome
 GenericName=Welcome to NEXORA OS
-Comment=Get started with your NEXORA desktop
-Exec=/bin/sh /usr/bin/nexora-welcome
+Comment=Get started with your NEXORA XFCE desktop
+Exec=xfce4-terminal --title=NEXORA-Welcome --command=/usr/bin/nexora-welcome
 Icon=/usr/share/pixmaps/nexora-icon.svg
 Terminal=false
 Categories=System;Utility;
