@@ -126,7 +126,7 @@ jobs:
 
           KEY_FILE="$RUNNER_TEMP/sourceforge_deploy_key"
           KNOWN_HOSTS="$RUNNER_TEMP/sourceforge_known_hosts"
-          printf '%s\\n' "$SF_SSH_PRIVATE_KEY" > "$KEY_FILE"
+          printf '%s\n' "$SF_SSH_PRIVATE_KEY"
           chmod 600 "$KEY_FILE"
 
           ssh-keyscan -T 15 -t ed25519 frs.sourceforge.net > "$KNOWN_HOSTS" 2>/dev/null
@@ -138,7 +138,4 @@ jobs:
             exit 1
           fi
 
-          rsync --archive --verbose --partial --progress --mkpath \\
-            -e "ssh -i $KEY_FILE -o IdentitiesOnly=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o StrictHostKeyChecking=yes" \\
-            build-output/publish/ \\
-            "$SF_USERNAME@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/0.2.0/"
+          rsync --archive --verbose --partial --progress --mkpath -e "ssh -i $KEY_FILE -o IdentitiesOnly=yes -o UserKnownHostsFile=$KNOWN_HOSTS -o StrictHostKeyChecking=yes" build-output/publish/ "$SF_USERNAME@frs.sourceforge.net:/home/frs/project/$SF_PROJECT/0.2.0/"
