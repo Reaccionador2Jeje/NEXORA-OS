@@ -1,15 +1,22 @@
 #!/usr/bin/python3
-"""NEXORA Store — lightweight GTK3 frontend for system Flatpak apps."""
+"""NEXORA Store — curated GTK3 catalog for Flatpak applications."""
 
+import json
+import re
 import subprocess
 import threading
+from pathlib import Path
 
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib, Pango
 
 
-class NexoraStore(Gtk.ApplicationWindow):
+CATALOG_PATH = Path("/usr/share/nexora-store/catalog.json")
+APP_ID_PATTERN = re.compile(r"^[A-Za-z0-9_.]+$")
+
+
+class NexoraStore(Gtk.Window):
     def __init__(self):
         super().__init__(title="NEXORA Store")
         self.set_default_size(820, 620)
@@ -34,12 +41,23 @@ class NexoraStore(Gtk.ApplicationWindow):
         intro.set_xalign(0)
         root.pack_start(intro, False, False, 0)
 
+        filters = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         self.search = Gtk.SearchEntry()
-        self.search.set_placeholder_text("Search Flathub applications…")
+        self.search.set_placeholder_text("Search NEXORA's curated catalog…")
+        self.search.set_hexpand(True)
         self.search.connect("search-changed", self.filter_apps)
-        root.pack_start(self.search, False, False, 0)
+        filters.pack_start(self.search, True, True, 0)
 
-        self.status = Gtk.Label(label="Connecting to Flathub…")
+        self.category = Gtk.ComboBoxText()
+        self.category.append_text("All categories")
+        for name in ("Productivity", "Graphics", "Development", "Multimedia", "Games", "System"):
+            self.category.append_text(name)
+        self.category.set_active(0)
+        self.category.connect("changed", self.filter_apps)
+        filters.pack_end(self.category, False, False, 0)
+        root.pack_start(filters, False, False, 0)
+
+        self.status = Gtk.Label(label="Loading NEXORA catalog…")
         self.status.set_xalign(0)
         root.pack_start(self.status, False, False, 0)
 
@@ -69,32 +87,37 @@ class NexoraStore(Gtk.ApplicationWindow):
         threading.Thread(target=worker, daemon=True).start()
 
     def load_catalog(self):
-        self.status.set_text("Loading the Flathub catalog…")
+        self.status.set_text("Loading NEXORA's curated catalog…")
+        try:
+            raw = json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
+            self.apps = []
+            for item in raw.get("applications", []):
+                app_id = str(item.get("id", "")).strip()
+                name = str(item.get("name", "")).strip()
+                category = str(item.get("category", "Other")).strip()
+                if APP_ID_PATTERN.fullmatch(app_id) and name:
+                    self.apps.append({
+                        "id": app_id,
+                        "name": name,
+                        "description": str(item.get("description", "")).strip(),
+                        "category": category,
+                    })
+        except Exception as error:
+            self.status.set_text("Could not read the NEXORA catalog.")
+            self.show_error(str(error))
+            return
+
         self.run_worker(
-            ["flatpak", "remote-ls", "--app",
-             "--columns=application,name,description", "flathub"],
-            self.catalog_loaded
+            ["flatpak", "remotes", "--columns=name"],
+            self.remote_loaded
         )
 
-    def catalog_loaded(self, code, output):
-        if code != 0:
-            self.status.set_text("Could not load Flathub. Check your connection and Flatpak remote.")
-            self.show_error(output)
+    def remote_loaded(self, code, output):
+        remotes = {line.strip() for line in output.splitlines() if line.strip()}
+        if code != 0 or "flathub" not in remotes:
+            self.status.set_text("Flathub is not configured.")
+            self.show_error("The Flathub remote is missing. Check the system's Flatpak configuration.")
             return False
-
-        apps = []
-        for line in output.splitlines():
-            columns = line.split("\t", 2)
-            if len(columns) < 2 or columns[0].strip().lower() == "application":
-                continue
-            app_id = columns[0].strip()
-            if not app_id or "." not in app_id:
-                continue
-            name = columns[1].strip() or app_id
-            description = columns[2].strip() if len(columns) > 2 else ""
-            apps.append((app_id, name, description))
-
-        self.apps = sorted(apps, key=lambda item: item[1].casefold())
         self.run_worker(
             ["flatpak", "list", "--app", "--columns=application"],
             self.installed_loaded
@@ -106,7 +129,7 @@ class NexoraStore(Gtk.ApplicationWindow):
         if code == 0:
             installed = {line.strip() for line in output.splitlines() if line.strip()}
         self.populate(installed)
-        self.status.set_text(f"{len(self.apps)} applications available on Flathub")
+        self.status.set_text(f"{len(self.apps)} curated applications available")
         return False
 
     def populate(self, installed):
@@ -114,34 +137,36 @@ class NexoraStore(Gtk.ApplicationWindow):
             self.listbox.remove(row)
         self.rows = []
 
-        for app_id, name, description in self.apps:
+        for app in self.apps:
             row = Gtk.ListBoxRow()
-            row.app_id = app_id
-            row.search_text = f"{name} {app_id} {description}".casefold()
+            row.app_id = app["id"]
+            row.category_name = app["category"]
+            row.search_text = f'{app["name"]} {app["id"]} {app["description"]} {app["category"]}'.casefold()
 
             outer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
             outer.set_border_width(10)
             details = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
             details.set_hexpand(True)
 
-            title = Gtk.Label(label=name)
+            title = Gtk.Label(label=app["name"])
             title.set_xalign(0)
             title.set_ellipsize(Pango.EllipsizeMode.END)
             title.get_style_context().add_class("heading")
             details.pack_start(title, False, False, 0)
 
-            identifier = Gtk.Label(label=app_id)
-            identifier.set_xalign(0)
-            identifier.set_selectable(True)
-            details.pack_start(identifier, False, False, 0)
+            subtitle = Gtk.Label(label=f'{app["category"]} · {app["id"]}')
+            subtitle.set_xalign(0)
+            subtitle.set_selectable(True)
+            details.pack_start(subtitle, False, False, 0)
 
-            if description:
-                summary = Gtk.Label(label=description)
+            if app["description"]:
+                summary = Gtk.Label(label=app["description"])
                 summary.set_xalign(0)
                 summary.set_line_wrap(True)
                 summary.set_max_width_chars(88)
                 details.pack_start(summary, False, False, 0)
 
+            app_id = app["id"]
             action = Gtk.Button(label="Remove" if app_id in installed else "Install")
             action.app_id = app_id
             action.action_name = "remove" if app_id in installed else "install"
@@ -157,8 +182,11 @@ class NexoraStore(Gtk.ApplicationWindow):
 
     def filter_apps(self, *_args):
         query = self.search.get_text().strip().casefold()
+        selected = self.category.get_active_text()
         for row in self.rows:
-            row.set_visible(not query or query in row.search_text)
+            category_matches = selected == "All categories" or row.category_name == selected
+            query_matches = not query or query in row.search_text
+            row.set_visible(category_matches and query_matches)
         return False
 
     def app_action(self, button):
