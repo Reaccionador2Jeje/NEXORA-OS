@@ -18,7 +18,7 @@ Installs standard system utilities without selecting a desktop environment.
 Append:
 
 ```text
-auto=true priority=critical preseed/file=/cdrom/nexora/preseed/desktop.cfg
+priority=high preseed/file=/cdrom/nexora/preseed/desktop.cfg
 ```
 
 Installs standard system utilities and Debian's `xfce-desktop` task.
@@ -26,8 +26,8 @@ Installs standard system utilities and Debian's `xfce-desktop` task.
 ## Safety and current limitations
 
 - Neither profile defines an automatic partition recipe.
-- Use `priority=high`, not unattended `auto=true priority=critical` mode, so disk setup remains an interactive part of installation.
+- Use the interactive installer priority so disk setup remains an explicit part of installation.
 - Review every disk and formatting confirmation before accepting it.
 - A working network connection is required to download packages.
-- Locale and keyboard defaults are currently US English; adjust them in the installer when needed.
+- Locale defaults to Chilean Spanish (`es_CL.UTF-8`) and the Latin American keyboard layout.
 - This is an interim profile mechanism. A graphical NEXORA profile chooser and localized defaults are future work.
