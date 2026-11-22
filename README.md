@@ -12,14 +12,14 @@ The upstream Trixie GTK mini ISO is approximately 104 MB at the time this pipeli
 
 ## Installation profiles
 
-The first prototype uses Debian's built-in task selection screen:
+The ISO embeds two Debian Installer preseed profiles:
 
-| NEXORA profile | Task selection |
+| NEXORA profile | Package selection |
 | --- | --- |
-| Minimal Terminal | Keep **standard system utilities** selected; leave desktop environments unchecked. |
-| NEXORA XFCE | Select **Xfce** in addition to standard system utilities. |
+| Minimal Terminal | Standard system utilities only; no desktop environment. |
+| NEXORA XFCE | Standard system utilities plus Debian's `xfce-desktop` task. |
 
-Debian's tasksel provides the `xfce-desktop` task. The ISO now embeds two preseed profiles. Select one by appending the corresponding boot argument documented in [installer/BOOT-OPTIONS.md](installer/BOOT-OPTIONS.md). The graphical installer still shows Debian's upstream interface; a graphical NEXORA profile chooser and automatic installation of NEXORA theme, Store and desktop assets remain future work.
+Choose a profile by appending its boot argument, documented in [installer/BOOT-OPTIONS.md](installer/BOOT-OPTIONS.md). The installer still uses Debian's upstream GTK interface; a graphical NEXORA profile chooser and automatic installation of NEXORA theme, Store and desktop assets remain future work.
 
 ## Build
 
