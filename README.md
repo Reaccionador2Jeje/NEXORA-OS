@@ -21,6 +21,10 @@ The ISO embeds two Debian Installer preseed profiles:
 
 Choose a profile by appending its boot argument, documented in [installer/BOOT-OPTIONS.md](installer/BOOT-OPTIONS.md). The desktop profile now embeds NEXORA themes, wallpapers, NEXORA Welcome, Store, Control Center and an AI client. The installer itself still uses Debian's upstream GTK interface; its branded boot profile chooser and custom installer artwork remain in progress.
 
+## NEXORA XFCE desktop
+
+The desktop profile embeds five wallpapers, four GTK themes, NEXORA Welcome, Store, Control Center, Updater and the NEXORA AI client. See [installer integration](installer/README.md) and [NEXORA AI configuration](docs/AI-INTEGRATION.md). The AI client connects to a local Ollama-compatible server or another OpenAI-compatible endpoint; model weights and provider credentials are not bundled.
+
 ## Build
 
 On a Debian or Ubuntu amd64 build host:
