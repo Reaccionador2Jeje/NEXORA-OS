@@ -11,6 +11,7 @@ NEXORA OS is a Debian-derived operating system assembled with Debian Live `live-
 3. **Desktop** — XFCE4 session, panel, window manager, Thunar and LightDM.
 4. **NEXORA identity** — custom GTK theme, wallpaper, greeter and Welcome launcher.
 5. **Software delivery** — APT for the base OS and Flatpak/Flathub for optional user applications.
+6. **NEXORA Store** — a small GTK3/Python interface over the Flatpak CLI, avoiding a heavyweight desktop software center.
 
 ## Desktop design
 
@@ -18,14 +19,16 @@ NEXORA OS is a Debian-derived operating system assembled with Debian Live `live-
 - LightDM with GTK greeter replaces SDDM.
 - NEXORA dark GTK styling and wallpaper are installed as system assets.
 - New users receive NEXORA XFCE settings through `/etc/skel`.
+- A lightweight PolicyKit agent handles privileged Flatpak operations.
 - Avoid pulling optional packages through APT recommends.
 
 ## Software policy
 
 - No games are preinstalled.
-- No heavyweight game launchers or desktop software centers are included in the base image.
+- No heavyweight game launchers or desktop software centers are included.
 - Flatpak is installed and Flathub is configured as a system remote.
-- A lightweight NEXORA software-center interface is a separate implementation milestone.
+- NEXORA Store lists Flathub apps and supports search, install, remove and system-wide updates.
+- The store is intentionally separate from the base package manager; users choose what to install.
 
 ## Editions
 
