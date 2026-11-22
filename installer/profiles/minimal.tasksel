@@ -1,0 +1,4 @@
+# NEXORA OS Minimal task selection.
+# In Debian Installer's tasksel screen, keep "standard system utilities"
+# selected and leave all desktop environments unchecked.
+tasksel tasksel/first multiselect standard
