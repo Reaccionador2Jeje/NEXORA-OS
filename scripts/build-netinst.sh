@@ -102,14 +102,19 @@ printf '%s\n' "$branding_listing" | grep -q 'nexora-installer-background.png' ||
     echo "NEXORA installer background is missing from the ISO." >&2
     exit 1
 }
-grub_menu=$(xorriso -indev "$OUTPUT_ISO" -cat /boot/grub/grub.cfg 2>&1 || true)
-printf '%s\n' "$grub_menu" | grep -q "NEXORA OS Minimal" || {
-    echo "UEFI NEXORA boot entry is missing." >&2
+MENU_VERIFY_DIR="$ROOT_DIR/build-output/menu-verification"
+rm -rf "$MENU_VERIFY_DIR"
+mkdir -p "$MENU_VERIFY_DIR"
+xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract /boot/grub/grub.cfg "$MENU_VERIFY_DIR/grub.cfg" \
+    -extract "$SYSLINUX_MENU_PATH" "$MENU_VERIFY_DIR/menu.cfg" \
+    >/dev/null 2>&1
+grep -q "NEXORA OS Minimal" "$MENU_VERIFY_DIR/grub.cfg" || {
+    echo "UEFI NEXORA boot entry is missing from the embedded GRUB menu." >&2
     exit 1
 }
-syslinux_menu=$(xorriso -indev "$OUTPUT_ISO" -cat "$SYSLINUX_MENU_PATH" 2>&1 || true)
-printf '%s\n' "$syslinux_menu" | grep -q "NEXORA OS Minimal" || {
-    echo "BIOS NEXORA boot entry is missing." >&2
+grep -q "NEXORA OS Minimal" "$MENU_VERIFY_DIR/menu.cfg" || {
+    echo "BIOS NEXORA boot entry is missing from the embedded Syslinux menu." >&2
     exit 1
 }
 installer_branding=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/branding 2>&1 || true)
