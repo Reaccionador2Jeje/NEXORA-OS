@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=NEXORA Store
+Comment=Discover and manage optional applications
+Exec=nexora-store
+Icon=system-software-install
+Terminal=false
+Categories=System;PackageManager;
