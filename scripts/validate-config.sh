@@ -45,7 +45,7 @@ fi
 
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
 
-for package in live-boot live-config live-config-systemd systemd-sysv linux-image-amd64 bash coreutils util-linux procps iproute2 apt ca-certificates; do
+for package in live-boot live-config live-config-systemd live-tools systemd-sysv user-setup linux-image-amd64 bash coreutils util-linux procps iproute2 ifupdown isc-dhcp-client locales keyboard-configuration console-setup apt ca-certificates; do
     check_package "$package"
 done
 for package in live-config-sysvinit sysvinit-core xfce4-session xfce4-panel xserver-xorg lightdm chromium flatpak plasma-desktop task-kde-desktop; do
