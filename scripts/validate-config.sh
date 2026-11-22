@@ -13,12 +13,14 @@ check_file() {
 
 check_file scripts/build.sh
 check_file scripts/build-netinst.sh
+check_file scripts/check-dependencies.sh
+check_file scripts/clean.sh
 check_file scripts/test-qemu-boot.sh
 check_file installer/README.md
 check_file installer/profiles/minimal.md
 check_file installer/profiles/desktop.md
 
-sh -n scripts/build.sh scripts/build-netinst.sh scripts/test-qemu-boot.sh scripts/validate-config.sh
+sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/validate-config.sh
 
 grep -q 'DEBIAN_FRONTEND=gtk' installer/README.md || fail "GTK frontend must be documented."
 grep -q 'tasksel' installer/profiles/minimal.tasksel || fail "Minimal tasksel profile is missing."
