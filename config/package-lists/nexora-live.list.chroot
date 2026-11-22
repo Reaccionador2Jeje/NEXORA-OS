@@ -5,7 +5,8 @@ network-manager
 network-manager-gnome
 sudo
 dbus-x11
-policykit-1
+polkitd
+pkexec
 lxpolkit
 xfce4-goodies
 firefox-esr
