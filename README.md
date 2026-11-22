@@ -1,8 +1,8 @@
-# NEXORA OS Minimal — GTK Netinst
+# NEXORA OS — XFCE4 Desktop & Minimal
 
 **Your Terminal. Your Universe.**
 
-NEXORA OS Minimal is moving from a Debian Live image to a **network installer (netinst)** based on Debian 13 Trixie for amd64.
+NEXORA OS is a Debian 13 Trixie-based operating system with two installation profiles. The main desktop edition is **NEXORA XFCE4**, a familiar XFCE desktop enhanced with NEXORA themes, wallpapers and integrated tools. NEXORA Minimal remains available for terminal-focused installations.
 
 ## Installer technology
 
@@ -19,7 +19,7 @@ The ISO embeds two Debian Installer preseed profiles:
 | Minimal Terminal | Standard system utilities only; no desktop environment. |
 | NEXORA XFCE | Standard system utilities plus Debian's `xfce-desktop` task. |
 
-Choose a profile by appending its boot argument, documented in [installer/BOOT-OPTIONS.md](installer/BOOT-OPTIONS.md). The desktop profile now embeds NEXORA themes, wallpapers, NEXORA Welcome, Store, Control Center and an AI client. The installer itself still uses Debian's upstream GTK interface; its branded boot profile chooser and custom installer artwork remain in progress.
+Choose a profile by appending its boot argument, documented in [installer/BOOT-OPTIONS.md](installer/BOOT-OPTIONS.md). The desktop profile embeds NEXORA themes, wallpapers, NEXORA Welcome, Store, Control Center, Updater and an AI client. The installer itself uses Debian Installer GTK with NEXORA boot artwork and a profile selector; its underlying installation screens remain Debian components.
 
 ## NEXORA XFCE desktop
 
@@ -37,9 +37,11 @@ cd NEXORA-OS
 git checkout feature/nexora-minimal-terminal
 sh ./scripts/validate-config.sh
 sudo ./scripts/build.sh
+# Build the main XFCE4 desktop edition:
+sudo env NEXORA_EDITION=xfce ./scripts/build.sh
 ```
 
-The ISO is written to `build-output/nexora-os-minimal-netinst-amd64.iso`. The script prints its size and SHA256 checksum.
+The Minimal ISO is written to `build-output/nexora-os-minimal-netinst-amd64.iso`. The XFCE4 ISO is written to `build-output/nexora-os-xfce4-netinst-amd64.iso`. Both scripts print the image size and SHA256 checksum. The XFCE4 release workflow also runs a QEMU boot smoke test and publishes the ISO plus checksum to GitHub Releases.
 
 ## Network requirement
 
@@ -51,9 +53,9 @@ Netinst downloads the installed operating system from Debian repositories. A wor
 - ISO volume label: changed to NEXORA.
 - BIOS/UEFI boot metadata: preserved by xorriso and checked during build.
 - Profile selection: embedded Minimal and XFCE preseed files, selected through installer boot arguments.
-- Branded boot-time profile menu: being prepared; CI first identifies the exact upstream BIOS/UEFI boot configuration paths before patching them.
-- NEXORA XFCE desktop overlay: integrated in the desktop preseed; CI and real installation testing pending.
-- NEXORA-branded boot menu and custom GTK installer artwork: in progress.
+- Branded BIOS/UEFI boot menu: offers Minimal and XFCE Desktop profiles while preserving Debian fallback entries.
+- XFCE4 release build: dedicated image target selects the XFCE profile by default and includes the NEXORA desktop overlay.
+- Release publication: `.github/workflows/release-xfce.yml` builds, smoke-tests and publishes the ISO and SHA256 file when manually dispatched or when a `v*` tag is pushed.
 - Full interactive QEMU installation test: not yet implemented; the current QEMU step is a boot smoke test only.
 
 ## Project principles
