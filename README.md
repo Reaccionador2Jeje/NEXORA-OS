@@ -19,7 +19,7 @@ The first prototype uses Debian's built-in task selection screen:
 | Minimal Terminal | Keep **standard system utilities** selected; leave desktop environments unchecked. |
 | NEXORA XFCE | Select **Xfce** in addition to standard system utilities. |
 
-Debian's tasksel provides the `xfce-desktop` task. The first prototype still shows Debian's upstream task names. A branded NEXORA profile selector and automatic installation of NEXORA theme, Store and desktop assets are planned as the next implementation stage.
+Debian's tasksel provides the `xfce-desktop` task. The ISO now embeds two preseed profiles. Select one by appending the corresponding boot argument documented in [installer/BOOT-OPTIONS.md](installer/BOOT-OPTIONS.md). The graphical installer still shows Debian's upstream interface; a graphical NEXORA profile chooser and automatic installation of NEXORA theme, Store and desktop assets remain future work.
 
 ## Build
 
@@ -46,8 +46,8 @@ Netinst downloads the installed operating system from Debian repositories. A wor
 - Debian Installer GTK bootable mini ISO: used as the upstream installer base.
 - ISO volume label: changed to NEXORA.
 - BIOS/UEFI boot metadata: preserved by xorriso and checked during build.
-- Profile selection: currently uses Debian tasksel; Minimal means no desktop task, XFCE means select `xfce-desktop`.
-- NEXORA-branded GTK installer screens and automatic desktop asset deployment: not implemented yet.
+- Profile selection: embedded Minimal and XFCE preseed files, selected through installer boot arguments.
+- NEXORA-branded GTK installer screens, a graphical profile chooser and automatic desktop asset deployment: not implemented yet.
 - Full interactive QEMU installation test: not yet implemented; the current QEMU step is a boot smoke test only.
 
 ## Project principles
