@@ -47,6 +47,18 @@ The catalog currently includes options such as LibreOffice, Firefox, GIMP, Inksc
 
 These apps are **not bundled into the base ISO**. They are fetched from Flathub only when selected. Availability depends on Flathub and the target machine's architecture.
 
+## NEXORA Upgrade Assistant
+
+The ISO includes an experimental, read-only **NEXORA Upgrade Assistant**. It reports the installed NEXORA version, Debian base, architecture and an APT package-upgrade simulation. It is intended as the first preflight layer for a future release migration system.
+
+Run it from the applications menu (**NEXORA Upgrade Assistant**) or with:
+
+```bash
+python3 /usr/lib/nexora/nexora-upgrade.py
+```
+
+**Important:** this prototype does not migrate between NEXORA releases, change APT repositories, or install/remove packages. Its APT check is simulation-only. Do not treat it as a substitute for backups or a supported distribution upgrade path. Full release upgrades will only be enabled after signed release metadata, compatibility rules, configuration migrations, rollback/recovery and real upgrade tests exist.
+
 ## Build the ISO
 
 Build on a Debian 13 amd64 host with a reliable internet connection and several gigabytes of free disk space.
