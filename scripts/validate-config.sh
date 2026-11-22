@@ -29,6 +29,7 @@ check_file installer/desktop-overlay/usr/bin/nexora-ai
 check_file installer/desktop-overlay/usr/bin/nexora-center
 check_file installer/desktop-overlay/usr/bin/nexora-store
 check_file installer/desktop-overlay/usr/bin/nexora-welcome
+check_file installer/desktop-overlay/usr/bin/nexora-updater
 check_file installer/desktop-overlay/usr/share/backgrounds/nexora/nexora-aurora.svg
 check_file installer/desktop-overlay/usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css
 check_file installer/desktop-overlay/usr/share/backgrounds/nexora/nexora-nebula.svg
