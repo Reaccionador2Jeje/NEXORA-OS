@@ -15,7 +15,7 @@ The current upstream GTK mini ISO is retained as the base. Before changing boot 
 The next implementation step will patch only verified bootloader configuration files, preserving the original kernel/initrd paths, boot parameters, BIOS boot catalog and UEFI boot path. The two NEXORA entries will append:
 
 - Minimal: `priority=high preseed/file=/cdrom/nexora/preseed/minimal.cfg`
-- XFCE: `auto=true priority=critical preseed/file=/cdrom/nexora/preseed/desktop.cfg`
+- XFCE: `priority=high preseed/file=/cdrom/nexora/preseed/desktop.cfg`
 
 ## Safety and scope
 
@@ -27,4 +27,4 @@ The next implementation step will patch only verified bootloader configuration f
 
 ## Interactive partitioning requirement
 
-The profile menu must use `priority=high` with the preseed path. It must not use `auto=true priority=critical`, because that suppresses ordinary installer questions and is inappropriate for a flow that promises interactive disk setup.
+The profile menu must use `priority=high` with the preseed path so ordinary installer questions and interactive disk setup remain available.
