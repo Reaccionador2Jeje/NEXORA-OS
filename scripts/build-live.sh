@@ -94,6 +94,9 @@ lb config \
     --iso-publisher "NEXORA Project" \
     --iso-volume "NEXORA_XFCE4_LIVE"
 
+echo "==> Fixing legacy live-build Contents index URL when required..."
+python3 "$ROOT_DIR/scripts/patch-live-build-contents-index.py"
+
 echo "==> Building the complete XFCE4 live filesystem and installer..."
 lb build
 
