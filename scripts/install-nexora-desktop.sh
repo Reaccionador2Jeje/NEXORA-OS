@@ -38,7 +38,8 @@ for f in \
     config/includes.chroot/usr/bin/nexora-store \
     config/includes.chroot/usr/share/applications/nexora-welcome.desktop \
     config/includes.chroot/usr/share/applications/nexora-store.desktop \
-    config/includes.chroot/usr/share/nexora-store/catalog.json
+    config/includes.chroot/usr/share/nexora-store/catalog.json \\
+    config/includes.chroot/usr/share/nexora-store/store.css
 do
     need_file "$f"
 done
@@ -56,6 +57,7 @@ install -D -m 0644 config/includes.chroot/usr/share/pixmaps/nexora-icon.svg /usr
 install -D -m 0644 config/includes.chroot/usr/share/themes/NEXORA/gtk-3.0/gtk.css /usr/share/themes/NEXORA/gtk-3.0/gtk.css
 install -D -m 0644 config/includes.chroot/usr/share/nexora/fastfetch/nexora.txt /usr/share/nexora/fastfetch/nexora.txt
 install -D -m 0644 config/includes.chroot/usr/share/nexora-store/catalog.json /usr/share/nexora-store/catalog.json
+install -D -m 0644 config/includes.chroot/usr/share/nexora-store/store.css /usr/share/nexora-store/store.css
 install -D -m 0755 config/includes.chroot/usr/bin/nexora-welcome /usr/bin/nexora-welcome
 install -D -m 0755 config/includes.chroot/usr/bin/nexora-store /usr/bin/nexora-store
 install -D -m 0644 config/includes.chroot/usr/share/applications/nexora-welcome.desktop /usr/share/applications/nexora-welcome.desktop

@@ -16,6 +16,8 @@ CATEGORIES = {
     "Multimedia",
     "Games",
     "System",
+    "Internet",
+    "Education",
 }
 
 

@@ -49,6 +49,7 @@ check_file config/includes.chroot/usr/share/applications/nexora-store.desktop
 check_file config/includes.chroot/usr/share/applications/nexora-welcome.desktop
 check_file config/includes.chroot/usr/share/applications/nexora-upgrade.desktop
 check_file config/includes.chroot/usr/share/nexora-store/catalog.json
+check_file config/includes.chroot/usr/share/nexora-store/store.css
 check_file scripts/test-store-catalog.py
 check_file config/hooks/normal/0400-configure-nexora-desktop.hook.chroot
 check_file config/hooks/normal/0500-enable-flathub.hook.chroot
