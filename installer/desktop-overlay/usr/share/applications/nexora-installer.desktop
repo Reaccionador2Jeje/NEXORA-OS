@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Install NEXORA OS
+Name[es]=Instalar NEXORA OS
+Comment=Install this NEXORA Live system on your computer
+Comment[es]=Instala este sistema NEXORA Live en tu equipo
+Exec=debian-installer-launcher live
+Icon=/usr/share/nexora/branding/nexora-icon.svg
+Terminal=false
+StartupNotify=true
+Categories=System;Settings;
