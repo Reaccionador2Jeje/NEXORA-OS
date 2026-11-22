@@ -14,6 +14,7 @@ NEXORA OS is an open-source Linux distribution based on **Debian 13 (Trixie)**. 
 - A lightweight **XFCE4** desktop configured with NEXORA defaults.
 - NEXORA GTK theme, wallpaper, LightDM greeter branding and desktop panel settings.
 - **NEXORA Store**, a GTK application for browsing a curated Flatpak catalog.
+- A custom **Fastfetch** profile with original NEXORA ASCII branding and live system information.
 - Flatpak with the Flathub remote configured; applications are downloaded only when the user chooses to install them.
 - Chromium as the preinstalled browser.
 - Spanish (Chile) locale and Latin American keyboard defaults.
@@ -95,6 +96,7 @@ The repository includes checks for:
 - XFCE packages and the absence of KDE/game bundles from the base image.
 - NEXORA release identity, locale, greeter and desktop defaults.
 - NEXORA Store Python syntax and catalog JSON.
+- Fastfetch configuration JSON and NEXORA logo asset.
 - Flatpak application IDs, categories and duplicate entries.
 
 GitHub Actions builds the ISO and attempts a BIOS boot test in QEMU. A passing static validation alone does not prove that an ISO builds or boots. UEFI and physical hardware testing remain separate release tasks.
