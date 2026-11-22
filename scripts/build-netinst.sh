@@ -50,8 +50,7 @@ xorriso -indev "$SOURCE_ISO" \
     -map "$ROOT_DIR/installer/preseed" /nexora/preseed \
     -map "$ROOT_DIR/installer/desktop-overlay" /nexora/desktop-overlay \
     -map "$ROOT_DIR/installer/BOOT-OPTIONS.md" /nexora/BOOT-OPTIONS.md \
-    -mkdir /nexora/branding \
-    -map "$ROOT_DIR/build-output/nexora-installer-background.png" /nexora/branding/nexora-installer-background.png \
+    -map "$ROOT_DIR/build-output/nexora-installer-background.png" /nexora/nexora-installer-background.png \
     -boot_image any replay \
     -commit \
     -end
