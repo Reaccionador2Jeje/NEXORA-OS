@@ -1,0 +1,38 @@
+#!/bin/sh
+# Apply NEXORA desktop defaults system-wide as well as through /etc/skel.
+set -eu
+
+SKEL="/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml"
+SYSTEM="/etc/xdg/xfce4/xfconf/xfce-perchannel-xml"
+
+for file in xfce4-desktop.xml xfce4-panel.xml xsettings.xml; do
+    if [ ! -s "$SKEL/$file" ]; then
+        echo "NEXORA desktop configuration missing: $SKEL/$file" >&2
+        exit 1
+    fi
+done
+
+install -d -m 0755 "$SYSTEM"
+install -m 0644 "$SKEL/xfce4-desktop.xml" "$SYSTEM/xfce4-desktop.xml"
+install -m 0644 "$SKEL/xfce4-panel.xml" "$SYSTEM/xfce4-panel.xml"
+install -m 0644 "$SKEL/xsettings.xml" "$SYSTEM/xsettings.xml"
+
+# Make the NEXORA GTK theme the default for GTK3 applications.
+install -d -m 0755 /etc/gtk-3.0
+cat > /etc/gtk-3.0/settings.ini <<'EOF'
+[Settings]
+gtk-theme-name=NEXORA
+gtk-icon-theme-name=Adwaita
+gtk-font-name=Sans 10
+gtk-cursor-theme-name=Adwaita
+gtk-enable-animations=true
+EOF
+
+# Keep the welcome application discoverable in XFCE's application menu.
+if [ ! -s /usr/share/applications/nexora-welcome.desktop ]; then
+    echo "NEXORA Welcome launcher is missing." >&2
+    exit 1
+fi
+
+update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
+echo "NEXORA desktop defaults installed."
