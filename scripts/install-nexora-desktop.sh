@@ -26,8 +26,8 @@ EOF
 }
 
 desktop_status() {
-    if command -v xfce4-session >/dev/null 2>&1 &&
-       command -v lightdm >/dev/null 2>&1 &&
+    if [ -x /usr/bin/xfce4-session ] &&
+       [ -x /usr/sbin/lightdm ] &&
        [ -s /etc/nexora-release ] &&
        grep -q 'Desktop: XFCE' /etc/nexora-release; then
         echo "NEXORA Desktop is installed."
@@ -135,9 +135,9 @@ install -d -m 0755 /usr/local/bin
 cat > /usr/local/bin/nexora-desktop <<EOF
 #!/bin/sh
 SOURCE_INSTALLER='$SCRIPT_PATH'
-case "${1:-status}" in
+case "\${1:-status}" in
     status)
-        if command -v xfce4-session >/dev/null 2>&1 && command -v lightdm >/dev/null 2>&1 && [ -s /etc/nexora-release ] && grep -q 'Desktop: XFCE' /etc/nexora-release; then
+        if [ -x /usr/bin/xfce4-session ] && [ -x /usr/sbin/lightdm ] && [ -s /etc/nexora-release ] && grep -q 'Desktop: XFCE' /etc/nexora-release; then
             echo "NEXORA Desktop is installed."
             cat /etc/nexora-release
             exit 0
@@ -149,8 +149,8 @@ case "${1:-status}" in
         echo "Usage: nexora-desktop {status|help|install}"
         ;;
     install)
-        if [ -x "$SOURCE_INSTALLER" ]; then
-            exec "$SOURCE_INSTALLER" install
+        if [ -x "\$SOURCE_INSTALLER" ]; then
+            exec "\$SOURCE_INSTALLER" install
         fi
         echo "Reinstall from the NEXORA-OS source checkout: sudo ./scripts/install-nexora-desktop.sh install" >&2
         exit 1
