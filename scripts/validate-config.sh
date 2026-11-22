@@ -53,6 +53,7 @@ grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture 
 grep -q -- '--apt-recommends false' auto/config || fail "APT recommends must remain disabled for the lightweight profile."
 grep -q -- '--security false' auto/config || fail "Use the explicit Trixie security source instead of live-build's obsolete default suite."
 grep -q -- '--linux-packages none' auto/config || fail "Kernel discovery must be disabled; install the amd64 kernel from the package manifest."
+grep -q -- '--initsystem systemd' auto/config || fail "Debian Live must use systemd, not sysvinit."
 grep -q '^deb http://security.debian.org/debian-security trixie-security ' config/archives/nexora-security.list.chroot || fail "Build chroot must use the Debian Trixie security suite."
 grep -q '^deb http://security.debian.org/debian-security trixie-security ' config/archives/nexora-security.list.binary || fail "Installed system must use the Debian Trixie security suite."
 if grep -R -n 'trixie/updates' auto config; then
@@ -63,10 +64,10 @@ sh -n config/hooks/normal/0500-enable-flathub.hook.chroot
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
 python3 -c 'import json, pathlib; json.loads(pathlib.Path("config/includes.chroot/usr/share/nexora-store/catalog.json").read_text(encoding="utf-8"))'
 
-for package in linux-image-amd64 xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm chromium flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
+for package in live-config-systemd linux-image-amd64 xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm chromium flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
     check_package "$package"
 done
-for package in task-kde-desktop sddm plasma-discover konsole dolphin supertux supertuxkart kmines kpat neverball; do
+for package in live-config-sysvinit task-kde-desktop sddm plasma-discover konsole dolphin supertux supertuxkart kmines kpat neverball; do
     reject_package "$package"
 done
 
