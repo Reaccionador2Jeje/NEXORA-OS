@@ -71,7 +71,7 @@ if grep -R -n 'trixie/updates' auto config; then
     fail "Obsolete Debian security suite trixie/updates detected."
 fi
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
-sh -n config/hooks/normal/0400-configure-nexora-desktop.hook.chroot config/hooks/normal/0500-enable-flathub.hook.chroot config/hooks/normal/0600-enable-nexora-plymouth.hook.chroot
+sh -n scripts/install-nexora-desktop.sh config/hooks/normal/0400-configure-nexora-desktop.hook.chroot config/hooks/normal/0500-enable-flathub.hook.chroot config/hooks/normal/0600-enable-nexora-plymouth.hook.chroot
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/lib/nexora/nexora-upgrade.py").read_text(encoding="utf-8"))'
 python3 -c 'import json, pathlib; json.loads(pathlib.Path("config/includes.chroot/usr/share/nexora-store/catalog.json").read_text(encoding="utf-8"))'
@@ -96,4 +96,4 @@ grep -q 'nexora-upgrade.py' config/includes.chroot/usr/share/applications/nexora
 grep -q 'ModuleName=script' config/includes.chroot/usr/share/plymouth/themes/nexora-aurora/nexora-aurora.plymouth || fail "NEXORA Aurora must use the Plymouth script renderer."
 grep -q 'plymouth-set-default-theme --rebuild-initrd nexora-aurora' config/hooks/normal/0600-enable-nexora-plymouth.hook.chroot || fail "NEXORA Aurora is not selected for initramfs."
 
-printf '\nNEXORA XFCE system defaults, Store, Upgrade Assistant, Fastfetch and Aurora Plymouth configuration checks passed. ISO build and boot tests are still required.\n'
+printf '\nNEXORA in-place installer, XFCE system defaults, Store, Upgrade Assistant, Fastfetch and Aurora Plymouth configuration checks passed. ISO build and boot tests are still required.\n'
