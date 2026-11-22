@@ -77,6 +77,13 @@ echo "==> Configuring Debian Live for NEXORA XFCE4..."
 lb config \
     --distribution trixie \
     --architectures amd64 \
+    --mirror-bootstrap "https://deb.debian.org/debian" \
+    --mirror-chroot "https://deb.debian.org/debian" \
+    --mirror-chroot-security "https://security.debian.org/debian-security" \
+    --mirror-binary "https://deb.debian.org/debian" \
+    --mirror-binary-security "https://security.debian.org/debian-security" \
+    --mirror-debian-installer "https://deb.debian.org/debian" \
+    --keyring-packages "debian-archive-keyring" \
     --binary-images iso-hybrid \
     --debian-installer live \
     --debian-installer-gui true \
