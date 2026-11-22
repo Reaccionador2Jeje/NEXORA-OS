@@ -11,7 +11,7 @@ on:
       - "config/**"
       - "branding/**"
       - "scripts/**"
-      - ".github/workflows/build-iso.yml"
+      - ".github/workflows/**"
   pull_request:
     branches:
       - main
@@ -20,7 +20,7 @@ on:
       - "config/**"
       - "branding/**"
       - "scripts/**"
-      - ".github/workflows/build-iso.yml"
+      - ".github/workflows/**"
 
 permissions:
   contents: read
@@ -30,8 +30,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate:
+    name: Validate source and configuration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Validate shell syntax
+        run: |
+          sh -n auto/config
+          sh -n scripts/*.sh
+          sh -n config/hooks/normal/*.hook.chroot
+
+      - name: Validate NEXORA configuration
+        run: sh ./scripts/validate-config.sh
+
   build-desktop-iso:
     name: Build Desktop ISO (Debian Trixie / amd64)
+    needs: validate
     runs-on: ubuntu-24.04
     timeout-minutes: 180
 
@@ -47,18 +66,15 @@ jobs:
       - name: Check build dependencies
         run: sudo ./scripts/check-dependencies.sh
 
-      - name: Validate NEXORA configuration
-        run: sh ./scripts/validate-config.sh
-
       - name: Build NEXORA OS
         run: sudo ./scripts/build.sh
 
-      - name: Install QEMU for ISO boot test
+      - name: Install QEMU for ISO process smoke test
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-system-x86
 
-      - name: Test ISO boot in QEMU (BIOS, headless)
+      - name: Run QEMU ISO process smoke test (not guest boot verification)
         env:
           NEXORA_QEMU_BOOT_SECONDS: "120"
         run: |
@@ -66,7 +82,7 @@ jobs:
           test -n "$ISO"
           sh ./scripts/test-qemu-boot.sh "$ISO"
 
-      - name: Make artifact readable
+      - name: Make ISO artifact readable
         if: success()
         run: sudo chown -R "$USER:$USER" build-output
 
