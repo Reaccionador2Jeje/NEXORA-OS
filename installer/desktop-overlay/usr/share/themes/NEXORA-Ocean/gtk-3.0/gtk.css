@@ -1,0 +1,15 @@
+/* NEXORA Ocean GTK theme */
+@define-color theme_bg_color #071923;
+@define-color theme_fg_color #e6fbff;
+@define-color theme_base_color #0d2633;
+@define-color theme_text_color #e6fbff;
+@define-color theme_selected_bg_color #087f8c;
+@define-color theme_selected_fg_color #ffffff;
+@define-color borders #24505e;
+@define-color accent_color #2dd4bf;
+window,.background{background:@theme_bg_color;color:@theme_fg_color}
+headerbar,.titlebar{background-image:linear-gradient(to right,#0b3342,#07505a);color:#fff;border-bottom:1px solid @borders}
+button{color:@theme_fg_color;background-image:linear-gradient(to bottom,#164354,#103341);border:1px solid #286174;border-radius:8px;padding:6px 12px}
+button:hover{border-color:@accent_color;background-image:linear-gradient(to bottom,#1b6072,#144657)}
+entry,textview,spinbutton,combobox,.view{color:@theme_fg_color;background:@theme_base_color;border:1px solid @borders;border-radius:6px}
+selection{background:@theme_selected_bg_color;color:#fff}
