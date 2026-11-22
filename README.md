@@ -1,82 +1,59 @@
-# NEXORA OS
+# NEXORA OS Minimal
 
 **Your Terminal. Your Universe.**
 
-[![Build ISO](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml/badge.svg)](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml)
+[![Build Minimal ISO](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml/badge.svg)](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml)
 
-NEXORA OS is an open-source Linux distribution based on **Debian 13 (Trixie)**, designed around a clean KDE Plasma desktop and the NEXORA ecosystem.
+NEXORA OS Minimal is the terminal-only edition of NEXORA OS, based on **Debian 13 (Trixie)** for amd64. It is designed to provide a small, usable live system without a graphical desktop.
 
-> Project status: early development — the first bootable test image is the current milestone.
+> Status: early development. The first reproducible, bootable Minimal ISO is the current milestone.
 
-## Vision
+## Design goals
 
-NEXORA OS aims to be more than a themed Debian installation. It will bring together:
-- A carefully configured Debian foundation.
-- KDE Plasma as the main desktop environment.
-- NEXORA tools and terminal integration.
-- Consistent visual identity, boot experience and system defaults.
-- Transparent, reproducible build scripts.
+- Terminal-only: no X.Org, Wayland, display manager or desktop environment.
+- Small package selection: APT recommends disabled and no firmware bundles.
+- Debian systemd init and Debian Live boot.
+- Essential shell, filesystem, process, networking and package-management tools.
+- Spanish (Chile) live-session defaults.
+- No browser, Flatpak, app store or preinstalled games.
 
-## Planned editions
+## Expected image size
 
-| Edition | Purpose | Status |
-| --- | --- | --- |
-| Desktop | General-purpose KDE Plasma workstation | In development |
-| Server | Lightweight server environment | Planned |
-| Core | Minimal base for custom systems | Planned |
+The first CI build will measure the actual compressed ISO. The initial engineering target is **under 500 MB**, not a guaranteed size. Kernel, initramfs, live boot infrastructure and Debian base packages impose a minimum footprint. We will set a more precise target after the first successful build.
 
-## Current target
+## Build
 
-- Base: Debian 13 Trixie
-- Architecture: amd64
-- Desktop: KDE Plasma
-- Languages: Spanish (Chile) and English
-- ISO builder: Debian live-build
-- First milestone: reproducible bootable Desktop test ISO
+On a Debian 13 amd64 host:
 
-## Included desktop software
-
-The Desktop edition is being assembled with:
-- **Chromium** as the default web browser for new user profiles.
-- KDE utilities: Discover, System Settings, System Monitor, Ark, Okular, Gwenview, Spectacle, Filelight and more.
-- Games: SuperTux, SuperTuxKart, Neverball, Chromium B.S.U. and a selection of KDE arcade and puzzle games.
-- System tools: Fastfetch, htop, ncdu, rsync, tree, sensors and common archive utilities.
-
-The initial package selection is maintained in `config/package-lists/nexora-desktop.list.chroot`. The final ISO size and package resolution still need to be verified by CI.
-
-## Build the Desktop image
-
-Build on a Debian 13 amd64 host or a compatible Debian 13 build environment.
-
-```bash
+```sh
 sudo apt update
 sudo apt install -y live-build debootstrap squashfs-tools xorriso
 git clone https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
+git checkout feature/nexora-minimal-terminal
 sudo ./scripts/build.sh
 ```
 
-The generated image will be placed in the repository's `build-output/` directory.
+The ISO is placed in `build-output/`; the build script prints its actual size.
 
-For full instructions and build requirements, see [docs/BUILDING.md](docs/BUILDING.md).
+## Package manifest
 
-## Repository map
+The package selection is maintained in `config/package-lists/nexora-minimal.list.chroot`. Keep this edition free of graphical stacks and convenience bundles. Optional applications should be installed by the user after boot.
 
-- `auto/` — reproducible live-build configuration entrypoint.
-- `config/` — package lists and live-build settings.
-- `scripts/` — build and maintenance helpers.
-- `docs/` — architecture, build guide and roadmap.
-- `branding/` — NEXORA logo, icon, wallpaper and visual identity guide.
-- `config/includes.chroot/` — live-system identity, KDE defaults, branding assets and NEXORA Welcome launcher.
-- `packages/` — future NEXORA OS packages and integrations.
+## Editions
 
-## Development principles
+| Edition | Purpose | Development branch |
+| --- | --- | --- |
+| Minimal | Terminal-only base system | `feature/nexora-minimal-terminal` |
+| XFCE | Lightweight graphical desktop | `feature/nexora-xfce-hyperlight-ci` |
+
+## Principles
 
 - Open source and transparent by default.
-- Respect Debian and upstream project licenses.
-- Prefer stable, maintainable components over unnecessary complexity.
-- Keep builds reproducible and document important decisions.
+- Prefer Debian packages and upstream components.
+- Keep the base system small, reproducible and maintainable.
+- Measure real ISO size and validate booting before making size claims.
 
 ## License
 
-The repository's top-level license applies to original project materials where appropriate. Components from Debian and other upstream projects retain their respective licenses and notices.
+Original project materials follow the repository license. Debian and upstream components retain their respective licenses and notices.
