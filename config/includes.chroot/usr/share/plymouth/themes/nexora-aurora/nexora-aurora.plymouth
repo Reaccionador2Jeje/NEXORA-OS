@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=NEXORA Aurora
+Description=Modern NEXORA OS boot animation
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/nexora-aurora
+ScriptFile=/usr/share/plymouth/themes/nexora-aurora/nexora-aurora.script
