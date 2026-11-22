@@ -28,6 +28,8 @@ reject_package() {
 check_file auto/config
 check_file config/package-lists/nexora-desktop.list.chroot
 check_file config/includes.chroot/etc/nexora-release
+check_file config/includes.chroot/etc/skel/.config/fastfetch/config.jsonc
+check_file config/includes.chroot/usr/share/nexora/fastfetch/nexora.txt
 check_file config/includes.chroot/etc/locale.gen
 check_file config/includes.chroot/etc/default/locale
 check_file config/includes.chroot/etc/default/keyboard
@@ -71,9 +73,10 @@ sh -n config/hooks/normal/0500-enable-flathub.hook.chroot config/hooks/normal/06
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/lib/nexora/nexora-upgrade.py").read_text(encoding="utf-8"))'
 python3 -c 'import json, pathlib; json.loads(pathlib.Path("config/includes.chroot/usr/share/nexora-store/catalog.json").read_text(encoding="utf-8"))'
+python3 -c 'import json, pathlib; json.loads(pathlib.Path("config/includes.chroot/etc/skel/.config/fastfetch/config.jsonc").read_text(encoding="utf-8"))'
 python3 scripts/test-store-catalog.py
 
-for package in plymouth plymouth-themes live-config-systemd linux-image-amd64 xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm chromium flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit; do
+for package in plymouth plymouth-themes live-config-systemd linux-image-amd64 xfce4-session xfce4-panel xfdesktop4 xfwm4 xfce4-settings thunar lightdm chromium flatpak adwaita-icon-theme pipewire-pulse python3-gi gir1.2-gtk-3.0 pkexec lxpolkit fastfetch; do
     check_package "$package"
 done
 for package in live-config-sysvinit task-kde-desktop sddm plasma-discover konsole dolphin supertux supertuxkart kmines kpat neverball; do
@@ -89,4 +92,4 @@ grep -q 'nexora-upgrade.py' config/includes.chroot/usr/share/applications/nexora
 grep -q 'ModuleName=script' config/includes.chroot/usr/share/plymouth/themes/nexora-aurora/nexora-aurora.plymouth || fail "NEXORA Aurora must use the Plymouth script renderer."
 grep -q 'plymouth-set-default-theme --rebuild-initrd nexora-aurora' config/hooks/normal/0600-enable-nexora-plymouth.hook.chroot || fail "NEXORA Aurora is not selected for initramfs."
 
-printf '\nNEXORA XFCE, Store, Upgrade Assistant and Aurora Plymouth configuration checks passed. ISO build and boot tests are still required.\n'
+printf '\nNEXORA XFCE, Store, Upgrade Assistant, Fastfetch and Aurora Plymouth configuration checks passed. ISO build and boot tests are still required.\n'
