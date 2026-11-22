@@ -1,59 +1,59 @@
-# NEXORA OS Minimal
+# NEXORA OS Minimal — GTK Netinst
 
 **Your Terminal. Your Universe.**
 
-[![Build Minimal ISO](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml/badge.svg)](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml)
+NEXORA OS Minimal is moving from a Debian Live image to a **network installer (netinst)** based on Debian 13 Trixie for amd64.
 
-NEXORA OS Minimal is the terminal-only edition of NEXORA OS, based on **Debian 13 (Trixie)** for amd64. It is designed to provide a small, usable live system without a graphical desktop.
+## Installer technology
 
-> Status: early development. The first reproducible, bootable Minimal ISO is the current milestone.
+The installer foundation is Debian Installer (d-i) with its GTK graphical frontend. The build downloads Debian's official GTK netboot mini ISO and rewrites its ISO volume label to `NEXORA_MINIMAL`, preserving the upstream boot catalog.
 
-## Design goals
+The upstream Trixie GTK mini ISO is approximately 104 MB at the time this pipeline was designed. The resulting image size is measured by CI; no final size is promised until the artifact is built and checked.
 
-- Terminal-only: no X.Org, Wayland, display manager or desktop environment.
-- Small package selection: APT recommends disabled and no firmware bundles.
-- Debian systemd init and Debian Live boot.
-- Essential shell, filesystem, process, networking and package-management tools.
-- Spanish (Chile) live-session defaults.
-- No browser, Flatpak, app store or preinstalled games.
+## Installation profiles
 
-## Expected image size
+The first prototype uses Debian's built-in task selection screen:
 
-The first CI build will measure the actual compressed ISO. The initial engineering target is **under 500 MB**, not a guaranteed size. Kernel, initramfs, live boot infrastructure and Debian base packages impose a minimum footprint. We will set a more precise target after the first successful build.
+| NEXORA profile | Task selection |
+| --- | --- |
+| Minimal Terminal | Keep **standard system utilities** selected; leave desktop environments unchecked. |
+| NEXORA XFCE | Select **Xfce** in addition to standard system utilities. |
+
+Debian's tasksel provides the `xfce-desktop` task. The first prototype still shows Debian's upstream task names. A branded NEXORA profile selector and automatic installation of NEXORA theme, Store and desktop assets are planned as the next implementation stage.
 
 ## Build
 
-On a Debian 13 amd64 host:
+On a Debian or Ubuntu amd64 build host:
 
 ```sh
 sudo apt update
-sudo apt install -y live-build debootstrap squashfs-tools xorriso
+sudo apt install -y curl xorriso qemu-system-x86
 git clone https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
 git checkout feature/nexora-minimal-terminal
+sh ./scripts/validate-config.sh
 sudo ./scripts/build.sh
 ```
 
-The ISO is placed in `build-output/`; the build script prints its actual size.
+The ISO is written to `build-output/nexora-os-minimal-netinst-amd64.iso`. The script prints its size and SHA256 checksum.
 
-## Package manifest
+## Network requirement
 
-The package selection is maintained in `config/package-lists/nexora-minimal.list.chroot`. Keep this edition free of graphical stacks and convenience bundles. Optional applications should be installed by the user after boot.
+Netinst downloads the installed operating system from Debian repositories. A working wired or supported wireless network connection is required during installation. The installer itself is small because it does not carry the complete installed operating system or desktop packages.
 
-## Editions
+## Current implementation boundary
 
-| Edition | Purpose | Development branch |
-| --- | --- | --- |
-| Minimal | Terminal-only base system | `feature/nexora-minimal-terminal` |
-| XFCE | Lightweight graphical desktop | `feature/nexora-xfce-hyperlight-ci` |
+- Debian Installer GTK bootable mini ISO: used as the upstream installer base.
+- ISO volume label: changed to NEXORA.
+- BIOS/UEFI boot metadata: preserved by xorriso and checked during build.
+- Profile selection: currently uses Debian tasksel; Minimal means no desktop task, XFCE means select `xfce-desktop`.
+- NEXORA-branded GTK installer screens and automatic desktop asset deployment: not implemented yet.
+- Full interactive QEMU installation test: not yet implemented; the current QEMU step is a boot smoke test only.
 
-## Principles
+## Project principles
 
-- Open source and transparent by default.
-- Prefer Debian packages and upstream components.
-- Keep the base system small, reproducible and maintainable.
-- Measure real ISO size and validate booting before making size claims.
-
-## License
-
-Original project materials follow the repository license. Debian and upstream components retain their respective licenses and notices.
+- Terminal-only installation by default.
+- Download only the packages selected by the user.
+- No desktop, browser, Flatpak or games in the Minimal profile.
+- Keep the ISO small and measure its real size.
+- Preserve Debian and upstream licenses and notices.
