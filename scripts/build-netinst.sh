@@ -50,6 +50,7 @@ xorriso -indev "$SOURCE_ISO" \
     -map "$ROOT_DIR/installer/preseed" /nexora/preseed \
     -map "$ROOT_DIR/installer/desktop-overlay" /nexora/desktop-overlay \
     -map "$ROOT_DIR/installer/BOOT-OPTIONS.md" /nexora/BOOT-OPTIONS.md \
+    -map "$ROOT_DIR/installer/branding" /nexora/branding \
     -map "$ROOT_DIR/build-output/nexora-installer-background.png" /nexora/nexora-installer-background.png \
     -boot_image any replay \
     -commit \
@@ -70,6 +71,11 @@ printf '%s\n' "$profile_listing" | grep -q 'desktop.cfg' || {
 branding_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora 2>&1)
 printf '%s\n' "$branding_listing" | grep -q 'nexora-installer-background.png' || {
     echo "NEXORA installer background is missing from the ISO." >&2
+    exit 1
+}
+installer_branding=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/branding 2>&1)
+printf '%s\n' "$installer_branding" | grep -q 'nexora-installer.svg' || {
+    echo "NEXORA installer SVG branding is missing from the ISO." >&2
     exit 1
 }
 overlay_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/desktop-overlay/usr/share/backgrounds/nexora 2>&1)
