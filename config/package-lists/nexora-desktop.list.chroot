@@ -1,6 +1,9 @@
 # NEXORA OS 0.2.0 — Hyper Lightweight XFCE4 desktop
 # Keep this manifest intentionally small. No games or heavyweight desktop suites.
 
+# Kernel is installed as a normal APT package; live-build kernel discovery is disabled.
+linux-image-amd64
+
 # X.Org display server and XFCE desktop
 xserver-xorg
 xfce4-session
