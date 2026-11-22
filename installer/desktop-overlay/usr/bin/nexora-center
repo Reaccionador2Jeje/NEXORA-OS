@@ -1,0 +1,26 @@
+#!/usr/bin/python3
+"""NEXORA Control Center — entry point for desktop tools and personalization."""
+import subprocess
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+class Center(Gtk.Window):
+ def __init__(self):
+  super().__init__(title="NEXORA Control Center"); self.set_default_size(620,520); self.set_border_width(18)
+  box=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=10); self.add(box)
+  title=Gtk.Label(); title.set_markup("<span size='xx-large' weight='bold'>NEXORA Control Center</span>"); title.set_xalign(0); box.pack_start(title,False,False,0)
+  desc=Gtk.Label(label="Personalize your desktop and manage your system."); desc.set_xalign(0); box.pack_start(desc,False,False,0)
+  for label,cmd in [
+   ("Wallpapers","xfdesktop-settings"),("Themes and appearance","xfce4-appearance-settings"),
+   ("NEXORA AI","nexora-ai"),("NEXORA Store","nexora-store"),
+   ("System monitor","xfce4-taskmanager"),("All settings","xfce4-settings-manager"),
+   ("Update system","xfce4-terminal --title=NEXORA-System-Update --command=sh -c 'pkexec apt-get update && pkexec apt-get upgrade; echo; read -p "Press Enter to close..."'")]:
+   button=Gtk.Button(label=label); button.set_size_request(-1,42); button.connect("clicked",self.launch,cmd); box.pack_start(button,False,False,0)
+  self.show_all()
+ def launch(self,_button,command):
+  try: subprocess.Popen(command,shell=True)
+  except Exception as e:
+   d=Gtk.MessageDialog(transient_for=self,flags=0,message_type=Gtk.MessageType.ERROR,buttons=Gtk.ButtonsType.CLOSE,text="Could not launch tool"); d.format_secondary_text(str(e)); d.run(); d.destroy()
+def main():
+ w=Center(); w.connect("destroy",Gtk.main_quit); Gtk.main()
+if __name__=="__main__": main()
