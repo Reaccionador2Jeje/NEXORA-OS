@@ -2,7 +2,8 @@
 # Install the complete NEXORA XFCE desktop on Debian 13 Minimal or Terminal systems.
 set -eu
 
-ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+SCRIPT_PATH=$(readlink -f "$0")
+ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$SCRIPT_PATH")/.." && pwd)
 cd "$ROOT_DIR"
 
 ACTION="${1:-install}"
@@ -152,7 +153,7 @@ fi
 systemctl enable NetworkManager.service >/dev/null 2>&1 || true
 if [ -x /usr/sbin/lightdm ]; then
     printf '%s\n' /usr/sbin/lightdm > /etc/X11/default-display-manager
-    systemctl enable lightdm.service
+    systemctl enable lightdm.service || echo "Warning: another display manager may already own display-manager.service." >&2
 fi
 systemctl set-default graphical.target
 
