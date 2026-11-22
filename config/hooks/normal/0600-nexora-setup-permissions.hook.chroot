@@ -1,5 +1,0 @@
-#!/bin/sh
-# Ensure included NEXORA launchers and setup TUI are executable.
-set -eu
-chmod 0755 /usr/local/bin/nexora-setup
-chmod 0755 /usr/bin/nexora-store /usr/bin/nexora-welcome
