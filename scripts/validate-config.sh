@@ -16,6 +16,7 @@ check_file scripts/build-netinst.sh
 check_file scripts/check-dependencies.sh
 check_file scripts/clean.sh
 check_file scripts/test-qemu-boot.sh
+check_file scripts/inspect-boot-layout.sh
 check_file installer/README.md
 check_file installer/profiles/minimal.md
 check_file installer/profiles/desktop.md
@@ -23,7 +24,7 @@ check_file installer/preseed/minimal.cfg
 check_file installer/preseed/desktop.cfg
 check_file installer/BOOT-OPTIONS.md
 
-sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/validate-config.sh
+sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh scripts/inspect-boot-layout.sh scripts/validate-config.sh
 
 grep -q 'Debian Installer GTK' installer/README.md || fail "GTK installer must be documented."
 grep -q 'standard system utilities' installer/profiles/minimal.md || fail "Minimal task selection guidance is missing."
