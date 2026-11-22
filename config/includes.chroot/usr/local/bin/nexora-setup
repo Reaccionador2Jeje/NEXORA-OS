@@ -50,6 +50,12 @@ install_desktop() {
   fi
   echo "Se instalará el escritorio XFCE de NEXORA."
   echo "La ISO base no incluye estos paquetes; solo se descargarán ahora."
+  if [[ -d /run/live/medium || -e /lib/live/mount/medium ]]; then
+    echo
+    echo "AVISO: estás ejecutando una sesión Live."
+    echo "Los paquetes instalados se guardarán en la sesión actual, pero"
+    echo "se perderán al reiniciar si no has configurado persistencia."
+  fi
   read -r -p "¿Continuar? [s/N]: " answer
   [[ "$answer" =~ ^[sS]$ ]] || return
   mapfile -t packages < <(grep -Ev '^[[:space:]]*(#|$)' "$DESKTOP_PACKAGES")
