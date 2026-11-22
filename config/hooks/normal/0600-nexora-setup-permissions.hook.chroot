@@ -1,0 +1,4 @@
+#!/bin/sh
+# Ensure the included NEXORA Setup TUI is executable in the live filesystem.
+set -eu
+chmod 0755 /usr/local/bin/nexora-setup
