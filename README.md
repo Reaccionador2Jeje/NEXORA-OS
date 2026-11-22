@@ -6,7 +6,7 @@ NEXORA OS is a Debian 13 Trixie-based operating system with two installation pro
 
 ## Installer technology
 
-The installer foundation is Debian Installer (d-i) with its GTK graphical frontend. The build downloads Debian's official GTK netboot mini ISO and rewrites its ISO volume label to `NEXORA_MINIMAL`, preserving the upstream boot catalog.
+The installer foundation is Debian Installer (d-i) with its GTK graphical frontend. The build downloads Debian's official GTK netboot mini ISO and rewrites its ISO volume label to `NEXORA_MINIMAL` or `NEXORA_XFCE`, depending on the selected edition, while preserving the upstream boot catalog.
 
 The upstream Trixie GTK mini ISO is approximately 104 MB at the time this pipeline was designed. The resulting image size is measured by CI; no final size is promised until the artifact is built and checked.
 
