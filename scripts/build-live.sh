@@ -120,6 +120,16 @@ printf '%s\n' "$BOOT_REPORT" | grep -qi 'El Torito' || {
     exit 1
 }
 
+BOOT_SPLASH_VERIFY_DIR="$OUTPUT_DIR/boot-splash-verification"
+rm -rf "$BOOT_SPLASH_VERIFY_DIR"
+mkdir -p "$BOOT_SPLASH_VERIFY_DIR"
+xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract /isolinux/splash.png "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png" \
+    -extract /boot/grub/splash.png "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png" \
+    >/dev/null 2>&1
+cmp "$WORK_DIR/config/includes.binary/isolinux/splash.png" "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png"
+cmp "$WORK_DIR/config/includes.binary/isolinux/splash.png" "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png"
+
 SIZE_HUMAN="$(du -h "$OUTPUT_ISO" | awk '{print $1}')"
 SHA256="$(sha256sum "$OUTPUT_ISO" | awk '{print $1}')"
 printf '%s  %s\n' "$SHA256" "$(basename "$OUTPUT_ISO")" > "$OUTPUT_ISO.sha256"
