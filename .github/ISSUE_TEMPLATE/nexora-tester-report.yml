@@ -1,0 +1,78 @@
+name: NEXORA OS tester report
+description: Report a problem found while testing an experimental NEXORA OS image.
+title: "[Tester report]: "
+labels:
+  - testing
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing NEXORA OS. Please use a virtual machine for experimental builds and do not include personal data, passwords, or private keys.
+  - type: dropdown
+    id: edition
+    attributes:
+      label: Edition tested
+      options:
+        - NEXORA XFCE4 Live
+        - NEXORA Minimal GTK Netinst
+    validations:
+      required: true
+  - type: input
+    id: workflow
+    attributes:
+      label: GitHub Actions build URL
+      description: Paste the URL of the successful build whose artifact you tested.
+      placeholder: https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/runs/...
+    validations:
+      required: true
+  - type: dropdown
+    id: virtual-machine
+    attributes:
+      label: Test environment
+      options:
+        - QEMU
+        - VirtualBox
+        - VMware
+        - GNOME Boxes
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: boot-mode
+    attributes:
+      label: Boot mode
+      options:
+        - BIOS / Legacy
+        - UEFI
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What did you do immediately before the problem appeared?
+      placeholder: "1. Started the virtual machine...\n2. Selected..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: What happened instead? Include exact error text if available.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Extra details
+      description: Optional RAM, CPU count, display settings, or relevant logs. Remove usernames and other personal information.
+    validations:
+      required: false
