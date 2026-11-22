@@ -56,18 +56,18 @@ xorriso -indev "$SOURCE_ISO" \
 echo "==> Verifying embedded NEXORA profiles and El Torito boot metadata..."
 xorriso -indev "$OUTPUT_ISO" -toc >/dev/null
 profile_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/preseed 2>&1)
-printf '%s\\n' "$profile_listing"
-printf '%s\\n' "$profile_listing" | grep -q 'minimal.cfg' || {
+printf '%s\n' "$profile_listing"
+printf '%s\n' "$profile_listing" | grep -q 'minimal.cfg' || {
     echo "Minimal preseed profile is missing from the ISO." >&2
     exit 1
 }
-printf '%s\\n' "$profile_listing" | grep -q 'desktop.cfg' || {
+printf '%s\n' "$profile_listing" | grep -q 'desktop.cfg' || {
     echo "XFCE preseed profile is missing from the ISO." >&2
     exit 1
 }
 overlay_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/desktop-overlay/usr/share/backgrounds/nexora 2>&1)
-printf '%s\\n' "$overlay_listing"
-printf '%s\\n' "$overlay_listing" | grep -q 'nexora-aurora.svg' || {
+printf '%s\n' "$overlay_listing"
+printf '%s\n' "$overlay_listing" | grep -q 'nexora-aurora.svg' || {
     echo "NEXORA desktop overlay is missing its wallpapers." >&2
     exit 1
 }
