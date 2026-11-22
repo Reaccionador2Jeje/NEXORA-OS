@@ -55,6 +55,8 @@ install_desktop() {
   mapfile -t packages < <(grep -Ev '^[[:space:]]*(#|$)' "$DESKTOP_PACKAGES")
   apt-get update
   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
+  flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+  systemctl enable NetworkManager
   systemctl enable lightdm
   systemctl set-default graphical.target
   echo
