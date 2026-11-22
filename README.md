@@ -55,7 +55,7 @@ Netinst downloads the installed operating system from Debian repositories. A wor
 - Profile selection: embedded Minimal and XFCE preseed files, selected through installer boot arguments.
 - Branded BIOS/UEFI boot menu: offers Minimal and XFCE Desktop profiles while preserving Debian fallback entries.
 - XFCE4 release build: dedicated image target selects the XFCE profile by default and includes the NEXORA desktop overlay.
-- Release publication: `.github/workflows/release-xfce.yml` builds, smoke-tests and publishes the ISO and SHA256 file when manually dispatched or when a `v*` tag is pushed.
+- Release publication: `.github/workflows/release-xfce.yml` builds, smoke-tests and publishes the ISO and SHA256 file when manually dispatched from GitHub Actions. The workflow creates the release tag and attaches the ISO and checksum after validation.
 - Full interactive QEMU installation test: not yet implemented; the current QEMU step is a boot smoke test only.
 
 ## Project principles
