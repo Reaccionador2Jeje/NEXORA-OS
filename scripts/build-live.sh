@@ -53,6 +53,15 @@ cp "$WORK_DIR/config/includes.chroot/usr/share/applications/nexora-installer.des
    "$WORK_DIR/config/includes.chroot/etc/skel/Desktop/Install-NEXORA.desktop"
 chmod 0755 "$WORK_DIR/config/includes.chroot/etc/skel/Desktop/Install-NEXORA.desktop"
 
+# Apply NEXORA XFCE defaults inside the image during the chroot stage.
+mkdir -p "$WORK_DIR/config/hooks/normal"
+cat > "$WORK_DIR/config/hooks/normal/9999-nexora-desktop.hook.chroot" <<'HOOK'
+#!/bin/sh
+set -eu
+/usr/local/sbin/nexora-postinstall
+HOOK
+chmod 0755 "$WORK_DIR/config/hooks/normal/9999-nexora-desktop.hook.chroot"
+
 cd "$WORK_DIR"
 
 echo "==> Configuring Debian Live for NEXORA XFCE4..."
