@@ -1,0 +1,10 @@
+{
+  "schema": 1,
+  "wallpapers": [
+    "nexora-default.svg",
+    "nexora-aurora.svg",
+    "nexora-nebula.svg",
+    "nexora-horizon.svg",
+    "nexora-minimal.svg"
+  ]
+}
