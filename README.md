@@ -66,6 +66,19 @@ python3 /usr/lib/nexora/nexora-upgrade.py
 
 **Important:** this prototype does not migrate between NEXORA releases, change APT repositories, or install/remove packages. Its APT check is simulation-only. Do not treat it as a substitute for backups or a supported distribution upgrade path. Full release upgrades will only be enabled after signed release metadata, compatibility rules, configuration migrations, rollback/recovery and real upgrade tests exist.
 
+## Apply NEXORA desktop to an existing Debian 13 XFCE install
+
+This is a development convenience installer for an existing Debian 13 XFCE desktop. It copies the current NEXORA branding, wallpaper, GTK theme, XFCE defaults, Fastfetch profile, Welcome launcher and Store into the installed system. It also installs the required desktop dependencies and configures the system Flathub remote.
+
+```bash
+git clone --branch feature/nexora-xfce-hyperlight-ci https://github.com/Reaccionador2Jeje/NEXORA-OS.git
+cd NEXORA-OS
+chmod +x scripts/install-nexora-desktop.sh
+sudo ./scripts/install-nexora-desktop.sh
+```
+
+Log out and back in after installation. Existing XFCE configuration files are backed up with a `.nexora-backup` suffix before the NEXORA defaults are applied. This helper does not replace Debian's packages with a NEXORA APT repository, does not convert the installation into a supported NEXORA release, and does not configure the Plymouth boot theme. It is an early desktop integration helper; test it on a backed-up system first.
+
 ## Build the ISO
 
 Build on a Debian 13 amd64 host with a reliable internet connection and several gigabytes of free disk space.
