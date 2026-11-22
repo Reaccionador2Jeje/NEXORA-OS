@@ -88,8 +88,8 @@ done
 
 
 # The in-place installer must support a terminal-only Debian 13 base.
-for package in xserver-xorg xfce4-whiskermenu-plugin xfce4-appfinder xfce4-terminal thunar-volman gvfs dbus-x11 lightdm-gtk-greeter network-manager network-manager-gnome udisks2 upower polkitd pipewire-audio wireplumber xfce4-pulseaudio-plugin xdg-desktop-portal xdg-desktop-portal-gtk; do
-    grep -q "    ${package}" scripts/install-nexora-desktop.sh ||
+for package in xserver-xorg xfce4-whiskermenu-plugin xfce4-appfinder xfce4-terminal thunar-volman gvfs dbus-x11 lightdm-gtk-greeter network-manager network-manager-gnome udisks2 upower polkitd pipewire-audio wireplumber xfce4-pulseaudio-plugin xdg-desktop-portal xdg-desktop-portal-gtk chromium; do
+    grep -q "${package}" scripts/install-nexora-desktop.sh ||
         fail "NEXORA Minimal installer does not install required desktop package: ${package}"
 done
 grep -q 'systemctl set-default graphical.target' scripts/install-nexora-desktop.sh || fail "Installer does not enable graphical boot."
