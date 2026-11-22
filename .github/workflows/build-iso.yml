@@ -1,4 +1,4 @@
-name: Build NEXORA OS Minimal ISO
+name: Build NEXORA OS Minimal GTK Netinst
 
 on:
   workflow_dispatch:
@@ -6,72 +6,64 @@ on:
     branches:
       - feature/nexora-minimal-terminal
     paths:
-      - "auto/**"
-      - "config/**"
+      - "installer/**"
       - "scripts/**"
       - ".github/workflows/build-iso.yml"
+      - "README.md"
   pull_request:
     branches:
       - main
     paths:
-      - "auto/**"
-      - "config/**"
+      - "installer/**"
       - "scripts/**"
       - ".github/workflows/build-iso.yml"
+      - "README.md"
 
 permissions:
   contents: read
 
 concurrency:
-  group: nexora-minimal-iso-${{ github.ref }}
+  group: nexora-minimal-netinst-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  build-minimal-iso:
-    name: Build Minimal ISO (Debian Trixie / amd64)
+  build-netinst:
+    name: Build Debian Installer GTK netinst (amd64)
     runs-on: ubuntu-24.04
-    timeout-minutes: 180
+    timeout-minutes: 45
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install Debian Live build tools
+      - name: Install ISO and VM tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y live-build debootstrap squashfs-tools xorriso
+          sudo apt-get install -y curl xorriso qemu-system-x86
 
-      - name: Check build dependencies
-        run: sudo ./scripts/check-dependencies.sh
-
-      - name: Validate Minimal configuration
+      - name: Validate installer configuration
         run: sh ./scripts/validate-config.sh
 
-      - name: Build NEXORA OS Minimal
+      - name: Build NEXORA GTK netinst
         run: sudo ./scripts/build.sh
 
-      - name: Install QEMU for ISO boot test
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-system-x86
-
-      - name: Test ISO boot in QEMU (BIOS, headless)
+      - name: Boot ISO in QEMU (BIOS smoke test)
         env:
-          NEXORA_QEMU_BOOT_SECONDS: "120"
+          NEXORA_QEMU_BOOT_SECONDS: "90"
         run: |
-          ISO="$(find build-output -maxdepth 1 -type f -name '*.iso' -print -quit)"
-          test -n "$ISO"
+          ISO="build-output/nexora-os-minimal-netinst-amd64.iso"
+          test -s "$ISO"
           sh ./scripts/test-qemu-boot.sh "$ISO"
 
       - name: Make artifact readable
         if: success()
         run: sudo chown -R "$USER:$USER" build-output
 
-      - name: Upload ISO artifact
+      - name: Upload netinst ISO
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: nexora-os-minimal-terminal-amd64
-          path: build-output/*.iso
+          name: nexora-os-minimal-gtk-netinst-amd64
+          path: build-output/nexora-os-minimal-netinst-amd64.iso
           if-no-files-found: error
           retention-days: 7
