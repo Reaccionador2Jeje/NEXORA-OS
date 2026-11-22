@@ -84,3 +84,19 @@ for panel_path in panel_paths:
         assert assigned == required, (panel_path, panel_id, assigned)
 
 print("PASS: both NEXORA panel XML files define fixed full-width top/bottom bars and the task switcher.")
+
+
+# The configured GTK theme name must match the installed theme directory.
+for settings_path in [
+    ROOT / "config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml",
+]:
+    settings_root = ET.parse(settings_path).getroot()
+    theme_name = settings_root.find("./property[@name='Net']/property[@name='ThemeName']")
+    assert theme_name is not None and theme_name.attrib.get("value") == "NEXORA-Ocean"
+
+postinstall_text = postinstall.read_text(encoding="utf-8")
+assert 'value="NEXORA-Ocean"' in postinstall_text
+panel_css = (overlay / "usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css").read_text(encoding="utf-8")
+assert "#XfcePanelWindow" in panel_css
+assert "border-radius: 0" in panel_css
+print("PASS: NEXORA GTK theme name resolves and the panel has its own full-width styling.")
