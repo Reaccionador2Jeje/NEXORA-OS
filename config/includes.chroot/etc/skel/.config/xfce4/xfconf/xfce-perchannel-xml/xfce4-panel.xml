@@ -7,7 +7,7 @@
 
   <!-- Bottom: permanent taskbar for switching between open windows. -->
   <property name="panel-1" type="empty">
-    <property name="position" type="string" value="p=10;x=0;y=0"/>
+    <property name="position" type="string" value="p=12;x=0;y=0"/>
     <property name="length" type="uint" value="100"/>
     <property name="length-adjust" type="bool" value="false"/>
     <property name="position-locked" type="bool" value="true"/>
@@ -27,7 +27,7 @@
 
   <!-- Top: permanent NEXORA menu and system identity bar. -->
   <property name="panel-2" type="empty">
-    <property name="position" type="string" value="p=6;x=0;y=0"/>
+    <property name="position" type="string" value="p=11;x=0;y=0"/>
     <property name="length" type="uint" value="100"/>
     <property name="length-adjust" type="bool" value="false"/>
     <property name="position-locked" type="bool" value="true"/>
