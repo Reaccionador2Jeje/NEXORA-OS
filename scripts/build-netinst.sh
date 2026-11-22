@@ -67,6 +67,11 @@ printf '%s\n' "$profile_listing" | grep -q 'desktop.cfg' || {
     echo "XFCE preseed profile is missing from the ISO." >&2
     exit 1
 }
+branding_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora 2>&1)
+printf '%s\n' "$branding_listing" | grep -q 'nexora-installer-background.png' || {
+    echo "NEXORA installer background is missing from the ISO." >&2
+    exit 1
+}
 overlay_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/desktop-overlay/usr/share/backgrounds/nexora 2>&1)
 printf '%s\n' "$overlay_listing"
 printf '%s\n' "$overlay_listing" | grep -q 'nexora-aurora.svg' || {
