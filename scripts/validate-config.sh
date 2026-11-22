@@ -40,7 +40,9 @@ check_file config/includes.chroot/usr/share/themes/NEXORA/gtk-3.0/gtk.css
 check_file config/includes.chroot/usr/share/backgrounds/nexora/nexora-default.svg
 check_file config/includes.chroot/usr/bin/nexora-welcome
 check_file config/includes.chroot/usr/bin/nexora-store
+check_file config/includes.chroot/usr/lib/nexora/nexora-upgrade.py
 check_file config/includes.chroot/usr/share/applications/nexora-store.desktop
+check_file config/includes.chroot/usr/share/applications/nexora-upgrade.desktop
 check_file config/includes.chroot/usr/share/nexora-store/catalog.json
 check_file scripts/test-store-catalog.py
 check_file config/hooks/normal/0500-enable-flathub.hook.chroot
@@ -63,6 +65,7 @@ fi
 sh -n auto/config scripts/build.sh scripts/check-dependencies.sh scripts/clean.sh scripts/validate-config.sh
 sh -n config/hooks/normal/0500-enable-flathub.hook.chroot
 python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/bin/nexora-store").read_text(encoding="utf-8"))'
+python3 -c 'import ast, pathlib; ast.parse(pathlib.Path("config/includes.chroot/usr/lib/nexora/nexora-upgrade.py").read_text(encoding="utf-8"))'
 python3 -c 'import json, pathlib; json.loads(pathlib.Path("config/includes.chroot/usr/share/nexora-store/catalog.json").read_text(encoding="utf-8"))'
 python3 scripts/test-store-catalog.py
 
@@ -78,5 +81,6 @@ grep -qx 'es_CL.UTF-8 UTF-8' config/includes.chroot/etc/locale.gen || fail "Span
 grep -qx 'LANG=es_CL.UTF-8' config/includes.chroot/etc/default/locale || fail "Spanish (Chile) is not the default locale."
 grep -q 'NEXORA' config/includes.chroot/etc/lightdm/lightdm-gtk-greeter.conf || fail "NEXORA greeter theme is not selected."
 grep -q 'NEXORA Store' config/includes.chroot/usr/share/applications/nexora-store.desktop || fail "NEXORA Store launcher is missing."
+grep -q 'nexora-upgrade.py' config/includes.chroot/usr/share/applications/nexora-upgrade.desktop || fail "NEXORA Upgrade launcher is missing."
 
-printf '\nNEXORA XFCE and Store configuration checks passed. ISO build and boot tests are still required.\n'
+printf '\nNEXORA XFCE, Store and Upgrade Assistant configuration checks passed. ISO build and boot tests are still required.\n'
