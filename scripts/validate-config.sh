@@ -15,8 +15,8 @@ check_file scripts/build.sh
 check_file scripts/build-netinst.sh
 check_file scripts/test-qemu-boot.sh
 check_file installer/README.md
-check_file installer/profiles/minimal.tasksel
-check_file installer/profiles/desktop.tasksel
+check_file installer/profiles/minimal.md
+check_file installer/profiles/desktop.md
 
 sh -n scripts/build.sh scripts/build-netinst.sh scripts/test-qemu-boot.sh scripts/validate-config.sh
 
