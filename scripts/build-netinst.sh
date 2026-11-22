@@ -42,10 +42,12 @@ if [ "$size_bytes" -lt 40000000 ]; then
     exit 1
 fi
 
-echo "==> Rewriting the ISO volume label while preserving boot records..."
+echo "==> Embedding NEXORA installer profiles and preserving boot records..."
 xorriso -indev "$SOURCE_ISO" \
     -outdev "$OUTPUT_ISO" \
     -volid "NEXORA_MINIMAL" \
+    -map "$ROOT_DIR/installer/preseed" /nexora/preseed \
+    -map "$ROOT_DIR/installer/BOOT-OPTIONS.md" /nexora/BOOT-OPTIONS.md \
     -boot_image any replay \
     -commit \
     -end
@@ -68,5 +70,8 @@ echo "    $OUTPUT_ISO"
 echo "    ISO size: $size_human"
 echo "    SHA256: $sha256"
 echo
-echo "NOTE: This first stage uses Debian Installer's upstream GTK interface."
-echo "NEXORA-specific installer branding and the custom profile selector are next milestones."
+echo "Profiles embedded:"
+echo "    /nexora/preseed/minimal.cfg"
+echo "    /nexora/preseed/desktop.cfg"
+echo "Use the boot arguments documented in /nexora/BOOT-OPTIONS.md."
+echo "NOTE: The graphical installer still uses Debian's upstream GTK interface."
