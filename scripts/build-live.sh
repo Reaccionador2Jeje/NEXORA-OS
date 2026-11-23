@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the main NEXORA XFCE4 edition as a bootable Debian Live hybrid ISO.
+# Build the NEXORA XFCE4 Live edition with its native GTK installer.
 set -Eeuo pipefail
 
 ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -33,12 +33,12 @@ cp -a "$ROOT_DIR/installer/desktop-overlay/." "$WORK_DIR/config/includes.chroot/
 cp "$ROOT_DIR/config/package-lists/nexora-live.list.chroot" \
     "$WORK_DIR/config/package-lists/nexora-live.list.chroot"
 
-# Ensure application entry points are executable in the resulting live system.
+# Make both NEXORA entry points executable in the final live image.
 chmod 0755 "$WORK_DIR/config/includes.chroot"/usr/bin/nexora-* \
-    "$WORK_DIR/config/includes.chroot/usr/local/sbin/nexora-postinstall"
+    "$WORK_DIR/config/includes.chroot/usr/local/sbin/nexora-postinstall" \
+    "$WORK_DIR/config/includes.chroot/usr/lib/nexora-installer/install-engine.py"
 
-# Replace Debian's stock boot splash with the NEXORA artwork in both BIOS
-# (ISOLINUX) and UEFI/GRUB locations used by Debian Live's default menus.
+# Replace Debian's stock boot splash with NEXORA artwork in BIOS and UEFI menus.
 mkdir -p "$WORK_DIR/config/includes.binary/isolinux" \
     "$WORK_DIR/config/includes.binary/boot/grub"
 python3 "$ROOT_DIR/scripts/create-installer-background.py" \
@@ -48,11 +48,11 @@ cp "$WORK_DIR/config/includes.binary/isolinux/splash.png" \
 
 # Identify the live edition clearly from the running system.
 cat > "$WORK_DIR/config/includes.chroot/etc/nexora-release" <<'RELEASE'
-NEXORA OS XFCE4 Live 0.1.0-alpha.2
+NEXORA OS XFCE4 Live 0.1.0-alpha.3
 Base: Debian GNU/Linux 13 (Trixie)
 Desktop: XFCE4
 Boot mode: Live hybrid ISO
-Installer: Debian Installer Live
+Installer: NEXORA GTK Installer
 Architecture: amd64
 Tagline: Your Terminal. Your Universe.
 RELEASE
@@ -82,12 +82,11 @@ lb config \
     --mirror-bootstrap "https://deb.debian.org/debian" \
     --mirror-chroot "https://deb.debian.org/debian" \
     --mirror-binary "https://deb.debian.org/debian" \
-    --mirror-debian-installer "https://deb.debian.org/debian" \
     --keyring-packages "debian-archive-keyring" \
     --security false \
     --binary-images iso-hybrid \
-    --debian-installer live \
-    --debian-installer-gui true \
+    --debian-installer false \
+    --debian-installer-gui false \
     --archive-areas "main contrib non-free non-free-firmware" \
     --bootappend-live "boot=live components locales=es_CL.UTF-8 keyboard-layouts=latam username=nexora" \
     --apt-recommends true \
@@ -95,10 +94,7 @@ lb config \
     --iso-publisher "NEXORA Project" \
     --iso-volume "NEXORA_XFCE4_LIVE"
 
-echo "==> Fixing legacy live-build Contents index URL when required..."
-python3 "$ROOT_DIR/scripts/patch-live-build-contents-index.py"
-
-echo "==> Building the complete XFCE4 live filesystem and installer..."
+echo "==> Building the XFCE4 Live system and native NEXORA GTK installer..."
 lb build
 
 BUILT_ISO="$WORK_DIR/live-image-amd64.hybrid.iso"
@@ -113,7 +109,7 @@ fi
 
 cp "$BUILT_ISO" "$OUTPUT_ISO"
 
-echo "==> Checking the Live filesystem and installer media..."
+echo "==> Checking the Live filesystem and boot media..."
 LIVE_CONTENTS="$(xorriso -indev "$OUTPUT_ISO" -ls /live 2>&1 || true)"
 printf '%s\n' "$LIVE_CONTENTS"
 printf '%s\n' "$LIVE_CONTENTS" | grep -q 'filesystem.squashfs' || {
@@ -128,6 +124,24 @@ BOOT_REPORT="$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1 || true
 printf '%s\n' "$BOOT_REPORT"
 printf '%s\n' "$BOOT_REPORT" | grep -qi 'El Torito' || {
     echo "The ISO has no El Torito boot catalog." >&2
+    exit 1
+}
+
+# Extract the built live filesystem and assert the GTK installer is present.
+VERIFY_DIR="$OUTPUT_DIR/installer-verification"
+rm -rf "$VERIFY_DIR"
+mkdir -p "$VERIFY_DIR"
+xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract /live/filesystem.squashfs "$VERIFY_DIR/filesystem.squashfs" \
+    >/dev/null 2>&1
+unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" /usr/bin/nexora-installer \
+    | grep -q 'NEXORA OS.*installation wizard' || {
+    echo "The ISO does not contain the native NEXORA GTK installer." >&2
+    exit 1
+}
+unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" /usr/lib/nexora-installer/install-engine.py \
+    | grep -q 'NEXORA OS disk installation engine' || {
+    echo "The native disk installation engine is missing from the ISO." >&2
     exit 1
 }
 
@@ -151,5 +165,5 @@ echo "    $OUTPUT_ISO"
 echo "    Size: $SIZE_HUMAN"
 echo "    SHA256: $SHA256"
 echo "    Live desktop: XFCE4"
-echo "    Desktop installer: debian-installer-launcher live"
+echo "    Installer: native NEXORA GTK"
 echo "    Base: Debian 13 Trixie"
