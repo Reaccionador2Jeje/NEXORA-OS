@@ -63,7 +63,9 @@ grep -q 'task-xfce-desktop' config/package-lists/nexora-live.list.chroot || fail
 grep -qx 'xfce4-whiskermenu-plugin' config/package-lists/nexora-live.list.chroot || fail "NEXORA top panel requires the Whisker Menu plugin."
 grep -qx 'xfce4-pulseaudio-plugin' config/package-lists/nexora-live.list.chroot || fail "NEXORA bottom panel requires the PulseAudio plugin."
 grep -q 'xfce4-whiskermenu-plugin xfce4-pulseaudio-plugin' installer/preseed/desktop.cfg || fail "Netinst desktop profile must install NEXORA panel plugins."
-grep -q '^rsync
+grep -q '^rsync$' config/package-lists/nexora-live.list.chroot || fail "Native installer requires rsync."
+grep -q '^parted$' config/package-lists/nexora-live.list.chroot || fail "Native installer requires parted."
+grep -q '^grub-efi-amd64-bin$' config/package-lists/nexora-live.list.chroot || fail "Native installer requires UEFI GRUB."
 grep -q 'standard system utilities' installer/profiles/minimal.md || fail "Minimal task selection guidance is missing."
 grep -q 'xfce-desktop' installer/profiles/desktop.md || fail "XFCE task selection guidance is missing."
 grep -q 'installer-${ARCH}/current/images/netboot/gtk' scripts/build-netinst.sh || fail "Build must use the official Debian GTK netboot image."
