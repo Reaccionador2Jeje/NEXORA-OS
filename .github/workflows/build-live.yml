@@ -9,6 +9,7 @@ on:
       - "config/**"
       - "installer/**"
       - "scripts/**"
+      - "tests/**"
       - ".github/workflows/build-live.yml"
   pull_request:
     branches:
