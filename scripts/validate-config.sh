@@ -20,6 +20,7 @@ for file in \
     scripts/test-qemu-boot.sh \
     scripts/inspect-boot-layout.sh \
     scripts/create-installer-background.py \
+    scripts/patch-live-build-contents-index.py \
     scripts/install-nexora-desktop.sh \
     scripts/validate-config.sh \
     scripts/publish-sourceforge.sh \
@@ -39,6 +40,7 @@ for file in \
     installer/desktop-overlay/usr/share/backgrounds/nexora/nexora-default.svg \
     installer/desktop-overlay/usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css \
     tests/test-nexora-desktop.py \
+    tests/test-live-build-contents-index.py \
     tests/test-nexora-installer.py
 do
     check_file "$file"
@@ -56,6 +58,7 @@ grep -q -- '--debian-installer false' scripts/build-live.sh || fail "XFCE4 Live 
 grep -q -- '--debian-installer-gui false' scripts/build-live.sh || fail "XFCE4 Live must disable Debian Installer GUI."
 grep -q 'NEXORA GTK Installer' scripts/build-live.sh || fail "Live image release metadata must name the NEXORA installer."
 grep -q 'unsquashfs' scripts/build-live.sh || fail "Live ISO build must verify the native installer files."
+grep -q 'patch-live-build-contents-index.py' scripts/build-live.sh || fail "Live build must retain Debian Trixie Contents index compatibility."
 grep -q 'NEXORA OS.*installation wizard' installer/desktop-overlay/usr/bin/nexora-installer || fail "Native GTK installer wizard is missing."
 grep -q 'install-engine.py' installer/desktop-overlay/usr/bin/nexora-installer || fail "GTK wizard must invoke the NEXORA install engine."
 grep -q 'parted' installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py || fail "Native disk partition engine is missing."
@@ -103,6 +106,7 @@ fi
 python3 -c 'import ast,json,pathlib,xml.etree.ElementTree as ET; paths=["scripts/create-installer-background.py","scripts/brand-installer-boot.py","installer/desktop-overlay/usr/bin/nexora-installer","installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py","installer/desktop-overlay/usr/bin/nexora-ai","installer/desktop-overlay/usr/bin/nexora-center","installer/desktop-overlay/usr/bin/nexora-store"]; [ast.parse(pathlib.Path(p).read_text()) for p in paths]; json.loads(pathlib.Path("installer/desktop-overlay/usr/share/nexora/catalog.json").read_text()); [ET.parse(p) for p in pathlib.Path("installer/desktop-overlay").rglob("*.xml")]'
 
 python3 tests/test-nexora-desktop.py
+python3 tests/test-live-build-contents-index.py
 python3 tests/test-nexora-installer.py
 
 # Preserve the post-install desktop workflow for NEXORA Minimal.
