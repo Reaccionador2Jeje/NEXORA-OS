@@ -4,26 +4,19 @@ NEXORA now has two separate image-building paths.
 
 ## NEXORA XFCE4 Live (main edition)
 
-The main desktop image is built with Debian Live using `scripts/build-live.sh`. It includes the complete XFCE4 desktop, the NEXORA desktop overlay and Debian Installer in Live mode.
+The main desktop image is built with Debian Live using `scripts/build-live.sh`. It includes XFCE4, the NEXORA desktop overlay and the native NEXORA GTK installer. The ISO disables Debian Installer in the Live build.
 
-The Live session starts directly at the XFCE desktop. Users can explore the system without installing it. The **Install NEXORA OS** desktop shortcut runs:
+The Live session starts directly at XFCE so users can explore NEXORA before installing. The **Install NEXORA OS** desktop shortcut opens the custom GTK3 wizard at `/usr/bin/nexora-installer`. It detects local disks, asks for a hostname and user account, and displays a destructive-operation confirmation before calling the privileged installation engine at `/usr/lib/nexora-installer/install-engine.py`.
 
-```sh
-debian-installer-launcher live
-```
-
-This launches Debian Installer from the desktop. Its Live installer copies the running filesystem to the selected destination and then configures the bootloader and installed system. The installer is interactive; NEXORA does not preselect or silently confirm disk formatting.
+The initial native installer uses automatic whole-disk partitioning: GPT, an EFI System Partition when booted in UEFI mode, and an ext4 root partition. In legacy BIOS mode it creates a BIOS boot partition and ext4 root. It copies the running Live system to the target and installs GRUB. **It erases the selected disk completely**; always back up important files and verify the target disk before accepting the confirmation.
 
 The Live image includes:
-- Five NEXORA wallpapers and four GTK themes.
+- NEXORA wallpapers and GTK themes.
 - NEXORA Welcome, Store, Control Center and Updater.
-- NEXORA AI client, configurable for a local Ollama-compatible endpoint or another OpenAI-compatible service.
-- XFCE4, NetworkManager, PolicyKit, Flatpak and common desktop utilities.
-- Debian Installer desktop launcher and the Live installer boot option.
+- XFCE4, NetworkManager, PolicyKit, Flatpak and desktop utilities.
+- The native NEXORA GTK3 installer and its disk/bootloader engine.
 
-The Live desktop itself can be used without installing. An Internet connection is recommended for browsing, updates and services that need network access.
-
-The desktop's **Install NEXORA OS** shortcut opens a NEXORA welcome screen first. It explains the installation steps and warns users to review disk and partition selections; continuing launches Debian Installer Live. This keeps the proven Debian installation engine while giving users a branded, clearer entry point. The installer screens themselves are still Debian Installer GTK and are not yet a fully custom NEXORA installer.
+This is the first installer implementation. A real UEFI and BIOS virtual-machine installation test is required before calling it production-ready. The current workflow checks that the installer and engine are included in the ISO and performs a Live boot smoke test.
 
 ## NEXORA Minimal netinst
 
