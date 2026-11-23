@@ -28,13 +28,13 @@ Each published edition folder includes:
 
 The main edition is built with Debian Live (`live-build`) on Debian 13 Trixie. It starts a complete XFCE4 session from the USB or virtual machine, with NEXORA wallpapers, four GTK themes, Welcome, Store, Control Center, Updater and the configurable NEXORA AI client.
 
-The Live desktop includes **Install NEXORA OS**, which launches Debian Installer's Live mode. The installer copies the running Live system to the selected disk rather than downloading the desktop packages again. The desktop can be tested before installation.
+The Live desktop includes **Install NEXORA OS**, our native GTK3 installation wizard. It detects disks, configures the account and installs the running Live system to the selected disk with an EFI/BIOS-aware partition layout and GRUB.
 
-The Live image defaults to Chilean Spanish and the Latin American keyboard layout. Its installer is interactive; review partitioning and disk changes carefully before confirming them.
+The native installer is an early implementation with automatic whole-disk partitioning. It erases the selected disk after an explicit confirmation. Back up your files and verify the target carefully; UEFI and BIOS virtual-machine installation tests are still required.
 
 ## Minimal netinst
 
-NEXORA Minimal remains a separate, small Debian Installer GTK network installer. It offers the terminal-focused profile and keeps disk partitioning interactive. It does not include the XFCE desktop.
+NEXORA Minimal remains a separate, small Debian Installer GTK network installer for now. Replacing Debian Installer in the Minimal netinst image requires a separate custom boot/initrd integration; the native GTK installer currently belongs to the XFCE4 Live edition.
 
 ## Add NEXORA Desktop after installing Minimal
 
