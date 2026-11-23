@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Patch the legacy live-build Contents index URL on Ubuntu build hosts.
+"""Patch legacy live-build Debian Contents index URLs.
 
-Some packaged live-build versions request:
-  dists/<suite>/Contents-<arch>.gz
-Debian publishes this index below the archive component:
+Debian publishes architecture Contents indexes below an archive component:
   dists/<suite>/main/Contents-<arch>.gz
+Some live-build helpers still request:
+  dists/<suite>/Contents-<arch>.gz
 
-Only known legacy strings are changed. Newer versions that no longer contain
-these strings are left untouched.
+The old workaround patched only lb_chroot_linux-image. The XFCE Live build
+also invokes other helpers, so scan every text helper in the live-build
+library and fix every occurrence. This is intentionally idempotent.
 """
 from __future__ import annotations
 
@@ -34,11 +35,10 @@ replacements = (
     ),
 )
 
-candidates = sorted(path for path in library_dir.glob("*linux-image*") if path.is_file())
 patched: list[str] = []
 already_fixed: list[str] = []
 
-for path in candidates:
+for path in sorted(p for p in library_dir.rglob("*") if p.is_file()):
     try:
         original = path.read_text(encoding="utf-8")
     except (OSError, UnicodeError):
@@ -63,6 +63,6 @@ elif already_fixed:
         print(f"  {name}")
 else:
     print(
-        "No legacy Contents URL found in the installed live-build kernel helper; "
+        "No legacy Contents URL found in the installed live-build helpers; "
         "leaving the installed package unchanged."
     )
