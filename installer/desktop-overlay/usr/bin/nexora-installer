@@ -43,15 +43,22 @@ def label(text, size=None, bold=False):
 def get_disks():
     try:
         raw = subprocess.check_output(
-            ["lsblk", "-J", "-b", "-d", "-o", "NAME,SIZE,MODEL,TYPE,RM"],
+            ["lsblk", "-J", "-b", "-o", "NAME,SIZE,MODEL,TYPE,RM,MOUNTPOINTS"],
             text=True, stderr=subprocess.DEVNULL
         )
         data = json.loads(raw)
     except Exception:
         return []
     result = []
+    def mounted(node):
+        if any(point for point in (node.get("mountpoints") or []) if point):
+            return True
+        return any(mounted(child) for child in (node.get("children") or []))
     for item in data.get("blockdevices", []):
         if item.get("type") != "disk" or not item.get("name"):
+            continue
+        # Never offer a disk that is currently mounted by the Live session.
+        if mounted(item):
             continue
         size = int(item.get("size") or 0)
         if size < 12 * 1024**3:
