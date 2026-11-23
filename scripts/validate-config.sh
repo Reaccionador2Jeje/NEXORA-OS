@@ -65,7 +65,7 @@ grep -q 'insmod png' scripts/brand-installer-boot.py || fail "GRUB must load PNG
 grep -q 'background_image /nexora/nexora-installer-background.png' scripts/brand-installer-boot.py || fail "GRUB must select the NEXORA background."
 grep -q 'menu background /nexora/nexora-installer-background.png' scripts/brand-installer-boot.py || fail "Syslinux must select the NEXORA background."
 grep -q 'UI vesamenu.c32' scripts/brand-installer-boot.py || fail "BIOS must use the graphics-capable Syslinux menu."
-grep -q -- '-map "$BOOT_BRANDING_DIR/isolinux.cfg" /isolinux/isolinux.cfg' scripts/build-netinst.sh || fail "Patched BIOS menu renderer config must be embedded."
+grep -q 'ISOLINUX_CONFIG_PATH=$(cat "$BOOT_BRANDING_DIR/isolinux-path.txt")' scripts/build-netinst.sh || fail "Detected BIOS Syslinux config path must be used when embedding the menu."
 grep -q 'UEFI GRUB menu is not configured' scripts/build-netinst.sh || fail "Netinst must verify the UEFI background reference."
 grep -q 'BIOS Syslinux menu is not configured' scripts/build-netinst.sh || fail "Netinst must verify the BIOS background reference."
 grep -q 'boot_image any replay' scripts/build-netinst.sh || fail "Netinst must preserve boot records."
