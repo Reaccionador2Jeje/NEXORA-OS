@@ -1,4 +1,7 @@
 # NEXORA OS XFCE4 Live desktop and native GTK installer
+# Keep BIOS bootloader payloads available inside the live-build chroot.
+isolinux
+syslinux-common
 task-xfce-desktop
 lightdm
 network-manager
