@@ -67,6 +67,7 @@ BOOT_BRANDING_DIR="$ROOT_DIR/build-output/boot-branding"
 rm -rf "$BOOT_BRANDING_DIR"
 NEXORA_DEFAULT_PROFILE="$EDITION" python3 "$ROOT_DIR/scripts/brand-installer-boot.py" "$SOURCE_ISO" "$BOOT_BRANDING_DIR"
 SYSLINUX_MENU_PATH=$(cat "$BOOT_BRANDING_DIR/menu-path.txt")
+ISOLINUX_CONFIG_PATH=$(cat "$BOOT_BRANDING_DIR/isolinux-path.txt")
 
 echo "==> Embedding NEXORA artwork, profiles and boot menus..."
 xorriso -indev "$SOURCE_ISO" \
@@ -80,7 +81,7 @@ xorriso -indev "$SOURCE_ISO" \
     -map "$ROOT_DIR/build-output/nexora-installer-background.png" /isolinux/splash.png \
     -map "$ROOT_DIR/build-output/nexora-installer-background.png" /boot/grub/splash.png \
     -map "$BOOT_BRANDING_DIR/grub.cfg" /boot/grub/grub.cfg \
-    -map "$BOOT_BRANDING_DIR/isolinux.cfg" /isolinux/isolinux.cfg \
+    -map "$BOOT_BRANDING_DIR/isolinux.cfg" "$ISOLINUX_CONFIG_PATH" \
     -map "$BOOT_BRANDING_DIR/menu.cfg" "$SYSLINUX_MENU_PATH" \
     -map "$INITRD_BRANDING_DIR/initrd-nexora.gz" /initrd.gz \
     -boot_image any replay \
@@ -110,7 +111,7 @@ rm -rf "$MENU_VERIFY_DIR"
 mkdir -p "$MENU_VERIFY_DIR"
 xorriso -osirrox on -indev "$OUTPUT_ISO" \
     -extract /boot/grub/grub.cfg "$MENU_VERIFY_DIR/grub.cfg" \
-    -extract /isolinux/isolinux.cfg "$MENU_VERIFY_DIR/isolinux.cfg" \
+    -extract "$ISOLINUX_CONFIG_PATH" "$MENU_VERIFY_DIR/isolinux.cfg" \
     -extract "$SYSLINUX_MENU_PATH" "$MENU_VERIFY_DIR/menu.cfg" \
     >/dev/null 2>&1
 grep -q "NEXORA OS Minimal" "$MENU_VERIFY_DIR/grub.cfg" || {
