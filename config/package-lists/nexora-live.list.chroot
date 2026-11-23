@@ -1,4 +1,4 @@
-# NEXORA OS XFCE4 Live desktop package set
+# NEXORA OS XFCE4 Live desktop and native GTK installer
 task-xfce-desktop
 lightdm
 network-manager
@@ -13,10 +13,18 @@ xfce4-whiskermenu-plugin
 xfce4-pulseaudio-plugin
 firefox-esr
 gparted
-debian-installer-launcher
 flatpak
+python3
 python3-gi
 gir1.2-gtk-3.0
+rsync
+parted
+dosfstools
+e2fsprogs
+grub-pc-bin
+grub-efi-amd64-bin
+efibootmgr
+util-linux
 fonts-noto
 fonts-noto-color-emoji
 gvfs
