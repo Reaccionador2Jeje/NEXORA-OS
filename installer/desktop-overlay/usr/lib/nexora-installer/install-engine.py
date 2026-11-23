@@ -153,7 +153,7 @@ def main():
     if run(chroot + ["id", "-u", username], check=False).returncode != 0:
         run(chroot + ["useradd", "-m", "-s", "/bin/bash", "-G", "sudo", username])
     else:
-        run(chroot + ["usermod", "-aG", "sudo,adm,audio,video,plugdev,netdev", username])
+        run(chroot + ["usermod", "-aG", "sudo", username])
     run(chroot + ["locale-gen", "es_CL.UTF-8"], check=False)
     run(chroot + ["ln", "-sf", "/usr/share/zoneinfo/America/Santiago", "/etc/localtime"], check=False)
     run(chroot + ["chpasswd"], input_text=username + ":" + password + "\n")
