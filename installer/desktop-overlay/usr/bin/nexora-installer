@@ -169,7 +169,7 @@ class NexoraInstaller(Gtk.Window):
         form.attach(self.host, 1, 1, 1, 1)
         form.attach(label("Nombre de usuario", bold=True), 0, 2, 1, 1)
         self.user = Gtk.Entry()
-        self.user.set_text("usuario")
+        self.user.set_text("nexora")
         form.attach(self.user, 1, 2, 1, 1)
         form.attach(label("Contraseña", bold=True), 0, 3, 1, 1)
         self.password = Gtk.Entry()
