@@ -94,6 +94,9 @@ lb config \
     --iso-publisher "NEXORA Project" \
     --iso-volume "NEXORA_XFCE4_LIVE"
 
+echo "==> Applying Debian Trixie live-build Contents index compatibility fix..."
+python3 "$ROOT_DIR/scripts/patch-live-build-contents-index.py"
+
 echo "==> Building the XFCE4 Live system and native NEXORA GTK installer..."
 lb build
 
