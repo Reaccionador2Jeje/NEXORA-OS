@@ -155,7 +155,7 @@ def main():
     run(chroot + ["systemctl", "set-default", "graphical.target"], check=False)
     if efi:
         run(chroot + ["grub-install", "--target=x86_64-efi", "--efi-directory=/boot/efi",
-                      "--bootloader-id=NEXORA", "--recheck"])
+                      "--bootloader-id=NEXORA", "--recheck", "--no-nvram", "--removable"])
     else:
         run(chroot + ["grub-install", "--target=i386-pc", disk])
     run(chroot + ["update-grub"])
