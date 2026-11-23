@@ -1,115 +1,347 @@
 #!/usr/bin/python3
-"""NEXORA's friendly, branded front door to Debian Installer Live."""
+"""NEXORA OS's native GTK3 installation wizard."""
+import json
 import os
-import shutil
+import re
 import subprocess
+import tempfile
+from pathlib import Path
+
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GLib
 
-TITLE = "Instalar NEXORA OS"
-class InstallerWelcome(Gtk.Window):
+ENGINE = "/usr/lib/nexora-installer/install-engine.py"
+BRAND = "/usr/share/nexora/branding"
+TITLE = "Instalador NEXORA OS"
+
+CSS = b"""
+window { background: #101827; color: #eaf4ff; }
+headerbar { background: #0b1220; color: #f3f8ff; border-bottom: 1px solid #23354d; }
+.title-label { color: #f3f8ff; font-weight: bold; }
+.hero { background: #0b1220; border-radius: 16px; padding: 24px; }
+.hero-title { color: #f3f8ff; font-size: 28px; font-weight: 700; }
+.hero-subtitle { color: #79d9f2; font-size: 14px; }
+.card { background: #172337; border: 1px solid #2b405b; border-radius: 12px; padding: 18px; }
+button { padding: 9px 16px; border-radius: 8px; }
+button.suggested-action { background: #16a6c8; color: #06131d; font-weight: bold; }
+label { color: #eaf4ff; }
+entry, combobox, spinbutton { background: #0c1524; color: #eaf4ff; border: 1px solid #344963; padding: 8px; }
+progressbar trough { background: #25364c; border-radius: 8px; min-height: 10px; }
+progressbar progress { background: #20b6d8; border-radius: 8px; }
+"""
+def label(text, size=None, bold=False):
+    widget = Gtk.Label(label=text)
+    widget.set_xalign(0)
+    widget.set_line_wrap(True)
+    if size:
+        widget.set_markup(f'<span size="{size}" weight="bold" foreground="#f3f8ff">{GLib.markup_escape_text(text)}</span>')
+    elif bold:
+        widget.set_markup(f"<b>{GLib.markup_escape_text(text)}</b>")
+    return widget
+
+def get_disks():
+    try:
+        raw = subprocess.check_output(
+            ["lsblk", "-J", "-b", "-d", "-o", "NAME,SIZE,MODEL,TYPE,RM"],
+            text=True, stderr=subprocess.DEVNULL
+        )
+        data = json.loads(raw)
+    except Exception:
+        return []
+    result = []
+    for item in data.get("blockdevices", []):
+        if item.get("type") != "disk" or not item.get("name"):
+            continue
+        size = int(item.get("size") or 0)
+        if size < 12 * 1024**3:
+            continue
+        model = (item.get("model") or "Disco").strip()
+        result.append((f"/dev/{item['name']}", f"{model} — {size / 1024**3:.1f} GB (/dev/{item['name']})"))
+    return result
+
+class NexoraInstaller(Gtk.Window):
     def __init__(self):
         super().__init__(title=TITLE)
-        self.set_default_size(560, 430)
-        self.set_resizable(False)
+        self.set_default_size(780, 570)
         self.set_position(Gtk.WindowPosition.CENTER)
-        self.set_border_width(0)
-        icon_path = "/usr/share/nexora/branding/nexora-icon.svg"
-        if os.path.exists(icon_path):
-            self.set_icon_from_file(icon_path)
-        self.connect("delete-event", lambda *_args: Gtk.main_quit())
+        self.set_resizable(False)
+        self.process = None
+        self.secret_path = None
+        self.page = 0
+        self.install_started = False
+        icon = os.path.join(BRAND, "nexora-icon.svg")
+        if os.path.exists(icon):
+            try: self.set_icon_from_file(icon)
+            except Exception: pass
 
-        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
-        self.add(root)
+        provider = Gtk.CssProvider()
+        provider.load_from_data(CSS)
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
 
+        outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
+        self.add(outer)
+        header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        header.set_border_width(18)
+        header.set_name("header")
+        logo = Gtk.Image.new_from_file(os.path.join(BRAND, "nexora-icon.svg")) if os.path.exists(os.path.join(BRAND, "nexora-icon.svg")) else Gtk.Image()
+        logo.set_pixel_size(36)
+        header.pack_start(logo, False, False, 0)
+        header.pack_start(label("NEXORA OS  ·  INSTALADOR", "large"), True, True, 0)
+        outer.pack_start(header, False, False, 0)
+
+        self.stack = Gtk.Stack()
+        self.stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
+        self.stack.set_transition_duration(180)
+        outer.pack_start(self.stack, True, True, 0)
+        self.build_welcome()
+        self.build_config()
+        self.build_progress()
+
+        footer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        footer.set_border_width(18)
+        self.status = Gtk.Label(label="Instalación guiada de NEXORA")
+        self.status.set_xalign(0)
+        footer.pack_start(self.status, True, True, 0)
+        self.back = Gtk.Button(label="Atrás")
+        self.back.connect("clicked", self.go_back)
+        footer.pack_start(self.back, False, False, 0)
+        self.next = Gtk.Button(label="Continuar")
+        self.next.get_style_context().add_class("suggested-action")
+        self.next.connect("clicked", self.go_next)
+        footer.pack_start(self.next, False, False, 0)
+        outer.pack_start(footer, False, False, 0)
+        self.connect("delete-event", self.on_close)
+        self.show_page(0)
+
+    def card(self, child):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        box.get_style_context().add_class("card")
+        box.pack_start(child, True, True, 0)
+        return box
+
+    def build_welcome(self):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=20)
+        page.set_border_width(28)
         hero = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        hero.set_border_width(28)
-        hero.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.055, 0.085, 0.145, 1))
-        root.pack_start(hero, False, False, 0)
+        hero.get_style_context().add_class("hero")
+        hero.pack_start(label("Bienvenido a NEXORA OS", "xx-large"), False, False, 0)
+        hero.pack_start(label("Tu escritorio. Tu universo.", "large"), False, False, 0)
+        hero.pack_start(label("Instala el sistema NEXORA en tu equipo con un asistente gráfico propio."), False, False, 0)
+        page.pack_start(hero, False, False, 0)
+        info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12)
+        info.get_style_context().add_class("card")
+        info.pack_start(label("Antes de comenzar", bold=True), False, False, 0)
+        info.pack_start(label("• Necesitarás un disco de al menos 12 GB.\n• La instalación requiere conexión a la red para actualizaciones posteriores.\n• El modo automático borrará completamente el disco seleccionado."), False, False, 0)
+        warning = label("IMPORTANTE: no selecciones un disco que contenga archivos que quieras conservar.", bold=True)
+        info.pack_start(warning, False, False, 0)
+        page.pack_start(info, True, True, 0)
+        self.stack.add_named(page, "welcome")
 
-        logo_path = "/usr/share/nexora/branding/nexora-logo.svg"
-        if os.path.exists(logo_path):
-            try:
-                logo = Gtk.Image.new_from_file(logo_path)
-                logo.set_pixel_size(72)
-                hero.pack_start(logo, False, False, 0)
-            except Exception:
-                pass
+    def build_config(self):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        page.set_border_width(24)
+        page.pack_start(label("Preparar la instalación", "x-large"), False, False, 0)
+        page.pack_start(label("Selecciona el disco de destino y crea tu cuenta de usuario."), False, False, 0)
 
-        title = Gtk.Label()
-        title.set_markup('<span foreground="#f3f8ff" size="xx-large" weight="bold">NEXORA OS</span>')
-        title.set_xalign(0)
-        hero.pack_start(title, False, False, 0)
-        subtitle = Gtk.Label(label="Tu escritorio. Tu universo.")
-        subtitle.set_xalign(0)
-        subtitle.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.56, 0.82, 0.94, 1))
-        hero.pack_start(subtitle, False, False, 0)
+        form = Gtk.Grid(column_spacing=16, row_spacing=14)
+        form.get_style_context().add_class("card")
+        form.set_border_width(18)
+        form.attach(label("Disco de destino", bold=True), 0, 0, 1, 1)
+        self.disk_combo = Gtk.ComboBoxText()
+        self.disks = get_disks()
+        for device, description in self.disks:
+            self.disk_combo.append(device, description)
+        if self.disks: self.disk_combo.set_active(0)
+        form.attach(self.disk_combo, 1, 0, 1, 1)
+        form.attach(label("Nombre del equipo", bold=True), 0, 1, 1, 1)
+        self.host = Gtk.Entry()
+        self.host.set_text("nexora-pc")
+        form.attach(self.host, 1, 1, 1, 1)
+        form.attach(label("Nombre de usuario", bold=True), 0, 2, 1, 1)
+        self.user = Gtk.Entry()
+        self.user.set_text("usuario")
+        form.attach(self.user, 1, 2, 1, 1)
+        form.attach(label("Contraseña", bold=True), 0, 3, 1, 1)
+        self.password = Gtk.Entry()
+        self.password.set_visibility(False)
+        self.password.set_input_purpose(Gtk.InputPurpose.PASSWORD)
+        form.attach(self.password, 1, 3, 1, 1)
+        form.attach(label("Confirmar contraseña", bold=True), 0, 4, 1, 1)
+        self.password2 = Gtk.Entry()
+        self.password2.set_visibility(False)
+        self.password2.set_input_purpose(Gtk.InputPurpose.PASSWORD)
+        form.attach(self.password2, 1, 4, 1, 1)
+        page.pack_start(form, True, True, 0)
+        self.stack.add_named(page, "config")
 
-        body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
-        body.set_border_width(24)
-        root.pack_start(body, True, True, 0)
+    def build_progress(self):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+        page.set_border_width(28)
+        page.pack_start(label("Instalando NEXORA OS", "x-large"), False, False, 0)
+        self.progress_label = label("Preparando el instalador…")
+        page.pack_start(self.progress_label, False, False, 0)
+        self.progress = Gtk.ProgressBar()
+        self.progress.set_show_text(True)
+        self.progress.set_text("En espera")
+        page.pack_start(self.progress, False, False, 0)
+        self.log = Gtk.TextView()
+        self.log.set_editable(False)
+        self.log.set_cursor_visible(False)
+        self.log.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        scroller = Gtk.ScrolledWindow()
+        scroller.set_min_content_height(220)
+        scroller.add(self.log)
+        page.pack_start(scroller, True, True, 0)
+        self.stack.add_named(page, "progress")
 
-        intro = Gtk.Label()
-        intro.set_markup("<b>Listo para instalar NEXORA en tu equipo</b>")
-        intro.set_xalign(0)
-        body.pack_start(intro, False, False, 0)
+    def show_page(self, page):
+        self.page = page
+        self.stack.set_visible_child_name(["welcome", "config", "progress"][page])
+        self.back.set_sensitive(page > 0 and not self.install_started)
+        self.next.set_label("Instalar NEXORA" if page == 1 else "Continuar")
+        self.next.set_sensitive(not self.install_started)
+        if page == 2:
+            self.next.set_label("Cerrar")
+            self.next.set_sensitive(self.process is None)
 
-        details = Gtk.Label(label="El asistente te guiará por el idioma, la red, las cuentas y la configuración del sistema.")
-        details.set_line_wrap(True)
-        details.set_xalign(0)
-        body.pack_start(details, False, False, 0)
+    def go_back(self, _button):
+        if self.page > 0 and not self.install_started:
+            self.show_page(self.page - 1)
 
-        warning = Gtk.Label()
-        warning.set_markup('<span foreground="#c47b16"><b>Antes de continuar</b></span>\nLa instalación puede modificar el disco que selecciones. Revisa cuidadosamente cada pantalla y no confirmes cambios si no estás seguro.')
-        warning.set_line_wrap(True)
-        warning.set_xalign(0)
-        body.pack_start(warning, False, False, 0)
-
-        buttons = Gtk.ButtonBox(orientation=Gtk.Orientation.HORIZONTAL)
-        buttons.set_layout(Gtk.ButtonBoxStyle.END)
-        buttons.set_spacing(10)
-        buttons.set_border_width(18)
-        root.pack_start(buttons, False, False, 0)
-
-        cancel = Gtk.Button(label="Volver al escritorio")
-        cancel.connect("clicked", lambda *_args: Gtk.main_quit())
-        buttons.add(cancel)
-
-        install = Gtk.Button(label="Continuar con la instalación")
-        install.get_style_context().add_class("suggested-action")
-        install.connect("clicked", self.launch_installer)
-        buttons.add(install)
-        install.grab_focus()
-
-    def launch_installer(self, _button):
-        launcher = shutil.which("debian-installer-launcher")
-        if not launcher:
-            dialog = Gtk.MessageDialog(
-                transient_for=self, flags=Gtk.DialogFlags.MODAL,
-                message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.CLOSE,
-                text="No se encontró el instalador",
-            )
-            dialog.format_secondary_text("El componente Debian Installer Live no está disponible en esta imagen.")
-            dialog.run()
-            dialog.destroy()
+    def go_next(self, _button):
+        if self.page == 0:
+            if not self.disks:
+                self.show_error("No se detectaron discos de 12 GB o más.")
+                return
+            self.show_page(1)
             return
-        self.hide()
-        try:
-            subprocess.Popen([launcher, "live"], start_new_session=True)
+        if self.page == 1:
+            self.start_install()
+            return
+        if self.process is None:
             Gtk.main_quit()
-        except OSError as error:
-            self.show()
-            dialog = Gtk.MessageDialog(
-                transient_for=self, flags=Gtk.DialogFlags.MODAL,
-                message_type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.CLOSE,
-                text="No se pudo iniciar el instalador",
-            )
-            dialog.format_secondary_text(str(error))
+
+    def start_install(self):
+        disk = self.disk_combo.get_active_id()
+        username = self.user.get_text().strip().lower()
+        hostname = self.host.get_text().strip().lower()
+        password = self.password.get_text()
+        if not disk:
+            self.show_error("Selecciona un disco de destino.")
+            return
+        if not re.fullmatch(r"[a-z_][a-z0-9_-]{0,31}", username):
+            self.show_error("El usuario debe usar letras minúsculas, números, guion o guion bajo.")
+            return
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,62}", hostname):
+            self.show_error("El nombre del equipo no es válido.")
+            return
+        if len(password) < 8 or password != self.password2.get_text():
+            self.show_error("Las contraseñas deben coincidir y tener al menos 8 caracteres.")
+            return
+        confirm = Gtk.MessageDialog(
+            transient_for=self, flags=Gtk.DialogFlags.MODAL,
+            message_type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.CANCEL,
+            text="¿Borrar e instalar NEXORA en este disco?"
+        )
+        confirm.format_secondary_text(
+            f"Destino: {disk}\n\nSe eliminarán todas las particiones y archivos de ese disco. "
+            "Esta acción no se puede deshacer. Pulsa Aceptar solo si has comprobado que es el disco correcto."
+        )
+        confirm.add_button("Borrar disco e instalar", Gtk.ResponseType.ACCEPT)
+        response = confirm.run()
+        confirm.destroy()
+        if response != Gtk.ResponseType.ACCEPT:
+            return
+
+        fd, self.secret_path = tempfile.mkstemp(prefix="nexora-install-secret-")
+        os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as secret:
+            secret.write(password)
+        self.password.set_text("")
+        self.password2.set_text("")
+        self.install_started = True
+        self.show_page(2)
+        self.status.set_text("Instalación en curso…")
+        self.next.set_label("Instalando…")
+        self.next.set_sensitive(False)
+        command = ["pkexec", ENGINE, disk, username, hostname, self.secret_path]
+        try:
+            self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                           text=False, bufsize=0)
+            os.set_blocking(self.process.stdout.fileno(), False)
+            GLib.timeout_add(250, self.poll_process)
+        except Exception as error:
+            self.process = None
+            self.install_started = False
+            self.show_error(str(error))
+
+    def poll_process(self):
+        if not self.process:
+            return False
+        try:
+            data = os.read(self.process.stdout.fileno(), 4096).decode("utf-8", "replace")
+            if data:
+                buffer = self.log.get_buffer()
+                buffer.insert(buffer.get_end_iter(), data)
+                mark = buffer.create_mark(None, buffer.get_end_iter(), False)
+                self.log.scroll_to_mark(mark, 0.0, True, 0.0, 1.0)
+                self.progress.pulse()
+                self.progress.set_text("Trabajando…")
+                self.progress_label.set_text("Instalando el sistema y configurando el arranque.")
+        except BlockingIOError:
+            pass
+        code = self.process.poll()
+        if code is None:
+            return True
+        # Leer cualquier salida que haya quedado en el pipe.
+        try:
+            tail = self.process.stdout.read().decode("utf-8", "replace")
+            if tail:
+                self.log.get_buffer().insert(self.log.get_buffer().get_end_iter(), tail)
+        except Exception:
+            pass
+        self.process = None
+        self.next.set_sensitive(True)
+        self.next.set_label("Cerrar")
+        self.back.set_sensitive(False)
+        if code == 0:
+            self.progress.set_fraction(1.0)
+            self.progress.set_text("Instalación completada")
+            self.progress_label.set_text("¡NEXORA OS está instalado! Reinicia y retira el USB.")
+            self.status.set_text("Instalación finalizada")
+        else:
+            self.progress.set_text("La instalación no terminó")
+            self.progress_label.set_text("Revisa el registro y vuelve a intentarlo.")
+            self.status.set_text("Error durante la instalación")
+        return False
+
+    def show_error(self, message):
+        dialog = Gtk.MessageDialog(transient_for=self, flags=Gtk.DialogFlags.MODAL,
+                                   message_type=Gtk.MessageType.ERROR,
+                                   buttons=Gtk.ButtonsType.CLOSE, text="No se puede continuar")
+        dialog.format_secondary_text(message)
+        dialog.run()
+        dialog.destroy()
+
+    def on_close(self, *_args):
+        if self.process is not None:
+            dialog = Gtk.MessageDialog(transient_for=self, flags=Gtk.DialogFlags.MODAL,
+                                      message_type=Gtk.MessageType.WARNING,
+                                      buttons=Gtk.ButtonsType.CANCEL,
+                                      text="La instalación está en curso")
+            dialog.format_secondary_text("No cierres el instalador mientras se modifica el disco.")
             dialog.run()
             dialog.destroy()
+            return True
+        if self.secret_path:
+            try: Path(self.secret_path).unlink()
+            except OSError: pass
+        return False
 
 if __name__ == "__main__":
-    win = InstallerWelcome()
-    win.show_all()
+    app = NexoraInstaller()
+    app.show_all()
     Gtk.main()
