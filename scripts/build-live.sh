@@ -134,12 +134,12 @@ mkdir -p "$VERIFY_DIR"
 xorriso -osirrox on -indev "$OUTPUT_ISO" \
     -extract /live/filesystem.squashfs "$VERIFY_DIR/filesystem.squashfs" \
     >/dev/null 2>&1
-unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" /usr/bin/nexora-installer \
+unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" usr/bin/nexora-installer \
     | grep -q 'NEXORA OS.*installation wizard' || {
     echo "The ISO does not contain the native NEXORA GTK installer." >&2
     exit 1
 }
-unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" /usr/lib/nexora-installer/install-engine.py \
+unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" usr/lib/nexora-installer/install-engine.py \
     | grep -q 'NEXORA OS disk installation engine' || {
     echo "The native disk installation engine is missing from the ISO." >&2
     exit 1
