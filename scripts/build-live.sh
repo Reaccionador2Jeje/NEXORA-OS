@@ -28,6 +28,23 @@ cp -a "$ROOT_DIR/config/." "$WORK_DIR/config/"
 mkdir -p "$WORK_DIR/config/includes.chroot"
 mkdir -p "$WORK_DIR/config/package-lists"
 
+# Debian Trixie moved ISOLINUX and Syslinux BIOS modules to /usr/lib.
+# Override live-build's legacy bootloader links so they resolve inside chroot.
+BOOTLOADER_TEMPLATE="/usr/share/live/build/bootloaders/isolinux"
+BOOTLOADER_OVERRIDE="$WORK_DIR/config/bootloaders/isolinux"
+if [[ ! -d "$BOOTLOADER_TEMPLATE" ]]; then
+    echo "live-build ISOLINUX template is missing: $BOOTLOADER_TEMPLATE" >&2
+    exit 1
+fi
+mkdir -p "$BOOTLOADER_OVERRIDE"
+cp -a "$BOOTLOADER_TEMPLATE/." "$BOOTLOADER_OVERRIDE/"
+ln -sfn /usr/lib/ISOLINUX/isolinux.bin "$BOOTLOADER_OVERRIDE/isolinux.bin"
+for module in "$BOOTLOADER_OVERRIDE"/*.c32; do
+    [[ -e "$module" || -L "$module" ]] || continue
+    module_name="$(basename "$module")"
+    ln -sfn "/usr/lib/syslinux/modules/bios/$module_name" "$module"
+done
+
 # Merge the complete NEXORA desktop overlay into the live root filesystem.
 cp -a "$ROOT_DIR/installer/desktop-overlay/." "$WORK_DIR/config/includes.chroot/"
 cp "$ROOT_DIR/config/package-lists/nexora-live.list.chroot" \
