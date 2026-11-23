@@ -68,7 +68,7 @@ if grep -q 'debian-installer-launcher' installer/desktop-overlay/usr/bin/nexora-
 fi
 
 # Native installer packages.
-for package in rsync parted dosfstools e2fsprogs grub-pc-bin grub-efi-amd64-bin pkexec python3-gi gir1.2-gtk-3.0; do
+for package in rsync parted dosfstools e2fsprogs grub-pc-bin grub-efi-amd64-bin pkexec python3-gi gir1.2-gtk-3.0 locales keyboard-configuration tzdata; do
     grep -qx "$package" config/package-lists/nexora-live.list.chroot || fail "Native installer package is missing: $package"
 done
 
