@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """NEXORA OS disk installation engine. Destructive operations require explicit GUI confirmation."""
+import atexit
 import os
 import re
 import shutil
@@ -7,6 +8,14 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
+MOUNTS = []
+def cleanup():
+    for mountpoint in reversed(MOUNTS):
+        subprocess.run(["umount", "-lf", mountpoint], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    MOUNTS.clear()
+
+atexit.register(cleanup)
 
 def run(args, *, check=True, input_text=None):
     return subprocess.run(args, check=check, text=True, input=input_text,
@@ -40,6 +49,40 @@ def main():
     if len(password) < 8 or "\n" in password or ":" in password:
         fail("La contraseña no cumple los requisitos mínimos.")
 
+    # Validate capacity and refuse disks currently mounted by the Live session.
+    size_result = run(["lsblk", "-b", "-ndo", "SIZE", disk], check=False)
+    try:
+        if int(size_result.stdout.strip() or "0") < 12 * 1024**3:
+            fail("El disco debe tener al menos 12 GB.")
+    except ValueError:
+        fail("No se pudo comprobar el tamaño del disco.")
+    tree = run(["lsblk", "-J", "-o", "NAME,TYPE,MOUNTPOINTS"], check=False)
+    if tree.returncode == 0:
+        import json
+        data = json.loads(tree.stdout)
+        def find_disk(nodes):
+            for node in nodes:
+                if node.get("name") == Path(disk).name:
+                    return node
+                found = find_disk(node.get("children") or [])
+                if found:
+                    return found
+            return None
+        selected = find_disk(data.get("blockdevices", []))
+        def has_mount(node):
+            if any(point for point in (node.get("mountpoints") or []) if point):
+                return True
+            return any(has_mount(child) for child in (node.get("children") or []))
+        if selected and has_mount(selected):
+            fail("El disco de destino tiene particiones montadas. Desmonta el disco o selecciona otro.")
+    # Protect the medium currently running NEXORA Live.
+    for medium in ("/run/live/medium", "/lib/live/mount/medium"):
+        source = run(["findmnt", "-nro", "SOURCE", "--target", medium], check=False).stdout.strip()
+        if source.startswith("/dev/"):
+            source_name = Path(source).name
+            parent = run(["lsblk", "-no", "PKNAME", source], check=False).stdout.strip()
+            if source_name == Path(disk).name or parent == Path(disk).name:
+                fail("No se puede instalar sobre el medio desde el que arrancó NEXORA Live.")
     efi = Path("/sys/firmware/efi").exists()
     print("Preparando el disco seleccionado…", flush=True)
     # La GUI solicita confirmación explícita antes de invocar este motor.
@@ -67,9 +110,11 @@ def main():
     target = Path("/mnt/nexora-install")
     target.mkdir(parents=True, exist_ok=True)
     run(["mount", root_part, str(target)])
+    MOUNTS.append(str(target))
     if efi:
         (target / "boot/efi").mkdir(parents=True, exist_ok=True)
         run(["mount", efi_part, str(target / "boot/efi")])
+        MOUNTS.append(str(target / "boot/efi"))
 
     print("Copiando el sistema NEXORA al disco…", flush=True)
     rsync = shutil.which("rsync")
@@ -97,15 +142,16 @@ def main():
     for mount in ("dev", "dev/pts", "proc", "sys", "run"):
         (target / mount).mkdir(parents=True, exist_ok=True)
         run(["mount", "--bind", "/" + mount, str(target / mount)])
+        MOUNTS.append(str(target / mount))
     chroot = ["chroot", str(target)]
     if run(chroot + ["id", "-u", username], check=False).returncode != 0:
-        run(chroot + ["useradd", "-m", "-s", "/bin/bash", "-G", "sudo,adm,audio,video,plugdev,netdev", username])
+        run(chroot + ["useradd", "-m", "-s", "/bin/bash", "-G", "sudo", username])
     else:
         run(chroot + ["usermod", "-aG", "sudo,adm,audio,video,plugdev,netdev", username])
     run(chroot + ["chpasswd"], input_text=username + ":" + password + "\n")
     password = ""
     run(chroot + ["passwd", "-l", "root"], check=False)
-    run(chroot + ["systemctl", "enable", "NetworkManager", "lightdm", "nexora-postinstall.service"], check=False)
+    run(chroot + ["systemctl", "enable", "NetworkManager", "lightdm"], check=False)
     run(chroot + ["systemctl", "set-default", "graphical.target"], check=False)
     if efi:
         run(chroot + ["grub-install", "--target=x86_64-efi", "--efi-directory=/boot/efi",
@@ -114,12 +160,8 @@ def main():
         run(chroot + ["grub-install", "--target=i386-pc", disk])
     run(chroot + ["update-grub"])
     print("Instalación terminada. Puedes reiniciar y retirar el medio Live.", flush=True)
-    # Desmontaje en orden inverso.
-    for mount in ("run", "sys", "proc", "dev/pts", "dev"):
-        run(["umount", "-lf", str(target / mount)], check=False)
-    if efi:
-        run(["umount", "-lf", str(target / "boot/efi")], check=False)
-    run(["umount", "-lf", str(target)], check=False)
+    # Desmontar en orden inverso (también se ejecuta si el proceso falla).
+    cleanup()
 
 if __name__ == "__main__":
     main()
