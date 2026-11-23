@@ -135,6 +135,12 @@ def main():
         fstab.append(f"UUID={efi_uuid} /boot/efi vfat umask=0077 0 1")
     (target / "etc/fstab").write_text("\n".join(fstab) + "\n", encoding="utf-8")
     (target / "etc/hostname").write_text(hostname + "\n", encoding="utf-8")
+    (target / "etc/default/locale").write_text('LANG="es_CL.UTF-8"\n', encoding="utf-8")
+    (target / "etc/default/keyboard").write_text(
+        'XKBMODEL="pc105"\nXKBLAYOUT="latam"\nXKBVARIANT=""\nXKBOPTIONS=""\nBACKSPACE="guess"\n',
+        encoding="utf-8",
+    )
+    (target / "etc/timezone").write_text("America/Santiago\n", encoding="utf-8")
     hosts = target / "etc/hosts"
     hosts.write_text("127.0.0.1 localhost\n127.0.1.1 " + hostname + "\n\n::1 localhost ip6-localhost ip6-loopback\n", encoding="utf-8")
 
@@ -148,6 +154,8 @@ def main():
         run(chroot + ["useradd", "-m", "-s", "/bin/bash", "-G", "sudo", username])
     else:
         run(chroot + ["usermod", "-aG", "sudo,adm,audio,video,plugdev,netdev", username])
+    run(chroot + ["locale-gen", "es_CL.UTF-8"], check=False)
+    run(chroot + ["ln", "-sf", "/usr/share/zoneinfo/America/Santiago", "/etc/localtime"], check=False)
     run(chroot + ["chpasswd"], input_text=username + ":" + password + "\n")
     password = ""
     # Remove the temporary Live-session account when the user chose another name.
