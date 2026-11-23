@@ -150,6 +150,11 @@ def main():
         run(chroot + ["usermod", "-aG", "sudo,adm,audio,video,plugdev,netdev", username])
     run(chroot + ["chpasswd"], input_text=username + ":" + password + "\n")
     password = ""
+    # Remove the temporary Live-session account when the user chose another name.
+    if username != "nexora" and run(chroot + ["id", "-u", "nexora"], check=False).returncode == 0:
+        run(chroot + ["userdel", "-r", "nexora"], check=False)
+    # The Live image machine-id must not be cloned to installed systems.
+    (target / "etc/machine-id").write_text("", encoding="utf-8")
     run(chroot + ["passwd", "-l", "root"], check=False)
     run(chroot + ["systemctl", "enable", "NetworkManager", "lightdm"], check=False)
     run(chroot + ["systemctl", "set-default", "graphical.target"], check=False)
