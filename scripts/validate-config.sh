@@ -38,6 +38,12 @@ grep -q -- '--debian-installer-gui false' scripts/build-live.sh || fail "XFCE4 L
 grep -q 'NEXORA GTK Installer' scripts/build-live.sh || fail "Live release metadata must name the NEXORA installer."
 grep -q 'unsquashfs' scripts/build-live.sh || fail "Live ISO must verify native installer files."
 grep -q 'patch-live-build-contents-index.py' scripts/build-live.sh || fail "Live build must retain Contents index compatibility."
+grep -q 'BOOTLOADER_OVERRIDE=.*config/bootloaders/isolinux' scripts/build-live.sh || fail "XFCE Live must provide a local ISOLINUX bootloader override."
+grep -q '/usr/lib/ISOLINUX/isolinux.bin' scripts/build-live.sh || fail "ISOLINUX must use Debian Trixie's current binary path."
+grep -q '/usr/lib/syslinux/modules/bios/' scripts/build-live.sh || fail "Syslinux modules must use Debian Trixie's current BIOS module path."
+for package in isolinux syslinux-common; do
+    grep -qx "$package" config/package-lists/nexora-live.list.chroot || fail "XFCE BIOS bootloader package missing: $package"
+done
 grep -q 'NEXORA OS.*installation wizard' installer/desktop-overlay/usr/bin/nexora-installer || fail "Native GTK wizard is missing."
 grep -q 'install-engine.py' installer/desktop-overlay/usr/bin/nexora-installer || fail "GTK wizard must invoke the NEXORA engine."
 grep -q 'parted' installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py || fail "Native partition engine is missing."
