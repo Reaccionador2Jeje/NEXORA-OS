@@ -40,6 +40,7 @@ check_file installer/desktop-overlay/usr/bin/nexora-welcome
 check_file installer/desktop-overlay/usr/bin/nexora-updater
 check_file installer/desktop-overlay/usr/share/applications/nexora-updater.desktop
 check_file tests/test-nexora-desktop.py
+check_file tests/test-nexora-installer.py
 check_file installer/desktop-overlay/usr/share/backgrounds/nexora/nexora-aurora.svg
 check_file installer/desktop-overlay/usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css
 check_file installer/desktop-overlay/usr/share/backgrounds/nexora/nexora-nebula.svg
@@ -103,6 +104,7 @@ if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netin
 fi
 
 python3 tests/test-nexora-desktop.py
+python3 tests/test-nexora-installer.py
 
 # The Minimal terminal install must be able to add the complete NEXORA XFCE desktop later.
 grep -q 'task-xfce-desktop' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must install the Debian XFCE task."
