@@ -25,6 +25,9 @@ grub-pc-bin
 grub-efi-amd64-bin
 efibootmgr
 util-linux
+locales
+keyboard-configuration
+tzdata
 fonts-noto
 fonts-noto-color-emoji
 gvfs
