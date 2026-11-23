@@ -113,9 +113,23 @@ menu_out.write_text(menu, encoding="utf-8")
 (out / "menu-path.txt").write_text(menu_iso_path + "\n", encoding="utf-8")
 
 # Ensure BIOS actually invokes the graphics-capable Syslinux menu renderer.
+isolinux_candidates = (
+    "/isolinux.cfg",
+    "/isolinux/isolinux.cfg",
+    "/syslinux.cfg",
+    "/syslinux/syslinux.cfg",
+    "/boot/isolinux/isolinux.cfg",
+)
 isolinux_src = out / "isolinux-upstream.cfg"
-if not extract("/isolinux/isolinux.cfg", isolinux_src):
-    raise SystemExit("Expected BIOS config /isolinux/isolinux.cfg was not found.")
+isolinux_iso_path = next(
+    (candidate for candidate in isolinux_candidates if extract(candidate, isolinux_src)),
+    None,
+)
+if isolinux_iso_path is None:
+    raise SystemExit(
+        "No supported BIOS Syslinux config was found. Checked: "
+        + ", ".join(isolinux_candidates)
+    )
 isolinux = isolinux_src.read_text(encoding="utf-8")
 if not re.search(r"(?im)^UI\s+vesamenu\.c32\s*$", isolinux):
     if re.search(r"(?im)^UI\s+\S+\s*$", isolinux):
@@ -123,8 +137,9 @@ if not re.search(r"(?im)^UI\s+vesamenu\.c32\s*$", isolinux):
     else:
         isolinux = "UI vesamenu.c32\n" + isolinux
 (out / "isolinux.cfg").write_text(isolinux, encoding="utf-8")
+(out / "isolinux-path.txt").write_text(isolinux_iso_path + "\n", encoding="utf-8")
 
 print("Prepared NEXORA boot menus:")
 print("  UEFI: /boot/grub/grub.cfg (PNG module + NEXORA background)")
-print(f"  BIOS: {menu_iso_path} (vesamenu.c32 + NEXORA background)")
+print(f"  BIOS: {isolinux_iso_path} + {menu_iso_path} (vesamenu.c32 + NEXORA background)")
 print("  Debian upstream fallback entries preserved.")
