@@ -12,7 +12,7 @@ if [[ "$EUID" -ne 0 ]]; then
     exit 1
 fi
 
-for command in lb xorriso sha256sum; do
+for command in lb xorriso sha256sum unsquashfs; do
     if ! command -v "$command" >/dev/null 2>&1; then
         echo "Required command is missing: $command" >&2
         exit 1
