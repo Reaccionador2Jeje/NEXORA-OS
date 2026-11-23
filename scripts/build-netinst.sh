@@ -68,7 +68,7 @@ rm -rf "$BOOT_BRANDING_DIR"
 NEXORA_DEFAULT_PROFILE="$EDITION" python3 "$ROOT_DIR/scripts/brand-installer-boot.py" "$SOURCE_ISO" "$BOOT_BRANDING_DIR"
 SYSLINUX_MENU_PATH=$(cat "$BOOT_BRANDING_DIR/menu-path.txt")
 
-echo "==> Embedding NEXORA installer profiles and preserving boot records..."
+echo "==> Embedding NEXORA artwork, profiles and boot menus..."
 xorriso -indev "$SOURCE_ISO" \
     -outdev "$OUTPUT_ISO" \
     -volid "$ISO_VOLUME" \
@@ -80,25 +80,14 @@ xorriso -indev "$SOURCE_ISO" \
     -map "$ROOT_DIR/build-output/nexora-installer-background.png" /isolinux/splash.png \
     -map "$ROOT_DIR/build-output/nexora-installer-background.png" /boot/grub/splash.png \
     -map "$BOOT_BRANDING_DIR/grub.cfg" /boot/grub/grub.cfg \
+    -map "$BOOT_BRANDING_DIR/isolinux.cfg" /isolinux/isolinux.cfg \
     -map "$BOOT_BRANDING_DIR/menu.cfg" "$SYSLINUX_MENU_PATH" \
     -map "$INITRD_BRANDING_DIR/initrd-nexora.gz" /initrd.gz \
     -boot_image any replay \
     -commit \
     -end
 
-echo "==> Verifying embedded NEXORA profiles and El Torito boot metadata..."
-# El Torito is verified explicitly below. Avoid -toc here because xorriso may
-# return status 5 after successfully reading an otherwise valid ISO.
-profile_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/preseed 2>&1 || true)
-printf '%s\n' "$profile_listing"
-printf '%s\n' "$profile_listing" | grep -q 'minimal.cfg' || {
-    echo "Minimal preseed profile is missing from the ISO." >&2
-    exit 1
-}
-printf '%s\n' "$profile_listing" | grep -q 'desktop.cfg' || {
-    echo "XFCE preseed profile is missing from the ISO." >&2
-    exit 1
-}
+echo "==> Verifying NEXORA background is connected to both boot menus..."
 branding_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora 2>&1 || true)
 printf '%s\n' "$branding_listing" | grep -q 'nexora-installer-background.png' || {
     echo "NEXORA installer background is missing from the ISO." >&2
@@ -108,9 +97,11 @@ BOOT_SPLASH_VERIFY_DIR="$ROOT_DIR/build-output/boot-splash-verification"
 rm -rf "$BOOT_SPLASH_VERIFY_DIR"
 mkdir -p "$BOOT_SPLASH_VERIFY_DIR"
 xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract /nexora/nexora-installer-background.png "$BOOT_SPLASH_VERIFY_DIR/nexora-background.png" \
     -extract /isolinux/splash.png "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png" \
     -extract /boot/grub/splash.png "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png" \
     >/dev/null 2>&1
+cmp "$ROOT_DIR/build-output/nexora-installer-background.png" "$BOOT_SPLASH_VERIFY_DIR/nexora-background.png"
 cmp "$ROOT_DIR/build-output/nexora-installer-background.png" "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png"
 cmp "$ROOT_DIR/build-output/nexora-installer-background.png" "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png"
 
@@ -119,40 +110,49 @@ rm -rf "$MENU_VERIFY_DIR"
 mkdir -p "$MENU_VERIFY_DIR"
 xorriso -osirrox on -indev "$OUTPUT_ISO" \
     -extract /boot/grub/grub.cfg "$MENU_VERIFY_DIR/grub.cfg" \
+    -extract /isolinux/isolinux.cfg "$MENU_VERIFY_DIR/isolinux.cfg" \
     -extract "$SYSLINUX_MENU_PATH" "$MENU_VERIFY_DIR/menu.cfg" \
     >/dev/null 2>&1
 grep -q "NEXORA OS Minimal" "$MENU_VERIFY_DIR/grub.cfg" || {
-    echo "UEFI NEXORA Minimal boot entry is missing from the embedded GRUB menu." >&2
+    echo "UEFI NEXORA Minimal boot entry is missing." >&2
     exit 1
 }
 grep -q "NEXORA OS XFCE Desktop" "$MENU_VERIFY_DIR/grub.cfg" || {
-    echo "UEFI NEXORA XFCE boot entry is missing from the embedded GRUB menu." >&2
+    echo "UEFI NEXORA XFCE boot entry is missing." >&2
+    exit 1
+}
+grep -q "background_image /nexora/nexora-installer-background.png" "$MENU_VERIFY_DIR/grub.cfg" || {
+    echo "UEFI GRUB menu is not configured to use the NEXORA background." >&2
+    exit 1
+}
+grep -q "vesamenu.c32" "$MENU_VERIFY_DIR/isolinux.cfg" || {
+    echo "BIOS menu is not using the graphics-capable vesamenu renderer." >&2
+    exit 1
+}
+grep -q "menu background /nexora/nexora-installer-background.png" "$MENU_VERIFY_DIR/menu.cfg" || {
+    echo "BIOS Syslinux menu is not configured to use the NEXORA background." >&2
     exit 1
 }
 grep -q "NEXORA OS Minimal" "$MENU_VERIFY_DIR/menu.cfg" || {
-    echo "BIOS NEXORA Minimal boot entry is missing from the embedded Syslinux menu." >&2
+    echo "BIOS NEXORA Minimal boot entry is missing." >&2
     exit 1
 }
-# Syslinux uses '^' as a keyboard-shortcut marker inside menu labels,
-# so the visible label is "NEXORA OS ^XFCE Desktop" in the config file.
-grep -q "NEXORA OS" "$MENU_VERIFY_DIR/menu.cfg" &&
-    grep -q "XFCE Desktop" "$MENU_VERIFY_DIR/menu.cfg" || {
-    echo "BIOS NEXORA XFCE boot entry is missing from the embedded Syslinux menu." >&2
+grep -q "XFCE Desktop" "$MENU_VERIFY_DIR/menu.cfg" || {
+    echo "BIOS NEXORA XFCE boot entry is missing." >&2
     exit 1
 }
+
 installer_branding=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/branding 2>&1 || true)
 printf '%s\n' "$installer_branding" | grep -q 'nexora-installer.svg' || {
     echo "NEXORA installer SVG branding is missing from the ISO." >&2
     exit 1
 }
 overlay_listing=$(xorriso -indev "$OUTPUT_ISO" -ls /nexora/desktop-overlay/usr/share/backgrounds/nexora 2>&1 || true)
-printf '%s\n' "$overlay_listing"
 printf '%s\n' "$overlay_listing" | grep -q 'nexora-aurora.svg' || {
     echo "NEXORA desktop overlay is missing its wallpapers." >&2
     exit 1
 }
 boot_report=$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1 || true)
-printf '%s\n' "$boot_report"
 printf '%s\n' "$boot_report" | grep -qi 'El Torito' || {
     echo "No El Torito boot catalog was found in the resulting ISO." >&2
     exit 1
@@ -167,9 +167,7 @@ echo "    $OUTPUT_ISO"
 echo "    ISO size: $size_human"
 echo "    SHA256: $sha256"
 echo
-echo "Profiles embedded:"
-echo "    /nexora/preseed/minimal.cfg"
-echo "    /nexora/preseed/desktop.cfg"
-echo "Boot menu: NEXORA Minimal / NEXORA XFCE, with upstream fallback entries. Default: $EDITION."
+echo "Boot menu: NEXORA background verified in UEFI GRUB and BIOS Syslinux."
+echo "Installer profiles: Minimal and XFCE4; upstream Debian fallback entries preserved."
 echo "GTK banner: NEXORA logos embedded in both light and dark installer variants."
 echo "GTK controls and workflow remain Debian Installer components."

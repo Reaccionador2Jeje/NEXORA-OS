@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Patch verified Debian Installer GRUB and Syslinux menus with NEXORA entries."""
+"""Patch Debian Installer BIOS/UEFI menus with NEXORA branding and background."""
 import os
 import re
 import subprocess
@@ -27,7 +27,7 @@ def extract(iso_path: str, destination: Path) -> bool:
     return result.returncode == 0 and destination.is_file() and destination.stat().st_size > 0
 
 
-# UEFI: Debian Trixie's verified path from the inspected netboot GTK image.
+# UEFI GRUB: explicitly load PNG/gfxterm support before selecting NEXORA artwork.
 grub_src = out / "grub-upstream.cfg"
 if not extract("/boot/grub/grub.cfg", grub_src):
     raise SystemExit("Expected UEFI GRUB config /boot/grub/grub.cfg was not found.")
@@ -39,12 +39,12 @@ if default_profile == "xfce":
     else:
         grub = "set default='NEXORA OS XFCE Desktop'\n" + grub
 if "NEXORA OS Minimal" not in grub:
-    # Prefer the NEXORA artwork; retain Debian's original splash as fallback.
     marker = "if background_image /isolinux/splash.png; then"
     if marker not in grub:
         raise SystemExit("GRUB splash block changed; refusing an unsafe blind patch.")
     grub = grub.replace(
         marker,
+        "insmod png\ninsmod gfxterm\nset gfxmode=auto\nterminal_output gfxterm\n"
         "if background_image /nexora/nexora-installer-background.png; then\n"
         "  set color_normal=light-gray/black\n"
         "  set color_highlight=white/black\n"
@@ -70,12 +70,11 @@ menuentry 'NEXORA OS XFCE Desktop' {
 grub_out = out / "grub.cfg"
 grub_out.write_text(grub, encoding="utf-8")
 
-# BIOS: isolinux.cfg in this image includes menu.cfg from the ISO root.
+# BIOS Syslinux: vesamenu.c32 is required for the PNG menu background directive.
 menu_src = out / "menu-upstream.cfg"
 if extract("/menu.cfg", menu_src):
     menu_iso_path = "/menu.cfg"
 else:
-    # Some Debian builds put the menu under /isolinux instead.
     menu_src = out / "isolinux-menu-upstream.cfg"
     menu_iso_path = "/isolinux/menu.cfg"
     if not extract(menu_iso_path, menu_src):
@@ -83,15 +82,9 @@ else:
 
 menu = menu_src.read_text(encoding="utf-8")
 if "NEXORA OS Minimal" not in menu:
-    menu = re.sub(
-        r"(?m)^menu title .*$",
-        "menu title NEXORA OS Installer",
-        menu,
-        count=1,
-    )
+    menu = re.sub(r"(?m)^menu title .*$", "menu title NEXORA OS Installer", menu, count=1)
     if "menu title NEXORA OS Installer" not in menu:
         menu = "menu title NEXORA OS Installer\n" + menu
-    # vesamenu.c32 supports PNG backgrounds. Original Debian entries remain below.
     menu = "menu background /nexora/nexora-installer-background.png\n" + menu
     entries = """\
 label nexora-minimal
@@ -105,13 +98,10 @@ label nexora-xfce
   append vga=788 initrd=/initrd.gz priority=high preseed/file=/cdrom/nexora/preseed/desktop.cfg theme=dark --- quiet
 
 """
-    entries = entries.replace("  menu default\n", "")
     if default_profile == "minimal":
         entries = entries.replace("  menu label ^NEXORA OS Minimal Terminal\n", "  menu label ^NEXORA OS Minimal Terminal\n  menu default\n")
     else:
         entries = entries.replace("  menu label NEXORA OS ^XFCE Desktop\n", "  menu label NEXORA OS ^XFCE Desktop\n  menu default\n")
-    # Place our choices before Debian's regular Install entry, preserving all
-    # upstream rescue, expert, and fallback entries untouched.
     install = re.search(r"(?m)^label install\b", menu)
     if install:
         menu = menu[:install.start()] + entries + menu[install.start():]
@@ -122,7 +112,19 @@ menu_out = out / "menu.cfg"
 menu_out.write_text(menu, encoding="utf-8")
 (out / "menu-path.txt").write_text(menu_iso_path + "\n", encoding="utf-8")
 
+# Ensure BIOS actually invokes the graphics-capable Syslinux menu renderer.
+isolinux_src = out / "isolinux-upstream.cfg"
+if not extract("/isolinux/isolinux.cfg", isolinux_src):
+    raise SystemExit("Expected BIOS config /isolinux/isolinux.cfg was not found.")
+isolinux = isolinux_src.read_text(encoding="utf-8")
+if not re.search(r"(?im)^UI\s+vesamenu\.c32\s*$", isolinux):
+    if re.search(r"(?im)^UI\s+\S+\s*$", isolinux):
+        isolinux = re.sub(r"(?im)^UI\s+\S+\s*$", "UI vesamenu.c32", isolinux, count=1)
+    else:
+        isolinux = "UI vesamenu.c32\n" + isolinux
+(out / "isolinux.cfg").write_text(isolinux, encoding="utf-8")
+
 print("Prepared NEXORA boot menus:")
-print("  UEFI: /boot/grub/grub.cfg")
-print(f"  BIOS: {menu_iso_path}")
+print("  UEFI: /boot/grub/grub.cfg (PNG module + NEXORA background)")
+print(f"  BIOS: {menu_iso_path} (vesamenu.c32 + NEXORA background)")
 print("  Debian upstream fallback entries preserved.")

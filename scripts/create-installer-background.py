@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Generate NEXORA's branded BIOS/UEFI boot splash with only Python stdlib."""
+"""Generate the NEXORA BIOS/UEFI installer background using only Python stdlib."""
 import math
 import struct
 import sys
 import zlib
 
-WIDTH, HEIGHT = 1024, 640
+WIDTH, HEIGHT = 1280, 720
 FONT = {
     "A": ("01110","10001","10001","11111","10001","10001","10001"),
     "E": ("11111","10000","10000","11110","10000","10000","11111"),
@@ -24,81 +24,100 @@ FONT = {
     " ": ("00000",)*7,
 }
 
-def chunk(kind, data):
+def png_chunk(kind, data):
     body = kind + data
     return struct.pack(">I", len(data)) + body + struct.pack(">I", zlib.crc32(body) & 0xffffffff)
 
 pixels = bytearray(WIDTH * HEIGHT * 3)
 
-def set_pixel(x, y, color):
+def pixel(x, y, color):
     if 0 <= x < WIDTH and 0 <= y < HEIGHT:
-        pos = (y * WIDTH + x) * 3
-        pixels[pos:pos+3] = bytes(color)
+        offset = (y * WIDTH + x) * 3
+        pixels[offset:offset + 3] = bytes(color)
 
-def rect(x, y, w, h, color):
-    for yy in range(y, y+h):
-        for xx in range(x, x+w):
-            set_pixel(xx, yy, color)
+def rect(x, y, width, height, color):
+    for yy in range(y, y + height):
+        for xx in range(x, x + width):
+            pixel(xx, yy, color)
 
-# Deep navy gradient with two cyan/blue aurora glows.
+def line(x1, y1, x2, y2, color, thickness=2):
+    steps = max(abs(x2 - x1), abs(y2 - y1), 1)
+    radius = max(0, thickness // 2)
+    for step in range(steps + 1):
+        x = round(x1 + (x2 - x1) * step / steps)
+        y = round(y1 + (y2 - y1) * step / steps)
+        rect(x - radius, y - radius, thickness, thickness, color)
+
+def arc(cx, cy, rx, ry, start, end, color, thickness=3):
+    points = max(100, int(abs(end - start) * max(rx, ry) / 90))
+    previous = None
+    for index in range(points + 1):
+        angle = math.radians(start + (end - start) * index / points)
+        current = (round(cx + math.cos(angle) * rx), round(cy + math.sin(angle) * ry))
+        if previous:
+            line(previous[0], previous[1], current[0], current[1], color, thickness)
+        previous = current
+
+def text(value, x, y, scale, color, spacing=2):
+    cursor = x
+    for char in value:
+        for row, bits in enumerate(FONT[char]):
+            for col, bit in enumerate(bits):
+                if bit == "1":
+                    rect(cursor + col * scale, y + row * scale, scale, scale, color)
+        cursor += (5 + spacing) * scale
+    return cursor
+
+# Midnight-blue gradient and cyan/blue aurora glows.
 for y in range(HEIGHT):
     ny = y / HEIGHT
     for x in range(WIDTH):
         nx = x / WIDTH
-        glow1 = math.exp(-(((nx-.78)/.36)**2 + ((ny-.25)/.52)**2)*2.0)
-        glow2 = math.exp(-(((nx-.18)/.40)**2 + ((ny-.82)/.48)**2)*2.0)
-        set_pixel(x, y, (
-            min(255, int(5 + 12*ny + 20*glow1 + 13*glow2)),
-            min(255, int(9 + 18*ny + 74*glow1 + 20*glow2)),
-            min(255, int(24 + 30*ny + 118*glow1 + 70*glow2)),
+        upper = math.exp(-(((nx - .83) / .38) ** 2 + ((ny - .12) / .42) ** 2) * 2.0)
+        lower = math.exp(-(((nx - .18) / .40) ** 2 + ((ny - .91) / .42) ** 2) * 2.0)
+        pixel(x, y, (
+            min(255, int(3 + 9 * ny + 14 * upper + 10 * lower)),
+            min(255, int(7 + 13 * ny + 58 * upper + 18 * lower)),
+            min(255, int(20 + 25 * ny + 112 * upper + 66 * lower)),
         ))
 
-# Subtle technical grid and glowing accent rail.
-for x in range(40, WIDTH, 64):
-    rect(x, 0, 1, HEIGHT, (13, 28, 53))
-for y in range(32, HEIGHT, 64):
-    rect(0, y, WIDTH, 1, (13, 28, 53))
-rect(78, 112, 5, 416, (58, 203, 246))
-rect(90, 112, 1, 416, (28, 101, 148))
+# Soft, sweeping aurora ribbons frame the menu area without obscuring its text.
+arc(1110, 80, 520, 370, 8, 190, (0, 91, 186), 5)
+arc(1110, 80, 490, 340, 8, 190, (0, 188, 238), 2)
+arc(90, 760, 600, 430, 190, 350, (0, 95, 220), 7)
+arc(90, 760, 570, 400, 190, 350, (0, 208, 255), 3)
+arc(650, 930, 780, 210, 205, 335, (24, 66, 202), 4)
+arc(650, 930, 760, 190, 205, 335, (0, 190, 255), 2)
 
-def draw_text(text, x, y, scale, color, spacing=2):
-    cursor = x
-    for ch in text:
-        glyph = FONT[ch]
-        for gy, row in enumerate(glyph):
-            for gx, bit in enumerate(row):
-                if bit == "1":
-                    rect(cursor + gx*scale, y + gy*scale, scale, scale, color)
-        cursor += (5 + spacing) * scale
-    return cursor
+# NEXORA wordmark and a restrained large N emblem.
+text("NEXORA OS", 112, 104, 13, (239, 248, 255), spacing=2)
+text("YOUR TERMINAL YOUR UNIVERSE", 118, 222, 4, (94, 207, 239), spacing=2)
+text("NEXORA INSTALLER", 850, 132, 4, (155, 224, 246), spacing=2)
 
-# Clear wordmark and tagline remain readable on low-resolution boot screens.
-draw_text("NEXORA OS", 132, 220, 11, (238, 247, 255), spacing=2)
-draw_text("YOUR TERMINAL YOUR UNIVERSE", 136, 322, 4, (112, 199, 231), spacing=2)
+# Oversized geometric N watermark on the right.
+line(1000, 340, 1000, 620, (13, 57, 124), 26)
+line(1000, 340, 1190, 620, (13, 57, 124), 26)
+line(1190, 340, 1190, 620, (13, 57, 124), 26)
+line(1000, 340, 1000, 620, (15, 91, 165), 5)
+line(1000, 340, 1190, 620, (15, 91, 165), 5)
+line(1190, 340, 1190, 620, (15, 91, 165), 5)
 
-# Large angular N emblem at the right, as a soft brand signature.
-for y in range(155, 475):
-    left = 700
-    right = 875
-    rect(left, y, 9, 1, (49, 177, 228))
-    rect(right, y, 9, 1, (49, 177, 228))
-for i in range(0, 320):
-    x = 875 - int(i * .55)
-    y = 155 + i
-    rect(x, y, 7, 1, (42, 139, 204))
+# Bottom horizon rail and compact release signature.
+arc(640, 850, 900, 180, 205, 335, (0, 83, 195), 5)
+arc(640, 850, 875, 158, 205, 335, (0, 190, 255), 2)
+rect(48, 680, WIDTH - 96, 2, (0, 93, 153))
+rect(48, 680, 230, 2, (0, 213, 255))
+text("NEXORA OS", 1030, 682, 3, (151, 199, 226), spacing=2)
 
-# Footer label and progress-like accent.
-rect(132, 430, 290, 2, (35, 89, 133))
-rect(132, 430, 82, 2, (58, 203, 246))
-draw_text("NEXORA LIVE SYSTEM", 132, 458, 3, (119, 161, 190), spacing=2)
-
-raw = b"".join(b"\0" + pixels[y*WIDTH*3:(y+1)*WIDTH*3] for y in range(HEIGHT))
-png = (b"\x89PNG\r\n\x1a\n" +
-       chunk(b"IHDR", struct.pack(">2I5B", WIDTH, HEIGHT, 8, 2, 0, 0, 0)) +
-       chunk(b"IDAT", zlib.compress(raw, 9)) +
-       chunk(b"IEND", b""))
+raw = b"".join(b"\0" + pixels[y * WIDTH * 3:(y + 1) * WIDTH * 3] for y in range(HEIGHT))
+png = (
+    b"\x89PNG\r\n\x1a\n"
+    + png_chunk(b"IHDR", struct.pack(">2I5B", WIDTH, HEIGHT, 8, 2, 0, 0, 0))
+    + png_chunk(b"IDAT", zlib.compress(raw, 9))
+    + png_chunk(b"IEND", b"")
+)
 if len(sys.argv) != 2:
     raise SystemExit("Usage: create-installer-background.py OUTPUT.png")
 with open(sys.argv[1], "wb") as output:
     output.write(png)
-print(f"Created NEXORA boot background: {sys.argv[1]} ({len(png)} bytes)")
+print(f"Created NEXORA installer background: {sys.argv[1]} ({WIDTH}x{HEIGHT}, {len(png)} bytes)")
