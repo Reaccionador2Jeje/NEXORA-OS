@@ -91,4 +91,28 @@ for required in ("self.locale_combo", "self.keyboard_combo", "self.timezone_comb
 if 'command = ["pkexec", ENGINE, disk, username, hostname, self.secret_path]' in gui:
     raise SystemExit("FAIL: GUI still uses the old installer engine argument list")
 
-print("PASS: installer partition naming, storage checks, manual plan validation, account and regional configuration checks passed.")
+
+for required in (
+    'root_enabled not in {"yes", "no"}',
+    'supported_locales = (',
+    '"es_CL.UTF-8", "es_ES.UTF-8", "en_US.UTF-8"',
+    '"en_GB.UTF-8", "pt_BR.UTF-8"',
+    'locale-gen',
+    'input_text="root:" + root_password',
+    'passwd", "-l", "root"',
+):
+    if required not in source:
+        raise SystemExit(f"FAIL: superuser or multilingual locale support missing: {required}")
+for required in (
+    "self.root_enabled = Gtk.CheckButton",
+    "self.root_password",
+    "self.root_password2",
+    "on_root_toggle",
+    "La contraseña de root debe coincidir",
+    '"yes" if root_enabled else "no"',
+    "config_scroll = Gtk.ScrolledWindow()",
+):
+    if required not in gui:
+        raise SystemExit(f"FAIL: GTK superuser/configuration control missing: {required}")
+
+print("PASS: installer storage safety, account setup, multilingual locales, root account controls and regional configuration checks passed.")
