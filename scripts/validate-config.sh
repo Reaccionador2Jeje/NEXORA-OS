@@ -7,12 +7,12 @@ fail() { printf '[FAIL] %s\n' "$1" >&2; exit 1; }
 check_file() { [ -s "$1" ] || fail "Required file is missing or empty: $1"; printf '[OK] %s\n' "$1"; }
 
 for file in \
-    scripts/build.sh scripts/build-netinst.sh scripts/build-live.sh \
+    scripts/build.sh scripts/build-netinst.sh scripts/build-minimal-installer.sh scripts/build-live.sh \
     scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh \
     scripts/inspect-boot-layout.sh scripts/create-installer-background.py \
     scripts/brand-installer-boot.py scripts/brand-live-grub.py scripts/brand-live-syslinux.py scripts/patch-live-build-contents-index.py \
     scripts/install-nexora-desktop.sh scripts/validate-config.sh scripts/publish-sourceforge.sh \
-    config/package-lists/nexora-live.list.chroot installer/README.md \
+    config/package-lists/nexora-live.list.chroot config/package-lists/nexora-minimal-installer.list.chroot installer/README.md \
     installer/profiles/minimal.md installer/profiles/desktop.md \
     installer/preseed/minimal.cfg installer/preseed/desktop.cfg \
     installer/BOOT-OPTIONS.md installer/BOOT-MENU-DESIGN.md \
@@ -27,7 +27,7 @@ for file in \
     tests/test-boot-branding.py
 do check_file "$file"; done
 
-bash -n scripts/build-live.sh
+bash -n scripts/build-live.sh scripts/build-minimal-installer.sh
 sh -n scripts/build.sh scripts/build-netinst.sh scripts/check-dependencies.sh \
     scripts/clean.sh scripts/test-qemu-boot.sh scripts/inspect-boot-layout.sh \
     scripts/validate-config.sh scripts/install-nexora-desktop.sh scripts/publish-sourceforge.sh \
@@ -73,24 +73,21 @@ for panel in config/includes.chroot/etc/skel/.config/xfce4/xfconf/xfce-perchanne
     grep -q '<property name="plugin-3" type="string" value="tasklist">' "$panel" || fail "Window tasklist missing in $panel."
 done
 
-# Netinst must embed and explicitly select the NEXORA artwork on BIOS and UEFI.
-grep -q 'installer-${ARCH}/current/images/netboot/gtk' scripts/build-netinst.sh || fail "Netinst must use official GTK netboot image."
-grep -q 'NEXORA_DEFAULT_PROFILE' scripts/brand-installer-boot.py || fail "Edition-specific boot profile selection is missing."
-grep -q 'insmod png' scripts/brand-installer-boot.py || fail "GRUB must load PNG support before the NEXORA splash."
-grep -q 'background_image /nexora/nexora-installer-background.png' scripts/brand-installer-boot.py || fail "GRUB must select the NEXORA background."
-grep -q 'menu background /nexora/nexora-installer-background.png' scripts/brand-installer-boot.py || fail "Syslinux must select the NEXORA background."
-grep -q 'UI vesamenu.c32' scripts/brand-installer-boot.py || fail "BIOS must use the graphics-capable Syslinux menu."
-grep -q 'ISOLINUX_CONFIG_PATH=$(cat "$BOOT_BRANDING_DIR/isolinux-path.txt")' scripts/build-netinst.sh || fail "Detected BIOS Syslinux config path must be used when embedding the menu."
-grep -q 'UEFI GRUB menu is not configured' scripts/build-netinst.sh || fail "Netinst must verify the UEFI background reference."
-grep -q 'BIOS Syslinux menu is not configured' scripts/build-netinst.sh || fail "Netinst must verify the BIOS background reference."
-grep -q 'boot_image any replay' scripts/build-netinst.sh || fail "Netinst must preserve boot records."
-grep -q -- '-map "$ROOT_DIR/installer/preseed" /nexora/preseed' scripts/build-netinst.sh || fail "Preseed profiles must be embedded."
-grep -q -- '-map "$ROOT_DIR/installer/preseed" /nexora/preseed' scripts/build-netinst.sh || fail "Both preseed profiles must be embedded in the ISO."
-grep -q 'preseed/late_command' installer/preseed/desktop.cfg || fail "Desktop preseed must apply NEXORA overlay."
-grep -q 'es_CL.UTF-8' installer/preseed/desktop.cfg || fail "Desktop locale must default to Chilean Spanish."
-grep -q 'priority=high' installer/preseed/desktop.cfg || fail "Desktop preseed must remain interactive."
-if grep -Eq 'auto=true|priority=critical|partman-auto|partman/early_command|partman/confirm.*true' installer/preseed/*.cfg installer/BOOT-OPTIONS.md; then fail "Preseed must not silently automate disk partitioning."; fi
-if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netinst.sh; then fail "Minimal netinst must not invoke Debian Live."; fi
+# Minimal GTK ISO must boot the native NEXORA installer runtime, not Debian Installer.
+grep -q 'build-minimal-installer.sh' scripts/build-netinst.sh || fail "Minimal ISO must delegate to the native installer image builder."
+grep -q -- '--debian-installer false' scripts/build-minimal-installer.sh || fail "Minimal native installer ISO must disable Debian Installer."
+grep -q 'brand-live-grub.py' scripts/build-minimal-installer.sh || fail "Minimal native installer ISO must brand UEFI GRUB."
+grep -q 'brand-live-syslinux.py' scripts/build-minimal-installer.sh || fail "Minimal native installer ISO must brand BIOS Syslinux."
+grep -q 'autologin-user=nexora' scripts/build-minimal-installer.sh || fail "Minimal installer must configure LightDM auto-login."
+grep -q 'python3 /usr/bin/nexora-installer' scripts/build-minimal-installer.sh || fail "Minimal installer session must auto-launch the native GTK wizard."
+grep -q 'Openbox' scripts/build-minimal-installer.sh || fail "Minimal installer must use a lightweight Openbox session."
+grep -q 'lightdm-gtk-greeter' config/package-lists/nexora-minimal-installer.list.chroot || fail "Minimal installer GTK greeter package missing."
+for package in live-boot lightdm openbox xserver-xorg xserver-xorg-video-all network-manager network-manager-gnome python3-gi gir1.2-gtk-3.0 rsync parted dosfstools e2fsprogs pkexec lxpolkit grub-pc-bin grub-efi-amd64-bin; do
+    grep -qx "$package" config/package-lists/nexora-minimal-installer.list.chroot || fail "Minimal native installer runtime package missing: $package"
+done
+grep -q 'apt-get.*purge' installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py || fail "Minimal installed profile must remove the temporary graphical installer runtime."
+grep -q '"openbox"' installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py || fail "Minimal installed profile must remove Openbox."
+if grep -Eq 'auto=true|priority=critical|partman-auto|partman/early_command|partman/confirm.*true' installer/preseed/*.cfg installer/BOOT-OPTIONS.md; then fail "Installer configuration must not silently automate disk partitioning."; fi
 
 python3 -c 'import ast,json,pathlib,xml.etree.ElementTree as ET; paths=["scripts/create-installer-background.py","scripts/brand-installer-boot.py","scripts/brand-live-grub.py","scripts/brand-live-syslinux.py","installer/desktop-overlay/usr/bin/nexora-installer","installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py","installer/desktop-overlay/usr/bin/nexora-ai","installer/desktop-overlay/usr/bin/nexora-center","installer/desktop-overlay/usr/bin/nexora-store"]; [ast.parse(pathlib.Path(p).read_text()) for p in paths]; json.loads(pathlib.Path("installer/desktop-overlay/usr/share/nexora/catalog.json").read_text()); [ET.parse(p) for p in pathlib.Path("installer/desktop-overlay").rglob("*.xml")]'
 python3 tests/test-nexora-desktop.py
