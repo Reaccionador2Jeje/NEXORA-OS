@@ -319,7 +319,7 @@ def main():
     run(chroot + ["apt-get", "update"])
     if desktop_profile == "xfce":
         print("Instalando el escritorio XFCE4…", flush=True)
-        run(chroot + ["apt-get", "install", "-y", "task-xfce-desktop", "lightdm", "network-manager-gnome"])
+        run(chroot + ["apt-get", "install", "--no-install-recommends", "-y", "task-xfce-desktop", "lightdm", "network-manager-gnome"])
         run(chroot + ["systemctl", "enable", "lightdm"])
         lightdm_config = target / "etc/lightdm/lightdm.conf.d/50-nexora-session.conf"
         lightdm_config.parent.mkdir(parents=True, exist_ok=True)
