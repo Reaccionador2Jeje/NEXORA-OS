@@ -548,7 +548,7 @@ class NexoraInstaller(Gtk.Window):
         self.root_password.set_text("")
         self.root_password2.set_text("")
         self.install_started = True
-        self.show_page(3)
+        self.show_page(4)
         self.status.set_text("Instalación en curso…")
         self.next.set_label("Instalando…")
         self.next.set_sensitive(False)
