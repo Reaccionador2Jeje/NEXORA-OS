@@ -41,4 +41,41 @@ for required in ("def get_storage_inventory()", "def build_storage(self)", "def 
 if '["welcome", "storage", "config", "progress"]' not in gui:
     raise SystemExit("FAIL: installer navigation does not include the storage step")
 
-print("PASS: installer partition naming, disk confirmation, storage inspection and non-destructive source checks passed.")
+
+# Manual partition planning is validated against a read-only lsblk-shaped
+# inventory. These checks do not execute disk commands.
+inventory = {"blockdevices": [{
+    "name": "sda", "type": "disk", "children": [
+        {"name": "sda1", "type": "part", "size": 536870912,
+         "fstype": "vfat", "mountpoints": []},
+        {"name": "sda2", "type": "part", "size": 20000000000,
+         "fstype": None, "mountpoints": []},
+    ],
+}]}
+valid_plan = module.validate_manual_partition_plan(
+    "/dev/sda", "/dev/sda2", "/dev/sda1", inventory
+)
+if valid_plan is not None:
+    raise SystemExit(f"FAIL: valid manual partition plan rejected: {valid_plan}")
+checks = [
+    ("/dev/sdb", "/dev/sda2", "/dev/sda1", "disco seleccionado"),
+    ("/dev/sda", "/dev/sda1", "/dev/sda1", "deben ser distintas"),
+    ("/dev/sda", "/dev/sda2", "/dev/sdb1", "mismo disco"),
+]
+for disk, root, efi, expected in checks:
+    error = module.validate_manual_partition_plan(disk, root, efi, inventory)
+    if not error or expected not in error:
+        raise SystemExit(f"FAIL: unsafe plan was not rejected correctly: {error!r}")
+small_inventory = {"blockdevices": [{
+    "name": "sda", "type": "disk", "children": [
+        {"name": "sda2", "type": "part", "size": 1024,
+         "fstype": None, "mountpoints": []},
+    ],
+}]}
+small_error = module.validate_manual_partition_plan(
+    "/dev/sda", "/dev/sda2", None, small_inventory
+)
+if not small_error or "8 GB" not in small_error:
+    raise SystemExit("FAIL: undersized root partition was accepted")
+
+print("PASS: installer partition naming, disk confirmation, storage inspection, manual plan validation and non-destructive source checks passed.")
