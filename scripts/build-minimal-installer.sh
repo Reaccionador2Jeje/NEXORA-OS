@@ -122,7 +122,7 @@ python3 - "$VERIFY_DIR/dpkg-status" <<'PY'
 import re, sys
 from email.parser import Parser
 raw = open(sys.argv[1], encoding="utf-8").read()
-packages = [Parser().parsestr(block) for block in re.split(r"\\n\\s*\\n", raw) if block.strip()]
+packages = [Parser().parsestr(block) for block in re.split(r"\n\s*\n", raw) if block.strip()]
 required = {
     "live-boot", "lightdm", "lightdm-gtk-greeter", "openbox", "xserver-xorg",
     "network-manager", "network-manager-gnome", "python3", "python3-gi",
