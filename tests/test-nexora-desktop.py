@@ -160,3 +160,20 @@ for wallpaper in wallpaper_names:
 wallpaper_manifest = json.loads((overlay / "usr/share/nexora/wallpapers.json").read_text(encoding="utf-8"))
 assert set(wallpaper_manifest.get("wallpapers", [])) == set(wallpaper_names)
 print("PASS: all eight NEXORA wallpapers and desktop tool launchers are valid.")
+
+
+# The panel repair command must be shipped in both ISO and desktop-update overlays.
+repair_paths = [
+    overlay / "usr/bin/nexora-panel-repair",
+    ROOT / "config/includes.chroot/usr/bin/nexora-panel-repair",
+]
+for repair_path in repair_paths:
+    repair = repair_path.read_text(encoding="utf-8")
+    assert repair.startswith("#!/bin/sh")
+    assert "before-nexora-repair" in repair
+    assert 'xfce4-panel --quit' in repair
+    assert 'nohup xfce4-panel' in repair
+    assert 'Run this command as your normal desktop user' in repair
+postinstall_text = postinstall.read_text(encoding="utf-8")
+assert "/usr/bin/nexora-panel-repair" in postinstall_text
+print("PASS: NEXORA panel repair utility is shipped and enabled for ISO and desktop upgrades.")
