@@ -11,19 +11,6 @@ if [[ "$EUID" -ne 0 ]]; then
     echo "Run this script as root: sudo ./scripts/build.sh" >&2
     exit 1
 fi
-# Debian Trixie ships rsvg-convert, while the installed live-build
-# helpers invoke the legacy command name through /usr/bin/env. A PATH-local
-# shim is not reliable because live-build resets PATH in its helper processes.
-if ! command -v rsvg >/dev/null 2>&1; then
-    RSVG_CONVERT="$(command -v rsvg-convert || true)"
-    [[ -n "$RSVG_CONVERT" ]] || { echo "Missing rsvg-convert (install librsvg2-bin)." >&2; exit 1; }
-    ln -sfn "$RSVG_CONVERT" /usr/bin/rsvg
-fi
-command -v rsvg >/dev/null 2>&1 || {
-    echo "Unable to provide the legacy rsvg command required by live-build." >&2
-    exit 1
-}
-
 for command in lb xorriso sha256sum unsquashfs; do
     command -v "$command" >/dev/null 2>&1 || {
         echo "Required command is missing: $command" >&2
@@ -36,8 +23,19 @@ rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR/config"
 cp -a "$ROOT_DIR/installer/desktop-overlay/." "$WORK_DIR/config/includes.chroot/"
 chmod 0755 "$WORK_DIR/config/includes.chroot/usr/bin/nexora-installer" "$WORK_DIR/config/includes.chroot/usr/lib/nexora-installer/install-engine.py"
-mkdir -p "$WORK_DIR/config/package-lists" "$WORK_DIR/config/includes.chroot/etc/lightdm/lightdm.conf.d" "$WORK_DIR/config/includes.chroot/etc/skel/.config/openbox" "$WORK_DIR/config/includes.binary/isolinux" "$WORK_DIR/config/includes.binary/boot/grub"
+mkdir -p "$WORK_DIR/config/package-lists" "$WORK_DIR/config/hooks/normal" "$WORK_DIR/config/includes.chroot/etc/lightdm/lightdm.conf.d" "$WORK_DIR/config/includes.chroot/etc/skel/.config/openbox" "$WORK_DIR/config/includes.binary/isolinux" "$WORK_DIR/config/includes.binary/boot/grub"
 cp "$ROOT_DIR/config/package-lists/nexora-minimal-installer.list.chroot" "$WORK_DIR/config/package-lists/nexora-minimal-installer.list.chroot"
+
+# live-build runs its legacy Syslinux helper against the chroot. Install the
+# compatibility name there, after librsvg2-bin has been installed.
+cat > "$WORK_DIR/config/hooks/normal/9998-rsvg-compat.hook.chroot" <<'HOOK'
+#!/bin/sh
+set -eu
+test -x /usr/bin/rsvg-convert
+ln -sfn /usr/bin/rsvg-convert /usr/bin/rsvg
+test -x /usr/bin/rsvg
+HOOK
+chmod 0755 "$WORK_DIR/config/hooks/normal/9998-rsvg-compat.hook.chroot"
 
 # Debian Trixie's Syslinux module paths differ from live-build's legacy template.
 BOOTLOADER_TEMPLATE="/usr/share/live/build/bootloaders/isolinux"
