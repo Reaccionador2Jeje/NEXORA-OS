@@ -2,6 +2,7 @@
 # No XFCE desktop is installed in this boot environment.
 isolinux
 syslinux-common
+librsvg2-bin
 live-boot
 live-config
 lightdm
