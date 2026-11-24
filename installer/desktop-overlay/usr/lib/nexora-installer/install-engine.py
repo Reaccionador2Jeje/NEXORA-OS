@@ -144,8 +144,11 @@ def main():
     network_state = run(["nmcli", "-t", "-f", "STATE", "general"], check=False)
     if network_state.returncode != 0 or network_state.stdout.strip() != "connected":
         fail("No hay conexión activa. Conecta Ethernet o Wi-Fi desde NetworkManager.")
+    os_release = Path("/etc/os-release").read_text(encoding="utf-8") if Path("/etc/os-release").exists() else ""
+    codename_match = re.search(r"(?m)^VERSION_CODENAME=(.+)$", os_release)
+    release_codename = codename_match.group(1).strip().strip(chr(34)) if codename_match else "bookworm"
     try:
-        request = urllib.request.Request(apt_mirror + "/dists/bookworm/InRelease")
+        request = urllib.request.Request(apt_mirror + "/dists/" + release_codename + "/InRelease")
         with urllib.request.urlopen(request, timeout=12) as response:
             if response.status != 200:
                 fail("El repositorio APT no respondió correctamente.")
@@ -256,7 +259,7 @@ def main():
     if apt_sources.exists():
         for source_file in apt_sources.glob("*.sources"):
             content = source_file.read_text(encoding="utf-8")
-            content = re.sub(r"(?m)^URIs:.*$", "URIs: " + apt_mirror, content)
+            content = re.sub(r"(?m)^URIs: (https?://deb\\.debian\\.org/debian/?|https?://ftp\\.debian\\.org/debian/?).*$", "URIs: " + apt_mirror, content)
             source_file.write_text(content, encoding="utf-8")
     legacy_sources = target / "etc/apt/sources.list"
     if legacy_sources.exists():
