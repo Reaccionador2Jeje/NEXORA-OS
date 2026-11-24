@@ -30,6 +30,19 @@ entry, combobox, spinbutton { background: #0c1524; color: #eaf4ff; border: 1px s
 progressbar trough { background: #25364c; border-radius: 8px; min-height: 10px; }
 progressbar progress { background: #20b6d8; border-radius: 8px; }
 """
+def detect_install_profile(release_file="/etc/nexora-release"):
+    """Detect which NEXORA edition booted; never ask users to choose it."""
+    try:
+        release = Path(release_file).read_text(encoding="utf-8")
+    except OSError:
+        return None
+    if "NEXORA OS XFCE4 Live" in release:
+        return "xfce"
+    if "NEXORA OS Minimal GTK Installer" in release:
+        return "minimal"
+    return None
+
+
 def label(text, size=None, bold=False):
     widget = Gtk.Label(label=text)
     widget.set_xalign(0)
@@ -113,6 +126,7 @@ class NexoraInstaller(Gtk.Window):
         self.secret_path = None
         self.page = 0
         self.install_started = False
+        self.desktop_profile = detect_install_profile()
         icon = os.path.join(BRAND, "nexora-icon.svg")
         if os.path.exists(icon):
             try: self.set_icon_from_file(icon)
@@ -337,12 +351,12 @@ class NexoraInstaller(Gtk.Window):
             self.timezone_combo.append(zone, title)
         self.timezone_combo.set_active_id("America/Santiago")
         form.attach(self.timezone_combo, 1, 10, 1, 1)
-        form.attach(label("Entorno de escritorio", bold=True), 0, 11, 1, 1)
-        self.desktop_combo = Gtk.ComboBoxText()
-        self.desktop_combo.append("xfce", "NEXORA XFCE4 (escritorio completo)")
-        self.desktop_combo.append("minimal", "NEXORA Minimal (solo sistema base)")
-        self.desktop_combo.set_active_id("xfce")
-        form.attach(self.desktop_combo, 1, 11, 1, 1)
+        form.attach(label("Edición detectada automáticamente", bold=True), 0, 11, 1, 1)
+        detected_name = {
+            "xfce": "NEXORA XFCE4",
+            "minimal": "NEXORA Minimal",
+        }.get(self.desktop_profile, "Edición no reconocida")
+        form.attach(label(detected_name), 1, 11, 1, 1)
 
         form.attach(label("Servidor APT", bold=True), 0, 12, 1, 1)
         self.apt_mirror = Gtk.Entry()
@@ -471,8 +485,10 @@ class NexoraInstaller(Gtk.Window):
             "locale": locale_names.get(self.locale_combo.get_active_id(), "No seleccionado"),
             "keyboard": keyboard_names.get(self.keyboard_combo.get_active_id(), "No seleccionado"),
             "timezone": self.timezone_combo.get_active_id() or "No seleccionada",
-            "desktop": ("NEXORA XFCE4" if self.desktop_combo.get_active_id() == "xfce"
-                        else "NEXORA Minimal (sin entorno gráfico)"),
+            "desktop": {
+                "xfce": "NEXORA XFCE4",
+                "minimal": "NEXORA Minimal (sistema base)",
+            }.get(self.desktop_profile, "Edición no reconocida"),
             "network": self.network_status.get_text(),
             "apt": self.apt_mirror.get_text().strip(),
         }
@@ -567,9 +583,9 @@ class NexoraInstaller(Gtk.Window):
         if not re.fullmatch(r"https://[A-Za-z0-9.-]+(?::[0-9]{1,5})?(?:/[A-Za-z0-9._~:/-]*)?", apt_mirror):
             self.show_error("El repositorio APT debe ser una URL HTTPS válida.")
             return
-        desktop = self.desktop_combo.get_active_id()
+        desktop = self.desktop_profile
         if desktop not in {"xfce", "minimal"}:
-            self.show_error("Selecciona un perfil de escritorio válido.")
+            self.show_error("No se pudo detectar la edición de NEXORA de esta ISO. No se iniciará la instalación.")
             return
         if root_enabled and (len(root_password) < 12 or root_password != self.root_password2.get_text()):
             self.show_error("La contraseña de root debe coincidir y tener al menos 12 caracteres.")
