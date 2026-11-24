@@ -337,7 +337,6 @@ title-font: "DejaVu Sans Bold 28"
 message-color: "#a9b8cc"
 message-font: "DejaVu Sans 12"
 terminal-font: "DejaVu Sans Mono 12"
-terminal-box: "terminal_box_*.png"
 + boot_menu {
   left = 12%
   top = 34%
@@ -346,7 +345,6 @@ terminal-box: "terminal_box_*.png"
   item_font = "DejaVu Sans 16"
   item_color = "#dce6f2"
   selected_item_color = "#ffffff"
-  selected_item_pixmap = "select_*.png"
   item_height = 38
   item_padding = 8
   item_spacing = 6
@@ -365,13 +363,13 @@ terminal-box: "terminal_box_*.png"
     grub_defaults = target / "etc/default/grub.d/99_nexora.cfg"
     grub_defaults.parent.mkdir(parents=True, exist_ok=True)
     grub_defaults.write_text(
-        'GRUB_DISTRIBUTOR="NEXORA OS"\\n'
-        'GRUB_THEME="/usr/share/grub/themes/NEXORA/theme.txt"\\n'
-        'GRUB_GFXMODE="auto"\\n'
-        'GRUB_GFXPAYLOAD_LINUX="keep"\\n'
-        'GRUB_TIMEOUT_STYLE="menu"\\n'
-        'GRUB_TIMEOUT=5\\n'
-        'GRUB_DISABLE_OS_PROBER=false\\n',
+        'GRUB_DISTRIBUTOR="NEXORA OS"\n'
+        'GRUB_THEME="/usr/share/grub/themes/NEXORA/theme.txt"\n'
+        'GRUB_GFXMODE="auto"\n'
+        'GRUB_GFXPAYLOAD_LINUX="keep"\n'
+        'GRUB_TIMEOUT_STYLE="menu"\n'
+        'GRUB_TIMEOUT=5\n'
+        'GRUB_DISABLE_OS_PROBER=false\n',
         encoding="utf-8",
     )
     if efi:
