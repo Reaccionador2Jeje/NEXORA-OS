@@ -19,6 +19,21 @@ for command in lb xorriso sha256sum unsquashfs; do
     fi
 done
 
+# Debian Trixie's librsvg2-bin ships rsvg-convert, while live-build's
+# legacy Syslinux helper invokes the older executable name "rsvg".
+# Provide a compatible command shim on the host PATH for the binary stage.
+if ! command -v rsvg >/dev/null 2>&1; then
+    RSVG_CONVERT="$(command -v rsvg-convert || true)"
+    if [[ -z "$RSVG_CONVERT" ]]; then
+        echo "Required command is missing: rsvg-convert (package librsvg2-bin)" >&2
+        exit 1
+    fi
+    RSVG_COMPAT_DIR="$OUTPUT_DIR/compat-bin"
+    mkdir -p "$RSVG_COMPAT_DIR"
+    ln -sfn "$RSVG_CONVERT" "$RSVG_COMPAT_DIR/rsvg"
+    export PATH="$RSVG_COMPAT_DIR:$PATH"
+fi
+
 mkdir -p "$OUTPUT_DIR"
 rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR/config"
