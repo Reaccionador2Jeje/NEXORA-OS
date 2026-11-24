@@ -83,4 +83,20 @@ for required in (
     if required not in live_builder:
         raise SystemExit(f"FAIL: XFCE Live ISO does not install/verify branded GRUB: {required}")
 
+minimal_builder = (ROOT / "scripts/build-minimal-installer.sh").read_text(encoding="utf-8")
+for required in (
+    "--debian-installer false",
+    "brand-live-grub.py",
+    "brand-live-syslinux.py",
+    "autologin-user=nexora",
+    "python3 /usr/bin/nexora-installer",
+    "/live/filesystem.squashfs",
+    "NEXORA_MINIMAL",
+):
+    if required not in minimal_builder:
+        raise SystemExit(f"FAIL: Minimal ISO is not wired to the native GTK installer: {required}")
+netinst_entry = (ROOT / "scripts/build-netinst.sh").read_text(encoding="utf-8")
+if "build-minimal-installer.sh" not in netinst_entry:
+    raise SystemExit("FAIL: Minimal GTK ISO entry point does not delegate to the native installer build.")
+
 print("PASS: NEXORA GRUB palette, splash, preserved boot entries and Live/netinst integration.")
