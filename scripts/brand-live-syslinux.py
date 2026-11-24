@@ -2,6 +2,7 @@
 """Apply NEXORA branding to the BIOS Syslinux/ISOLINUX menu in a Live ISO."""
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -14,10 +15,10 @@ def brand_syslinux_config(config: str) -> str:
     """Style the BIOS menu while retaining every upstream boot entry."""
     if MARKER in config:
         return config
-    config = __import__("re").sub(
+    config = re.sub(
         r"(?im)^UI\s+\S+\s*$", "UI vesamenu.c32", config, count=1
     )
-    if not __import__("re").search(r"(?im)^UI\s+vesamenu\.c32\s*$", config):
+    if not re.search(r"(?im)^UI\s+vesamenu\.c32\s*$", config):
         config = "UI vesamenu.c32\n" + config
     style = """# NEXORA OS visual identity
 MENU TITLE NEXORA OS - YOUR TERMINAL. YOUR UNIVERSE.
