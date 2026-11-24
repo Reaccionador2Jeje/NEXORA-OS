@@ -234,6 +234,15 @@ def main():
     ]
     run([rsync, "-aHAXx", "--numeric-ids", *excludes, "/", str(target) + "/"])
 
+    # Remove the temporary installer-session autostart before creating the real user.
+    # Otherwise the installed system could reopen the installer at every login.
+    live_autostart = target / "etc/skel/.config/openbox/autostart"
+    live_autostart.unlink(missing_ok=True)
+    for home in (target / "home").glob("*"):
+        (home / ".config/openbox/autostart").unlink(missing_ok=True)
+    live_lightdm = target / "etc/lightdm/lightdm.conf.d/50-nexora-autologin.conf"
+    live_lightdm.unlink(missing_ok=True)
+
     root_uuid = run(["blkid", "-s", "UUID", "-o", "value", root_part]).stdout.strip()
     fstab = [f"UUID={root_uuid} / ext4 defaults,errors=remount-ro 0 1"]
     if efi:
@@ -312,6 +321,12 @@ def main():
         print("Instalando el escritorio XFCE4…", flush=True)
         run(chroot + ["apt-get", "install", "-y", "task-xfce-desktop", "lightdm", "network-manager-gnome"])
         run(chroot + ["systemctl", "enable", "lightdm"])
+        lightdm_config = target / "etc/lightdm/lightdm.conf.d/50-nexora-session.conf"
+        lightdm_config.parent.mkdir(parents=True, exist_ok=True)
+        lightdm_config.write_text(
+            "[Seat:*]\\nuser-session=xfce\\ngreeter-session=lightdm-gtk-greeter\\n",
+            encoding="utf-8",
+        )
         run(chroot + ["systemctl", "set-default", "graphical.target"])
     else:
         print("Preparando NEXORA Minimal sin entorno gráfico…", flush=True)
