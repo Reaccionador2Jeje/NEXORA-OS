@@ -42,7 +42,7 @@ if '["welcome", "storage", "config", "review", "progress"]' not in gui:
     raise SystemExit("FAIL: installer navigation does not include review and progress steps")
 for required in ("def build_review(self):", "def update_review(self):",
                  "Revisión final", "self.show_page(4)",
-                 '"desktop": "XFCE4"', '"network": "NetworkManager'):
+                 '"desktop": ("NEXORA XFCE4"', '"network": "NetworkManager'):
     if required not in gui:
         raise SystemExit(f"FAIL: final configuration review is missing: {required}")
 review_section = gui.split("    def build_review(self):", 1)[1].split("    def build_progress(self):", 1)[0]
@@ -148,5 +148,22 @@ for required in (
 ):
     if required not in gui:
         raise SystemExit(f"FAIL: GTK APT/network/desktop controls missing: {required}")
+
+
+for required in (
+    'grub_packages = ["grub-common", "grub2-common", "os-prober", "fonts-dejavu-core"]',
+    'grub-efi-amd64-bin',
+    'grub-pc-bin',
+    '/usr/share/grub/themes/NEXORA',
+    'title-text: "NEXORA OS"',
+    'GRUB_THEME="/usr/share/grub/themes/NEXORA/theme.txt"',
+    'GRUB_DISTRIBUTOR="NEXORA OS"',
+    'GRUB_DISABLE_OS_PROBER=false',
+    '"--target=x86_64-efi"',
+    '"--target=i386-pc"',
+    'update-grub',
+):
+    if required not in source:
+        raise SystemExit(f"FAIL: NEXORA GRUB installation/theme support missing: {required}")
 
 print("PASS: installer storage safety, account setup, multilingual locales, root account controls, regional configuration and final review checks passed.")
