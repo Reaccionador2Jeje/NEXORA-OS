@@ -41,6 +41,8 @@ grep -q 'patch-live-build-contents-index.py' scripts/build-live.sh || fail "Live
 grep -q 'BOOTLOADER_OVERRIDE=.*config/bootloaders/isolinux' scripts/build-live.sh || fail "XFCE Live must provide a local ISOLINUX bootloader override."
 grep -q '/usr/lib/ISOLINUX/isolinux.bin' scripts/build-live.sh || fail "ISOLINUX must use Debian Trixie's current binary path."
 grep -q '/usr/lib/syslinux/modules/bios/' scripts/build-live.sh || fail "Syslinux modules must use Debian Trixie's current BIOS module path."
+grep -q 'RSVG_COMPAT_DIR=.*compat-bin' scripts/build-live.sh || fail "XFCE Live must provide the legacy rsvg command shim required by live-build."
+grep -q 'command -v rsvg-convert' scripts/build-live.sh || fail "XFCE Live must resolve Debian Trixie's rsvg-convert executable."
 for package in isolinux syslinux-common; do
     grep -qx "$package" config/package-lists/nexora-live.list.chroot || fail "XFCE BIOS bootloader package missing: $package"
 done
