@@ -1,5 +1,7 @@
 # Minimal graphical runtime for the native NEXORA GTK installer.
 # No XFCE desktop is installed in this boot environment.
+isolinux
+syslinux-common
 live-boot
 live-config
 lightdm
