@@ -286,7 +286,24 @@ class NexoraInstaller(Gtk.Window):
         self.password2.set_input_purpose(Gtk.InputPurpose.PASSWORD)
         form.attach(self.password2, 1, 4, 1, 1)
 
-        form.attach(label("Idioma del sistema", bold=True), 0, 5, 1, 1)
+        form.attach(label("Cuenta de superusuario (root)", bold=True), 0, 5, 1, 1)
+        self.root_enabled = Gtk.CheckButton(label="Activar cuenta root con contraseña propia")
+        self.root_enabled.connect("toggled", self.on_root_toggle)
+        form.attach(self.root_enabled, 1, 5, 1, 1)
+        form.attach(label("Contraseña de root", bold=True), 0, 6, 1, 1)
+        self.root_password = Gtk.Entry()
+        self.root_password.set_visibility(False)
+        self.root_password.set_input_purpose(Gtk.InputPurpose.PASSWORD)
+        self.root_password.set_sensitive(False)
+        form.attach(self.root_password, 1, 6, 1, 1)
+        form.attach(label("Confirmar contraseña root", bold=True), 0, 7, 1, 1)
+        self.root_password2 = Gtk.Entry()
+        self.root_password2.set_visibility(False)
+        self.root_password2.set_input_purpose(Gtk.InputPurpose.PASSWORD)
+        self.root_password2.set_sensitive(False)
+        form.attach(self.root_password2, 1, 7, 1, 1)
+
+        form.attach(label("Idioma del sistema", bold=True), 0, 8, 1, 1)
         self.locale_combo = Gtk.ComboBoxText()
         for code, title in (("es_CL.UTF-8", "Español (Chile)"),
                             ("es_ES.UTF-8", "Español (España)"),
@@ -295,17 +312,17 @@ class NexoraInstaller(Gtk.Window):
                             ("pt_BR.UTF-8", "Português (Brasil)")):
             self.locale_combo.append(code, title)
         self.locale_combo.set_active_id("es_CL.UTF-8")
-        form.attach(self.locale_combo, 1, 5, 1, 1)
+        form.attach(self.locale_combo, 1, 8, 1, 1)
 
-        form.attach(label("Distribución del teclado", bold=True), 0, 6, 1, 1)
+        form.attach(label("Distribución del teclado", bold=True), 0, 9, 1, 1)
         self.keyboard_combo = Gtk.ComboBoxText()
         for code, title in (("latam", "Latinoamericano"), ("us", "English (US)"),
                             ("es", "Español"), ("br", "Português (Brasil)")):
             self.keyboard_combo.append(code, title)
         self.keyboard_combo.set_active_id("latam")
-        form.attach(self.keyboard_combo, 1, 6, 1, 1)
+        form.attach(self.keyboard_combo, 1, 9, 1, 1)
 
-        form.attach(label("Zona horaria", bold=True), 0, 7, 1, 1)
+        form.attach(label("Zona horaria", bold=True), 0, 10, 1, 1)
         self.timezone_combo = Gtk.ComboBoxText()
         for zone, title in (("America/Santiago", "Chile continental (Santiago)"),
                             ("America/Punta_Arenas", "Chile austral (Punta Arenas)"),
@@ -316,11 +333,19 @@ class NexoraInstaller(Gtk.Window):
                             ("UTC", "UTC")):
             self.timezone_combo.append(zone, title)
         self.timezone_combo.set_active_id("America/Santiago")
-        form.attach(self.timezone_combo, 1, 7, 1, 1)
+        form.attach(self.timezone_combo, 1, 10, 1, 1)
         page.pack_start(form, True, True, 0)
         self.stack.add_named(page, "config")
         if self.disks:
             self.selected_storage_disk = self.disks[0][0]
+
+    def on_root_toggle(self, button):
+        enabled = button.get_active()
+        self.root_password.set_sensitive(enabled)
+        self.root_password2.set_sensitive(enabled)
+        if not enabled:
+            self.root_password.set_text("")
+            self.root_password2.set_text("")
 
     def build_progress(self):
         page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
@@ -385,6 +410,8 @@ class NexoraInstaller(Gtk.Window):
         locale_code = self.locale_combo.get_active_id()
         keyboard_layout = self.keyboard_combo.get_active_id()
         timezone = self.timezone_combo.get_active_id()
+        root_enabled = self.root_enabled.get_active()
+        root_password = self.root_password.get_text()
         if not disk:
             self.show_error("Selecciona un disco de destino.")
             return
@@ -399,6 +426,9 @@ class NexoraInstaller(Gtk.Window):
             return
         if not all((locale_code, keyboard_layout, timezone)):
             self.show_error("Selecciona idioma, teclado y zona horaria.")
+            return
+        if root_enabled and (len(root_password) < 12 or root_password != self.root_password2.get_text()):
+            self.show_error("La contraseña de root debe coincidir y tener al menos 12 caracteres.")
             return
         confirm = Gtk.MessageDialog(
             transient_for=self, flags=Gtk.DialogFlags.MODAL,
@@ -433,13 +463,22 @@ class NexoraInstaller(Gtk.Window):
             secret.write(password)
         self.password.set_text("")
         self.password2.set_text("")
+        root_secret_path = "-"
+        if root_enabled:
+            fd, root_secret_path = tempfile.mkstemp(prefix="nexora-root-secret-")
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "w", encoding="utf-8") as secret:
+                secret.write(root_password)
+        self.root_password.set_text("")
+        self.root_password2.set_text("")
         self.install_started = True
         self.show_page(3)
         self.status.set_text("Instalación en curso…")
         self.next.set_label("Instalando…")
         self.next.set_sensitive(False)
         command = ["pkexec", ENGINE, disk, username, hostname,
-                   locale_code, timezone, keyboard_layout, self.secret_path]
+                   locale_code, timezone, keyboard_layout,
+                   "yes" if root_enabled else "no", root_secret_path, self.secret_path]
         try:
             self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                            text=False, bufsize=0)
@@ -448,6 +487,11 @@ class NexoraInstaller(Gtk.Window):
         except Exception as error:
             self.process = None
             self.install_started = False
+            for secret_file in (self.secret_path, root_secret_path):
+                if secret_file != "-":
+                    try: Path(secret_file).unlink()
+                    except OSError: pass
+            self.secret_path = None
             self.show_error(str(error))
 
     def poll_process(self):
