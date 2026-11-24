@@ -140,19 +140,22 @@ for required in (
 for required in (
     'def detect_install_profile(',
     'NEXORA OS XFCE4 Live',
-    'NEXORA OS Minimal GTK Installer',
+    'NEXORA OS Netinst GTK Installer',
     'self.desktop_profile = detect_install_profile()',
+    'if self.desktop_profile == "netinst":',
+    'self.desktop_combo.append("minimal", "NEXORA Minimal")',
+    'self.desktop_combo.append("xfce", "NEXORA XFCE4")',
+    'self.desktop_combo.get_active_id()',
     'Edición detectada automáticamente',
     'self.apt_mirror',
     'self.refresh_network_status',
     'Comprobar conexión',
     'desktop, apt_mirror',
 ):
-
     if required not in gui:
-        raise SystemExit(f"FAIL: GTK APT/network/automatic-edition controls missing: {required}")
-if "self.desktop_combo" in gui:
-    raise SystemExit("FAIL: installer must detect the ISO edition instead of offering a desktop selector")
+        raise SystemExit(f"FAIL: Netinst edition selection or Live auto-detection missing: {required}")
+if 'NEXORA OS Minimal GTK Installer' in gui:
+    raise SystemExit("FAIL: Netinst must not be hardcoded to Minimal")
 
 
 for required in (
