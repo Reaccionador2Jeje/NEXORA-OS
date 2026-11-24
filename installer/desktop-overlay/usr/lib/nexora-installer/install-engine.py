@@ -66,18 +66,23 @@ def validate_manual_partition_plan(disk, root_part, efi_part, inventory):
     if root is None or root[1] is not selected_disk:
         return "La partición raíz debe pertenecer al disco seleccionado."
     root_node = root[0]
+    efi_node = None
+    if efi_part:
+        efi = partitions.get(efi_part)
+        if efi is None or efi[1] is not selected_disk:
+            return "La partición EFI debe pertenecer al mismo disco seleccionado."
+        if efi_part == root_part:
+            return "La partición raíz y la EFI deben ser distintas."
+        efi_node = efi[0]
+
+    # Validate the plan's structure before capacity so unsafe combinations
+    # are reported accurately even when the selected partition is undersized.
     root_size = int(root_node.get("size") or 0)
     if root_size < 8 * 1024**3:
         return "La partición raíz debe tener al menos 8 GB."
     if any(point for point in (root_node.get("mountpoints") or []) if point):
         return "La partición raíz está montada y no se puede seleccionar."
-    if efi_part:
-        efi = partitions.get(efi_part)
-        if efi is None or efi[1] is not selected_disk:
-            return "La partición EFI debe pertenecer al mismo disco seleccionado."
-        efi_node = efi[0]
-        if efi_part == root_part:
-            return "La partición raíz y la EFI deben ser distintas."
+    if efi_node is not None:
         if int(efi_node.get("size") or 0) < 100 * 1024**2:
             return "La partición EFI debe tener al menos 100 MB."
         if any(point for point in (efi_node.get("mountpoints") or []) if point):
