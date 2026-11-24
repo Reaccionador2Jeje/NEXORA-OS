@@ -166,4 +166,14 @@ for required in (
     if required not in source:
         raise SystemExit(f"FAIL: NEXORA GRUB installation/theme support missing: {required}")
 
+for required in (
+    'live_autostart.unlink(missing_ok=True)',
+    '50-nexora-autologin.conf',
+    '50-nexora-session.conf',
+    'user-session=xfce',
+    'openbox',
+):
+    if required not in source:
+        raise SystemExit(f"FAIL: temporary live-session cleanup is missing: {required}")
+
 print("PASS: installer storage safety, account setup, multilingual locales, root account controls, regional configuration and final review checks passed.")
