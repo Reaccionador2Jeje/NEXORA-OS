@@ -356,6 +356,9 @@ class NexoraInstaller(Gtk.Window):
         network_refresh = Gtk.Button(label="Comprobar conexión")
         network_refresh.connect("clicked", lambda _button: self.refresh_network_status())
         network_box.pack_start(network_refresh, False, False, 0)
+        network_setup = Gtk.Button(label="Configurar Wi-Fi o conexión")
+        network_setup.connect("clicked", self.open_network_editor)
+        network_box.pack_start(network_setup, False, False, 0)
         form.attach(network_box, 1, 13, 1, 1)
         GLib.idle_add(self.refresh_network_status)
 
@@ -375,6 +378,15 @@ class NexoraInstaller(Gtk.Window):
         if not enabled:
             self.root_password.set_text("")
             self.root_password2.set_text("")
+
+    def open_network_editor(self, _button):
+        try:
+            subprocess.Popen(["nm-connection-editor"])
+        except OSError:
+            self.show_error(
+                "No se encontró el editor gráfico de NetworkManager. "
+                "Conecta la red desde el menú de red del escritorio Live."
+            )
 
     def refresh_network_status(self):
         try:
