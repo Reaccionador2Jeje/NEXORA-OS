@@ -126,12 +126,20 @@ grep -q "background_image /nexora/nexora-installer-background.png" "$MENU_VERIFY
     echo "UEFI GRUB menu is not configured to use the NEXORA background." >&2
     exit 1
 }
+grep -q "menu_color_highlight=white/blue" "$MENU_VERIFY_DIR/grub.cfg" || {
+    echo "UEFI GRUB menu is missing the NEXORA selection palette." >&2
+    exit 1
+}
 grep -q "vesamenu.c32" "$MENU_VERIFY_DIR/isolinux.cfg" || {
     echo "BIOS menu is not using the graphics-capable vesamenu renderer." >&2
     exit 1
 }
 grep -q "menu background /nexora/nexora-installer-background.png" "$MENU_VERIFY_DIR/menu.cfg" || {
     echo "BIOS Syslinux menu is not configured to use the NEXORA background." >&2
+    exit 1
+}
+grep -q "MENU COLOR sel" "$MENU_VERIFY_DIR/menu.cfg" || {
+    echo "BIOS Syslinux menu is missing the NEXORA selection palette." >&2
     exit 1
 }
 grep -q "NEXORA OS Minimal" "$MENU_VERIFY_DIR/menu.cfg" || {
