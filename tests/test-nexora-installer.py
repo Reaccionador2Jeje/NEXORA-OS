@@ -34,4 +34,11 @@ for required in ("typed_path.get_text().strip()", "confirmed_path != disk", "Esc
     if required not in gui:
         raise SystemExit(f"FAIL: destructive install confirmation is missing: {required}")
 
-print("PASS: installer partition naming, disk confirmation and non-destructive source checks passed.")
+for required in ("def get_storage_inventory()", "def build_storage(self)", "def refresh_storage(self)",
+                 "def on_storage_selection(self, selection)", "Las particiones se muestran solo como información"):
+    if required not in gui:
+        raise SystemExit(f"FAIL: GTK storage inspection screen is missing: {required}")
+if '["welcome", "storage", "config", "progress"]' not in gui:
+    raise SystemExit("FAIL: installer navigation does not include the storage step")
+
+print("PASS: installer partition naming, disk confirmation, storage inspection and non-destructive source checks passed.")
