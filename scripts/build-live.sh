@@ -272,10 +272,16 @@ PY
 # Confirm the essential desktop and NEXORA runtime dependencies are installed.
 unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" var/lib/dpkg/status > "$VERIFY_DIR/dpkg-status"
 python3 - "$VERIFY_DIR/dpkg-status" <<'PY'
+import re
 import sys
 from email.parser import Parser
 
-status = Parser().parsestr(open(sys.argv[1], encoding="utf-8").read())
+raw_status = open(sys.argv[1], encoding="utf-8").read()
+packages = [
+    Parser().parsestr(block)
+    for block in re.split(r"\\n\\s*\\n", raw_status)
+    if block.strip()
+]
 required = {
     "task-xfce-desktop", "lightdm", "network-manager", "network-manager-gnome",
     "xfce4-whiskermenu-plugin", "xfce4-pulseaudio-plugin", "flatpak",
@@ -284,7 +290,7 @@ required = {
 }
 missing = sorted(name for name in required if not any(
     package.get("Package") == name and package.get("Status") == "install ok installed"
-    for package in status
+    for package in packages
 ))
 if missing:
     raise SystemExit("Missing installed NEXORA/XFCE packages in Live ISO: " + ", ".join(missing))
