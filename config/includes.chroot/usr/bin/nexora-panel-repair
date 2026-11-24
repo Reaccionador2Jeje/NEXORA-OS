@@ -1,0 +1,34 @@
+#!/bin/sh
+# Restore the supported NEXORA two-panel XFCE layout for the current user.
+set -eu
+
+if [ "$(id -u)" -eq 0 ]; then
+    echo "Run this command as your normal desktop user, without sudo." >&2
+    exit 1
+fi
+if [ -z "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]; then
+    echo "No graphical session detected. Log in to XFCE and run this command there." >&2
+    exit 1
+fi
+
+SOURCE="/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+TARGET="$HOME/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml"
+if [ ! -s "$SOURCE" ]; then
+    echo "NEXORA panel template is missing: $SOURCE" >&2
+    exit 1
+fi
+
+mkdir -p "$(dirname "$TARGET")"
+if [ -s "$TARGET" ] && ! cmp -s "$SOURCE" "$TARGET"; then
+    BACKUP="$TARGET.before-nexora-repair"
+    if [ ! -e "$BACKUP" ]; then
+        cp -a "$TARGET" "$BACKUP"
+        echo "Previous panel configuration backed up to: $BACKUP"
+    fi
+fi
+
+install -m 0644 "$SOURCE" "$TARGET"
+xfce4-panel --quit >/dev/null 2>&1 || true
+sleep 1
+nohup xfce4-panel >/dev/null 2>&1 &
+echo "NEXORA panels restored. Expected layout: top menu bar + bottom taskbar."
