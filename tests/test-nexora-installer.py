@@ -123,4 +123,30 @@ for required in (
     if required not in gui:
         raise SystemExit(f"FAIL: GTK superuser/configuration control missing: {required}")
 
+
+for required in (
+    'desktop_profile not in {"xfce", "minimal"}',
+    'apt_mirror',
+    'nmcli',
+    'urllib.request.urlopen',
+    'apt-get", "update',
+    'task-xfce-desktop',
+    '"multi-user.target"',
+    '"graphical.target"',
+    'NetworkManager',
+):
+    if required not in source:
+        raise SystemExit(f"FAIL: APT, network or desktop profile support missing: {required}")
+for required in (
+    'self.desktop_combo',
+    '"NEXORA XFCE4 (escritorio completo)"',
+    '"NEXORA Minimal (solo sistema base)"',
+    'self.apt_mirror',
+    'self.refresh_network_status',
+    'Comprobar conexión',
+    'desktop, apt_mirror',
+):
+    if required not in gui:
+        raise SystemExit(f"FAIL: GTK APT/network/desktop controls missing: {required}")
+
 print("PASS: installer storage safety, account setup, multilingual locales, root account controls, regional configuration and final review checks passed.")
