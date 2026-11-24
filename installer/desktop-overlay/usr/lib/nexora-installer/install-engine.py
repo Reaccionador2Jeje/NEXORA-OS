@@ -319,6 +319,61 @@ def main():
         run(chroot + ["apt-get", "autoremove", "-y"], check=False)
         run(chroot + ["systemctl", "set-default", "multi-user.target"])
     run(chroot + ["systemctl", "enable", "NetworkManager"])
+    print("Instalando GRUB y aplicando la identidad visual de NEXORA…", flush=True)
+    grub_packages = ["grub-common", "grub2-common", "os-prober"]
+    if efi:
+        grub_packages.append("grub-efi-amd64-bin")
+    else:
+        grub_packages.append("grub-pc-bin")
+    run(chroot + ["apt-get", "install", "-y", *grub_packages])
+
+    grub_theme = target / "usr/share/grub/themes/NEXORA"
+    grub_theme.mkdir(parents=True, exist_ok=True)
+    (grub_theme / "theme.txt").write_text("""# NEXORA GRUB theme
+desktop-color: "#101827"
+title-text: "NEXORA OS"
+title-color: "#f4f7fb"
+title-font: "DejaVu Sans Bold 28"
+message-color: "#a9b8cc"
+message-font: "DejaVu Sans 12"
+terminal-font: "DejaVu Sans Mono 12"
+terminal-box: "terminal_box_*.png"
++ boot_menu {
+  left = 12%
+  top = 34%
+  width = 76%
+  height = 48%
+  item_font = "DejaVu Sans 16"
+  item_color = "#dce6f2"
+  selected_item_color = "#ffffff"
+  selected_item_pixmap = "select_*.png"
+  item_height = 38
+  item_padding = 8
+  item_spacing = 6
+  scrollbar = false
+}
++ label {
+  top = 91%
+  left = 12%
+  width = 76%
+  align = "center"
+  text = "NEXORA OS  |  Open source, built for everyone"
+  color = "#91a4bd"
+  font = "DejaVu Sans 10"
+}
+""", encoding="utf-8")
+    grub_defaults = target / "etc/default/grub.d/99_nexora.cfg"
+    grub_defaults.parent.mkdir(parents=True, exist_ok=True)
+    grub_defaults.write_text(
+        'GRUB_DISTRIBUTOR="NEXORA OS"\\n'
+        'GRUB_THEME="/usr/share/grub/themes/NEXORA/theme.txt"\\n'
+        'GRUB_GFXMODE="auto"\\n'
+        'GRUB_GFXPAYLOAD_LINUX="keep"\\n'
+        'GRUB_TIMEOUT_STYLE="menu"\\n'
+        'GRUB_TIMEOUT=5\\n'
+        'GRUB_DISABLE_OS_PROBER=false\\n',
+        encoding="utf-8",
+    )
     if efi:
         run(chroot + ["grub-install", "--target=x86_64-efi", "--efi-directory=/boot/efi",
                       "--bootloader-id=NEXORA", "--recheck", "--no-nvram", "--removable"])
