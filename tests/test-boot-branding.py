@@ -91,7 +91,7 @@ for required in (
     "autologin-user=nexora",
     "python3 /usr/bin/nexora-installer",
     "/live/filesystem.squashfs",
-    "NEXORA_MINIMAL",
+    "NEXORA OS Netinst GTK Installer",
 ):
     if required not in minimal_builder:
         raise SystemExit(f"FAIL: Minimal ISO is not wired to the native GTK installer: {required}")
