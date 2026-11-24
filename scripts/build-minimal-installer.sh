@@ -42,8 +42,9 @@ nm-applet &
 (sleep 2; python3 /usr/bin/nexora-installer) &
 AUTOSTART
 chmod 0755 "$WORK_DIR/config/includes.chroot/etc/skel/.config/openbox/autostart"
-mkdir -p "$WORK_DIR/config/includes.chroot/etc/systemd/system/graphical.target.wants"
+mkdir -p "$WORK_DIR/config/includes.chroot/etc/systemd/system/graphical.target.wants" "$WORK_DIR/config/includes.chroot/etc/systemd/system/multi-user.target.wants"
 ln -sfn /lib/systemd/system/lightdm.service "$WORK_DIR/config/includes.chroot/etc/systemd/system/graphical.target.wants/lightdm.service"
+ln -sfn /lib/systemd/system/NetworkManager.service "$WORK_DIR/config/includes.chroot/etc/systemd/system/multi-user.target.wants/NetworkManager.service"
 
 cat > "$WORK_DIR/config/includes.chroot/etc/nexora-release" <<'RELEASE'
 NEXORA OS Minimal GTK Installer 0.1.0-alpha
@@ -140,6 +141,16 @@ PY
 
 boot_report="$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1 || true)"
 printf '%s\\n' "$boot_report" | grep -qi 'El Torito'
+BOOT_VERIFY="$OUTPUT_DIR/minimal-boot-verification"
+mkdir -p "$BOOT_VERIFY"
+xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract /boot/grub/grub.cfg "$BOOT_VERIFY/grub.cfg" \
+    -extract "$SYSLINUX_CONFIG_PATH" "$BOOT_VERIFY/isolinux.cfg" >/dev/null 2>&1
+grep -q '# NEXORA OS visual identity' "$BOOT_VERIFY/grub.cfg"
+grep -q 'background_image /boot/grub/splash.png' "$BOOT_VERIFY/grub.cfg"
+grep -q '# NEXORA OS visual identity' "$BOOT_VERIFY/isolinux.cfg"
+grep -q 'MENU BACKGROUND /isolinux/splash.png' "$BOOT_VERIFY/isolinux.cfg"
+grep -q 'MENU COLOR sel' "$BOOT_VERIFY/isolinux.cfg"
 SIZE_HUMAN="$(du -h "$OUTPUT_ISO" | awk '{print $1}')"
 SHA256="$(sha256sum "$OUTPUT_ISO" | awk '{print $1}')"
 printf '%s  %s\\n' "$SHA256" "$(basename "$OUTPUT_ISO")" > "$OUTPUT_ISO.sha256"
