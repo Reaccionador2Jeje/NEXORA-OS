@@ -1,15 +1,9 @@
-# NEXORA XFCE4 desktop profile
+# NEXORA XFCE4 desktop installed profile
 
-The NEXORA XFCE4 profile installs Debian's `xfce-desktop` task together with the NEXORA desktop overlay.
+Choose **NEXORA XFCE4 (escritorio completo)** in the native GTK installer.
 
-The overlay configures the new desktop with:
+The installer installs Debian's XFCE desktop task and LightDM, configures the NEXORA desktop overlay and selects the XFCE session as the LightDM default. It removes the temporary Openbox installer autostart and LightDM auto-login settings so the installed system does not reopen the installer at every boot.
 
-- Five NEXORA wallpapers and a default NEXORA background.
-- Four GTK themes: NEXORA, NEXORA Midnight, NEXORA Ocean and NEXORA Light.
-- NEXORA Welcome, Store, Control Center and Updater launchers.
-- NEXORA AI desktop client, configurable for an OpenAI-compatible endpoint or a local Ollama-compatible service.
-- PolicyKit agent and XFCE defaults for new and existing user accounts.
+The XFCE4 profile includes NEXORA wallpapers, four GTK themes, Welcome, Store, Control Center, Updater, the NEXORA AI client, NetworkManager and the fixed two-panel layout.
 
-The XFCE4 release image selects this profile by default from both BIOS and UEFI boot menus. Minimal Terminal remains available as an alternate profile.
-
-The installer requires a working network connection to download Debian packages. Disk partitioning remains interactive; the profile does not configure automatic partitioning or silently confirm formatting.
+The installer requires a working network connection to download Debian packages. Disk partitioning is whole-disk and destructive, with a final review and explicit confirmation before changes.
