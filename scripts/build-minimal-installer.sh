@@ -11,6 +11,16 @@ if [[ "$EUID" -ne 0 ]]; then
     echo "Run this script as root: sudo ./scripts/build.sh" >&2
     exit 1
 fi
+# Debian Trixie ships rsvg-convert while this live-build generation calls rsvg.
+if ! command -v rsvg >/dev/null 2>&1; then
+    RSVG_CONVERT="$(command -v rsvg-convert || true)"
+    [[ -n "$RSVG_CONVERT" ]] || { echo "Missing rsvg-convert (install librsvg2-bin)." >&2; exit 1; }
+    RSVG_COMPAT_DIR="$OUTPUT_DIR/compat-bin"
+    mkdir -p "$RSVG_COMPAT_DIR"
+    ln -sfn "$RSVG_CONVERT" "$RSVG_COMPAT_DIR/rsvg"
+    export PATH="$RSVG_COMPAT_DIR:$PATH"
+fi
+
 for command in lb xorriso sha256sum unsquashfs; do
     command -v "$command" >/dev/null 2>&1 || {
         echo "Required command is missing: $command" >&2
@@ -25,6 +35,19 @@ cp -a "$ROOT_DIR/installer/desktop-overlay/." "$WORK_DIR/config/includes.chroot/
 chmod 0755 "$WORK_DIR/config/includes.chroot/usr/bin/nexora-installer" "$WORK_DIR/config/includes.chroot/usr/lib/nexora-installer/install-engine.py"
 mkdir -p "$WORK_DIR/config/package-lists" "$WORK_DIR/config/includes.chroot/etc/lightdm/lightdm.conf.d" "$WORK_DIR/config/includes.chroot/etc/skel/.config/openbox" "$WORK_DIR/config/includes.binary/isolinux" "$WORK_DIR/config/includes.binary/boot/grub"
 cp "$ROOT_DIR/config/package-lists/nexora-minimal-installer.list.chroot" "$WORK_DIR/config/package-lists/nexora-minimal-installer.list.chroot"
+
+# Debian Trixie's Syslinux module paths differ from live-build's legacy template.
+BOOTLOADER_TEMPLATE="/usr/share/live/build/bootloaders/isolinux"
+BOOTLOADER_OVERRIDE="$WORK_DIR/config/bootloaders/isolinux"
+[[ -d "$BOOTLOADER_TEMPLATE" ]] || { echo "Missing live-build ISOLINUX template: $BOOTLOADER_TEMPLATE" >&2; exit 1; }
+mkdir -p "$BOOTLOADER_OVERRIDE"
+cp -a "$BOOTLOADER_TEMPLATE/." "$BOOTLOADER_OVERRIDE/"
+ln -sfn /usr/lib/ISOLINUX/isolinux.bin "$BOOTLOADER_OVERRIDE/isolinux.bin"
+for module in "$BOOTLOADER_OVERRIDE"/*.c32; do
+    [[ -e "$module" || -L "$module" ]] || continue
+    module_name="$(basename "$module")"
+    ln -sfn "/usr/lib/syslinux/modules/bios/$module_name" "$module"
+done
 
 # Launch the native installer automatically after the minimal graphical session starts.
 cat > "$WORK_DIR/config/includes.chroot/etc/lightdm/lightdm.conf.d/50-nexora-autologin.conf" <<'LIGHTDM'
@@ -80,6 +103,9 @@ lb config \
     --iso-application "NEXORA OS Minimal Native GTK Installer" \
     --iso-publisher "NEXORA Project" \
     --iso-volume "NEXORA_MINIMAL"
+
+echo "==> Applying Debian Trixie live-build Contents index compatibility fix..."
+python3 "$ROOT_DIR/scripts/patch-live-build-contents-index.py"
 
 echo "==> Building the NEXORA native GTK installer boot environment..."
 lb build
