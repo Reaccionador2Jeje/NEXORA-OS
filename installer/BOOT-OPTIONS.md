@@ -1,33 +1,20 @@
-# NEXORA installer profile boot options
+# NEXORA Minimal native installer boot
 
-The ISO embeds two Debian Installer preseed profiles in `/nexora/preseed/`.
-They select software packages only. Disk partitioning remains interactive.
+The Minimal GTK ISO boots a Debian Live installer runtime and automatically starts the native NEXORA GTK wizard.
 
-## Minimal Terminal
+## Boot flow
 
-At the Debian Installer boot entry, append:
+1. Boot the ISO using BIOS or UEFI.
+2. Select the NEXORA Minimal entry from the branded boot menu.
+3. LightDM starts the lightweight Openbox session and logs in to the temporary live account.
+4. Openbox autostart launches python3 /usr/bin/nexora-installer.
+5. The native wizard configures the target disk, locale, keyboard, timezone, account, root access, network, APT mirror and installed desktop profile.
 
-```text
-priority=high preseed/file=/cdrom/nexora/preseed/minimal.cfg
-```
+## Installed profiles
 
-Installs standard system utilities without selecting a desktop environment.
+- **NEXORA Minimal:** installs a terminal-focused system and removes the temporary Openbox/LightDM/Xorg graphical installer runtime.
+- **NEXORA XFCE4:** installs the XFCE4 desktop and LightDM.
 
-## NEXORA XFCE
+Disk partitioning is whole-disk and destructive. The installer displays a final review and requires explicit confirmation before modifying the selected disk. Back up important data and verify the selected disk carefully.
 
-Append:
-
-```text
-priority=high preseed/file=/cdrom/nexora/preseed/desktop.cfg
-```
-
-Installs standard system utilities and Debian's `xfce-desktop` task.
-
-## Safety and current limitations
-
-- Neither profile defines an automatic partition recipe.
-- Use the interactive installer priority so disk setup remains an explicit part of installation.
-- Review every disk and formatting confirmation before accepting it.
-- A working network connection is required to download packages.
-- Locale defaults to Chilean Spanish (`es_CL.UTF-8`) and the Latin American keyboard layout.
-- This is an interim profile mechanism. A graphical NEXORA profile chooser and localized defaults are future work.
+The ISO build checks the installer executable, engine, auto-login and autostart configuration, and required runtime packages. A successful build is not a substitute for testing a full install in both BIOS and UEFI virtual machines.
