@@ -17,8 +17,10 @@ on:
     branches:
       - main
     paths:
+      - "config/**"
       - "installer/**"
       - "scripts/**"
+      - "tests/**"
       - ".github/workflows/build-iso.yml"
       - "README.md"
 
