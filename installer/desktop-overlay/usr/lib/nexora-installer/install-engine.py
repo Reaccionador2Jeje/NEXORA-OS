@@ -259,7 +259,7 @@ def main():
     if apt_sources.exists():
         for source_file in apt_sources.glob("*.sources"):
             content = source_file.read_text(encoding="utf-8")
-            content = re.sub(r"(?m)^URIs: (https?://deb\\.debian\\.org/debian/?|https?://ftp\\.debian\\.org/debian/?).*$", "URIs: " + apt_mirror, content)
+            content = re.sub(r"(?m)^URIs: (https?://deb\.debian\\.org/debian/?|https?://ftp\.debian\\.org/debian/?).*$", "URIs: " + apt_mirror, content)
             source_file.write_text(content, encoding="utf-8")
     legacy_sources = target / "etc/apt/sources.list"
     if legacy_sources.exists():
