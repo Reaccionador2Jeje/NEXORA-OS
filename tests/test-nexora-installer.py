@@ -29,4 +29,9 @@ for required in ("lsblk", "MOUNTS.append", "grub-install", "mkfs.ext4", "NEXORA 
 if "debian-installer-launcher" in source:
     raise SystemExit("FAIL: native installer must not invoke Debian Installer")
 
-print("PASS: installer partition naming and non-destructive source checks passed.")
+gui = (ROOT / "installer/desktop-overlay/usr/bin/nexora-installer").read_text(encoding="utf-8")
+for required in ("typed_path.get_text().strip()", "confirmed_path != disk", "Escribe: {disk}"):
+    if required not in gui:
+        raise SystemExit(f"FAIL: destructive install confirmation is missing: {required}")
+
+print("PASS: installer partition naming, disk confirmation and non-destructive source checks passed.")
