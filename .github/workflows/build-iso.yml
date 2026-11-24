@@ -7,8 +7,10 @@ on:
     branches:
       - feature/nexora-minimal-terminal
     paths:
+      - "config/**"
       - "installer/**"
       - "scripts/**"
+      - "tests/**"
       - ".github/workflows/build-iso.yml"
       - "README.md"
   pull_request:
