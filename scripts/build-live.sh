@@ -209,6 +209,7 @@ for image_path in \
     usr/bin/nexora-welcome usr/bin/nexora-updater \
     usr/local/sbin/nexora-postinstall \
     usr/share/applications/nexora-installer.desktop \
+    etc/skel/Desktop/Install-NEXORA.desktop \
     usr/share/applications/nexora-ai.desktop \
     usr/share/applications/nexora-center.desktop \
     usr/share/applications/nexora-store.desktop \
@@ -279,7 +280,7 @@ from email.parser import Parser
 raw_status = open(sys.argv[1], encoding="utf-8").read()
 packages = [
     Parser().parsestr(block)
-    for block in re.split(r"\\n\\s*\\n", raw_status)
+    for block in re.split(r"\n\s*\n", raw_status)
     if block.strip()
 ]
 required = {
