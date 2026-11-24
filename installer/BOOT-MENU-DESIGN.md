@@ -1,58 +1,31 @@
-# NEXORA boot menu — implementation plan
+# NEXORA boot menu and native installer startup
 
-## Goal
+## Minimal GTK installer ISO
 
-Provide a branded boot-time profile chooser before Debian Installer starts:
+The Minimal ISO is built as a small Debian Live system, not as a Debian Installer netboot image. Its boot menu starts the Live kernel and initramfs. The compressed root filesystem contains the NEXORA GTK3 installer, Openbox, LightDM, NetworkManager, PolicyKit and disk/bootloader utilities.
 
-1. **NEXORA Minimal Terminal** — starts GTK Debian Installer with the Minimal preseed.
-2. **NEXORA XFCE Desktop** — starts GTK Debian Installer with the XFCE preseed.
-3. **Standard Debian Installer** — retains an upstream fallback entry.
+After boot:
+1. LightDM automatically signs in to the temporary NEXORA live account.
+2. Openbox starts its per-user autostart.
+3. The autostart starts the native NEXORA GTK wizard at /usr/bin/nexora-installer.
+4. The wizard uses the NEXORA installation engine at /usr/lib/nexora-installer/install-engine.py.
 
-## Technical approach
+The temporary Openbox/LightDM/Xorg environment is used only to run the installer. The Minimal target removes it and boots to a terminal. The XFCE target installs XFCE and selects the XFCE LightDM session. The installer requires explicit confirmation before its destructive whole-disk partitioning step.
 
-The current upstream GTK mini ISO is retained as the base. Before changing boot menus, CI runs `scripts/inspect-boot-layout.sh` to identify the exact Syslinux/ISOLINUX and GRUB configuration paths in the downloaded image.
+## XFCE4 Live ISO
 
-The build patches verified BIOS and UEFI bootloader configuration files, preserving upstream fallback entries and boot records. It also replaces the GTK frontend banner logo assets in the compressed initrd, including the light and dark variants, before mapping the rebuilt initrd back into the ISO. The two NEXORA entries append:
+The XFCE4 Live ISO starts the complete NEXORA desktop. The same native GTK installer is available from the Install NEXORA OS desktop shortcut and the applications menu.
 
-- Minimal: `priority=high preseed/file=/cdrom/nexora/preseed/minimal.cfg`
-- XFCE: `priority=high preseed/file=/cdrom/nexora/preseed/desktop.cfg`
+## Shared BIOS and UEFI branding
 
-## Safety and scope
+Both ISO families use the same midnight-blue and cyan NEXORA boot identity:
 
-- Profile entries choose packages only; they do not automate disk partitioning.
-- The original Debian installer entry remains available as a recovery/fallback path.
-- The profile menu is a bootloader menu, not a replacement GTK screen inside Debian Installer.
-- No bootloader file should be rewritten based on guessed paths. The actual ISO layout must be captured by CI first.
+- UEFI GRUB loads the NEXORA splash and uses the blue selection palette.
+- BIOS Syslinux/ISOLINUX uses vesamenu, the matching splash, and matching selection colors.
+- The original Debian Live boot entries and ISO boot records are preserved.
 
+The builders extract the final GRUB and Syslinux configuration from each ISO and fail validation if the NEXORA splash or palette is missing. The installed-system GRUB theme is configured separately by the native installer.
 
-## Interactive partitioning requirement
+## Legacy Debian Installer branding assets
 
-The profile menu must use `priority=high` with the preseed path so ordinary installer questions and interactive disk setup remain available.
-
-## GTK banner branding
-
-The GTK installer reads its banner artwork from the `rootskel-gtk` assets in the initrd. NEXORA generates matching 800×75 light/dark PNGs and replaces the four logo paths (`logo_debian.png`, `logo_debian_dark.png`, `logo_installer.png`, `logo_installer_dark.png`) under `/usr/share/graphics`. The build verifies that these paths survive initrd repacking. The GTK workflow and dialog content remain upstream Debian Installer code; only the banner identity is replaced at this stage.
-
-
-## Implemented splash branding
-
-Both netinst and XFCE4 Live builders now generate a NEXORA aurora splash with the NEXORA OS wordmark and place it at the standard BIOS and UEFI splash paths:
-
-- BIOS / ISOLINUX: `/isolinux/splash.png`
-- UEFI / GRUB: `/boot/grub/splash.png`
-
-The netinst builder also retains the explicit NEXORA background reference in its custom GRUB and Syslinux menu configurations. Both builders extract the resulting artwork from the ISO and compare it against the generated source, so a build fails rather than silently shipping Debian's default splash.
-
-The XFCE4 Live desktop's **Install NEXORA OS** launcher opens a branded GTK welcome screen before starting Debian Installer Live. It explains the flow and reminds the user to review disk changes. Debian Installer's actual installation engine and its GTK screens remain upstream; the NEXORA welcome screen is the first UX improvement, not a claim that the installer has been fully forked.
-
-
-## NEXORA bootloader visual identity
-
-Both ISO families now use the same midnight-blue, cyan-accented selection palette:
-
-- UEFI GRUB uses the generated NEXORA aurora splash, a visible menu timeout, and blue highlighted entries.
-- BIOS Syslinux/ISOLINUX uses the same splash with matching title, selection, and timeout colors.
-- The XFCE4 Live ISO's UEFI GRUB and BIOS ISOLINUX configs are patched after live-build completes; the original Debian Live menu entries and boot records are preserved.
-- The Minimal/XFCE GTK netinst keeps its upstream fallback entries while adding NEXORA colors to its UEFI GRUB and BIOS Syslinux menus.
-
-The ISO build scripts extract the final boot configurations and fail validation if the NEXORA splash or selection palette is missing. The installed-system GRUB theme is configured separately by the native installer.
+The repository retains the older Debian Installer initrd and menu branding helpers for reference and possible future use. They are not part of the current Minimal ISO boot path; the current Minimal image starts the native NEXORA GTK application directly from its own Live root filesystem.
