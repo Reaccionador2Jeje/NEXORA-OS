@@ -52,7 +52,7 @@ Both ISO families now use the same midnight-blue, cyan-accented selection palett
 
 - UEFI GRUB uses the generated NEXORA aurora splash, a visible menu timeout, and blue highlighted entries.
 - BIOS Syslinux/ISOLINUX uses the same splash with matching title, selection, and timeout colors.
-- The XFCE4 Live ISO's GRUB config is patched after live-build completes; the original Debian Live menu entries and boot records are preserved.
+- The XFCE4 Live ISO's UEFI GRUB and BIOS ISOLINUX configs are patched after live-build completes; the original Debian Live menu entries and boot records are preserved.
 - The Minimal/XFCE GTK netinst keeps its upstream fallback entries while adding NEXORA colors to its UEFI GRUB and BIOS Syslinux menus.
 
 The ISO build scripts extract the final boot configurations and fail validation if the NEXORA splash or selection palette is missing. The installed-system GRUB theme is configured separately by the native installer.
