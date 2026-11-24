@@ -9,7 +9,7 @@ NEXORA OS is a Debian 13 Trixie-based operating system with two installation pro
 | Edition | Image | Purpose |
 | --- | --- | --- |
 | **NEXORA OS XFCE4** | Live hybrid ISO | Main desktop edition. Boots directly into the complete NEXORA XFCE desktop and can be tried without installing. |
-| **NEXORA OS Minimal** | Native GTK installer ISO | Lightweight graphical installer that boots directly into the NEXORA wizard and offers a terminal-only installed profile. |
+| **NEXORA OS Minimal** | Native GTK installer ISO (Live-based, network-enabled) | Lightweight graphical installer that boots directly into the NEXORA wizard and offers a terminal-only installed profile. |
 
 ## Downloads
 
@@ -67,7 +67,7 @@ On a Debian or Ubuntu amd64 build host:
 
 ```sh
 sudo apt update
-sudo apt install -y live-build debootstrap xorriso squashfs-tools qemu-system-x86 curl cpio gzip
+sudo apt install -y live-build debootstrap debian-archive-keyring xorriso squashfs-tools qemu-system-x86 curl cpio gzip librsvg2-bin
 git clone https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
 git checkout feature/nexora-minimal-terminal
