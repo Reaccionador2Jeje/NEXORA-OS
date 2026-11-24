@@ -69,6 +69,9 @@ for file in \
     "$OVERLAY/usr/share/backgrounds/nexora/nexora-orbit.svg" \
     "$OVERLAY/usr/share/backgrounds/nexora/nexora-grid.svg" \
     "$OVERLAY/usr/share/backgrounds/nexora/nexora-midnight.svg" \
+    "$OVERLAY/usr/share/backgrounds/nexora/nexora-nebula.svg" \
+    "$OVERLAY/usr/share/backgrounds/nexora/nexora-horizon.svg" \
+    "$OVERLAY/usr/share/backgrounds/nexora/nexora-minimal.svg" \
     "$ROOT_DIR/config/includes.chroot/etc/lightdm/lightdm-gtk-greeter.conf"
 do
     [ -s "$file" ] || { echo "Required NEXORA desktop file is missing: $file" >&2; exit 1; }
