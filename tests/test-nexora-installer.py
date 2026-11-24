@@ -78,4 +78,17 @@ small_error = module.validate_manual_partition_plan(
 if not small_error or "8 GB" not in small_error:
     raise SystemExit("FAIL: undersized root partition was accepted")
 
-print("PASS: installer partition naming, disk confirmation, storage inspection, manual plan validation and non-destructive source checks passed.")
+
+for required in ("locale_code", "timezone", "keyboard_layout", "allowed_locales",
+                 "allowed_timezones", "allowed_keyboards", "locale-gen",
+                 "/etc/default/keyboard", "/etc/default/locale"):
+    if required not in source:
+        raise SystemExit(f"FAIL: installer regional configuration is missing: {required}")
+for required in ("self.locale_combo", "self.keyboard_combo", "self.timezone_combo",
+                 "Español (Chile)", "Latinoamericano", "America/Santiago"):
+    if required not in gui:
+        raise SystemExit(f"FAIL: GTK configuration selector is missing: {required}")
+if 'self.secret_path]' in gui:
+    raise SystemExit("FAIL: GUI still uses the old installer engine argument list")
+
+print("PASS: installer partition naming, storage checks, manual plan validation, account and regional configuration checks passed.")
