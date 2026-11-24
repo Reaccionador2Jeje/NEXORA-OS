@@ -285,6 +285,38 @@ class NexoraInstaller(Gtk.Window):
         self.password2.set_visibility(False)
         self.password2.set_input_purpose(Gtk.InputPurpose.PASSWORD)
         form.attach(self.password2, 1, 4, 1, 1)
+
+        form.attach(label("Idioma del sistema", bold=True), 0, 5, 1, 1)
+        self.locale_combo = Gtk.ComboBoxText()
+        for code, title in (("es_CL.UTF-8", "Español (Chile)"),
+                            ("es_ES.UTF-8", "Español (España)"),
+                            ("en_US.UTF-8", "English (United States)"),
+                            ("en_GB.UTF-8", "English (United Kingdom)"),
+                            ("pt_BR.UTF-8", "Português (Brasil)")):
+            self.locale_combo.append(code, title)
+        self.locale_combo.set_active_id("es_CL.UTF-8")
+        form.attach(self.locale_combo, 1, 5, 1, 1)
+
+        form.attach(label("Distribución del teclado", bold=True), 0, 6, 1, 1)
+        self.keyboard_combo = Gtk.ComboBoxText()
+        for code, title in (("latam", "Latinoamericano"), ("us", "English (US)"),
+                            ("es", "Español"), ("br", "Português (Brasil)")):
+            self.keyboard_combo.append(code, title)
+        self.keyboard_combo.set_active_id("latam")
+        form.attach(self.keyboard_combo, 1, 6, 1, 1)
+
+        form.attach(label("Zona horaria", bold=True), 0, 7, 1, 1)
+        self.timezone_combo = Gtk.ComboBoxText()
+        for zone, title in (("America/Santiago", "Chile continental (Santiago)"),
+                            ("America/Punta_Arenas", "Chile austral (Punta Arenas)"),
+                            ("America/Easter", "Isla de Pascua"),
+                            ("America/Argentina/Buenos_Aires", "Argentina"),
+                            ("America/Lima", "Perú"), ("America/Bogota", "Colombia"),
+                            ("America/Mexico_City", "México"), ("Europe/Madrid", "España"),
+                            ("UTC", "UTC")):
+            self.timezone_combo.append(zone, title)
+        self.timezone_combo.set_active_id("America/Santiago")
+        form.attach(self.timezone_combo, 1, 7, 1, 1)
         page.pack_start(form, True, True, 0)
         self.stack.add_named(page, "config")
         if self.disks:
@@ -350,6 +382,9 @@ class NexoraInstaller(Gtk.Window):
         username = self.user.get_text().strip().lower()
         hostname = self.host.get_text().strip().lower()
         password = self.password.get_text()
+        locale_code = self.locale_combo.get_active_id()
+        keyboard_layout = self.keyboard_combo.get_active_id()
+        timezone = self.timezone_combo.get_active_id()
         if not disk:
             self.show_error("Selecciona un disco de destino.")
             return
@@ -361,6 +396,9 @@ class NexoraInstaller(Gtk.Window):
             return
         if len(password) < 8 or password != self.password2.get_text():
             self.show_error("Las contraseñas deben coincidir y tener al menos 8 caracteres.")
+            return
+        if not all((locale_code, keyboard_layout, timezone)):
+            self.show_error("Selecciona idioma, teclado y zona horaria.")
             return
         confirm = Gtk.MessageDialog(
             transient_for=self, flags=Gtk.DialogFlags.MODAL,
@@ -400,7 +438,8 @@ class NexoraInstaller(Gtk.Window):
         self.status.set_text("Instalación en curso…")
         self.next.set_label("Instalando…")
         self.next.set_sensitive(False)
-        command = ["pkexec", ENGINE, disk, username, hostname, self.secret_path]
+        command = ["pkexec", ENGINE, disk, username, hostname,
+                   locale_code, timezone, keyboard_layout, self.secret_path]
         try:
             self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                            text=False, bufsize=0)
