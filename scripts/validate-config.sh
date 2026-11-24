@@ -51,6 +51,10 @@ grep -q 'NEXORA OS.*installation wizard' installer/desktop-overlay/usr/bin/nexor
 grep -q 'install-engine.py' installer/desktop-overlay/usr/bin/nexora-installer || fail "GTK wizard must invoke the NEXORA engine."
 grep -q 'parted' installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py || fail "Native partition engine is missing."
 grep -q 'grub-install' installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py || fail "Native bootloader setup is missing."
+grep -q 'brand-live-grub.py' scripts/build-live.sh || fail "XFCE Live must apply NEXORA GRUB branding."
+grep -q -- '-boot_image any replay' scripts/build-live.sh || fail "XFCE Live GRUB patch must preserve ISO boot records."
+grep -q 'menu_color_highlight=white/blue' scripts/brand-live-grub.py || fail "XFCE Live GRUB must use NEXORA selection colors."
+grep -q 'MENU COLOR sel' scripts/brand-installer-boot.py || fail "Netinst BIOS menu must use NEXORA selection colors."
 if grep -q 'debian-installer-launcher' installer/desktop-overlay/usr/bin/nexora-installer config/package-lists/nexora-live.list.chroot scripts/build-live.sh; then
     fail "XFCE4 Live must not invoke or package Debian Installer."
 fi
@@ -86,7 +90,7 @@ grep -q 'priority=high' installer/preseed/desktop.cfg || fail "Desktop preseed m
 if grep -Eq 'auto=true|priority=critical|partman-auto|partman/early_command|partman/confirm.*true' installer/preseed/*.cfg installer/BOOT-OPTIONS.md; then fail "Preseed must not silently automate disk partitioning."; fi
 if grep -Eq 'lb config|lb build|live-build' scripts/build.sh scripts/build-netinst.sh; then fail "Minimal netinst must not invoke Debian Live."; fi
 
-python3 -c 'import ast,json,pathlib,xml.etree.ElementTree as ET; paths=["scripts/create-installer-background.py","scripts/brand-installer-boot.py","installer/desktop-overlay/usr/bin/nexora-installer","installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py","installer/desktop-overlay/usr/bin/nexora-ai","installer/desktop-overlay/usr/bin/nexora-center","installer/desktop-overlay/usr/bin/nexora-store"]; [ast.parse(pathlib.Path(p).read_text()) for p in paths]; json.loads(pathlib.Path("installer/desktop-overlay/usr/share/nexora/catalog.json").read_text()); [ET.parse(p) for p in pathlib.Path("installer/desktop-overlay").rglob("*.xml")]'
+python3 -c 'import ast,json,pathlib,xml.etree.ElementTree as ET; paths=["scripts/create-installer-background.py","scripts/brand-installer-boot.py","scripts/brand-live-grub.py","installer/desktop-overlay/usr/bin/nexora-installer","installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py","installer/desktop-overlay/usr/bin/nexora-ai","installer/desktop-overlay/usr/bin/nexora-center","installer/desktop-overlay/usr/bin/nexora-store"]; [ast.parse(pathlib.Path(p).read_text()) for p in paths]; json.loads(pathlib.Path("installer/desktop-overlay/usr/share/nexora/catalog.json").read_text()); [ET.parse(p) for p in pathlib.Path("installer/desktop-overlay").rglob("*.xml")]'
 python3 tests/test-nexora-desktop.py
 python3 tests/test-live-build-contents-index.py
 python3 tests/test-nexora-installer.py
