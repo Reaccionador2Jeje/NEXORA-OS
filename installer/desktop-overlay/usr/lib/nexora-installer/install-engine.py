@@ -28,6 +28,64 @@ def fail(message):
 def part_path(disk, number):
     return disk + ("p" if disk[-1].isdigit() else "") + str(number)
 
+def validate_manual_partition_plan(disk, root_part, efi_part, inventory):
+    """Validate a manual partition plan using an lsblk JSON inventory.
+
+    This helper is deliberately read-only. It never formats, mounts, or edits
+    partition tables; the installer can use it before enabling manual installs.
+    Return an explanatory error string, or None when the plan is structurally safe.
+    """
+    def clean_device(value):
+        return isinstance(value, str) and re.fullmatch(r"/dev/[A-Za-z0-9_./-]+", value)
+
+    if not clean_device(disk) or not clean_device(root_part):
+        return "La ruta del disco o de la partición raíz no es válida."
+    if efi_part and not clean_device(efi_part):
+        return "La ruta de la partición EFI no es válida."
+    devices = inventory.get("blockdevices", []) if isinstance(inventory, dict) else []
+    selected_disk = None
+    partitions = {}
+
+    def walk(nodes, parent=None):
+        nonlocal selected_disk
+        for node in nodes or []:
+            name = node.get("name") or ""
+            path = "/dev/" + name
+            kind = node.get("type")
+            if path == disk and kind == "disk":
+                selected_disk = node
+            if kind == "part":
+                partitions[path] = (node, parent)
+            walk(node.get("children") or [], node if kind == "disk" else parent)
+
+    walk(devices)
+    if selected_disk is None:
+        return "El disco seleccionado ya no está disponible."
+    root = partitions.get(root_part)
+    if root is None or root[1] is not selected_disk:
+        return "La partición raíz debe pertenecer al disco seleccionado."
+    root_node = root[0]
+    root_size = int(root_node.get("size") or 0)
+    if root_size < 8 * 1024**3:
+        return "La partición raíz debe tener al menos 8 GB."
+    if any(point for point in (root_node.get("mountpoints") or []) if point):
+        return "La partición raíz está montada y no se puede seleccionar."
+    if efi_part:
+        efi = partitions.get(efi_part)
+        if efi is None or efi[1] is not selected_disk:
+            return "La partición EFI debe pertenecer al mismo disco seleccionado."
+        efi_node = efi[0]
+        if efi_part == root_part:
+            return "La partición raíz y la EFI deben ser distintas."
+        if int(efi_node.get("size") or 0) < 100 * 1024**2:
+            return "La partición EFI debe tener al menos 100 MB."
+        if any(point for point in (efi_node.get("mountpoints") or []) if point):
+            return "La partición EFI está montada y no se puede seleccionar."
+        fs = (efi_node.get("fstype") or "").lower()
+        if fs and fs not in ("vfat", "fat", "fat16", "fat32"):
+            return "La partición EFI debe usar FAT32 o estar sin formato."
+    return None
+
 def main():
     if os.geteuid() != 0:
         fail("El motor debe ejecutarse con permisos administrativos.")
