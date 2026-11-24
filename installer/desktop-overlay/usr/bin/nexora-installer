@@ -140,6 +140,7 @@ class NexoraInstaller(Gtk.Window):
         self.build_welcome()
         self.build_storage()
         self.build_config()
+        self.build_review()
         self.build_progress()
 
         footer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
@@ -351,6 +352,73 @@ class NexoraInstaller(Gtk.Window):
             self.root_password.set_text("")
             self.root_password2.set_text("")
 
+    def build_review(self):
+        """Pantalla de revisión: no muestra contraseñas ni datos secretos."""
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        page.set_border_width(24)
+        page.pack_start(label("Revisión final", "x-large"), False, False, 0)
+        page.pack_start(label(
+            "Comprueba todos los ajustes. La instalación automática eliminará "
+            "por completo el disco seleccionado.", bold=True
+        ), False, False, 0)
+        card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        card.get_style_context().add_class("card")
+        self.review_labels = {}
+        for key, title in (
+            ("disk", "Disco de destino"),
+            ("hostname", "Nombre del equipo"),
+            ("username", "Usuario principal"),
+            ("root", "Cuenta root"),
+            ("locale", "Idioma"),
+            ("keyboard", "Teclado"),
+            ("timezone", "Zona horaria"),
+            ("desktop", "Entorno de escritorio"),
+            ("network", "Red"),
+        ):
+            line = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+            name = label(title + ":", bold=True)
+            value = Gtk.Label(label="—")
+            value.set_xalign(0)
+            value.set_line_wrap(True)
+            line.pack_start(name, False, False, 0)
+            line.pack_start(value, True, True, 0)
+            card.pack_start(line, False, False, 0)
+            self.review_labels[key] = value
+        page.pack_start(card, True, True, 0)
+        warning = label(
+            "IMPORTANTE: al pulsar «Instalar NEXORA» se borrarán las particiones "
+            "y los archivos del disco indicado. No se puede deshacer.", bold=True
+        )
+        page.pack_start(warning, False, False, 0)
+        self.stack.add_named(page, "review")
+
+    def update_review(self):
+        locale_names = {
+            "es_CL.UTF-8": "Español (Chile)",
+            "es_ES.UTF-8": "Español (España)",
+            "en_US.UTF-8": "English (United States)",
+            "en_GB.UTF-8": "English (United Kingdom)",
+            "pt_BR.UTF-8": "Português (Brasil)",
+        }
+        keyboard_names = {
+            "latam": "Latinoamericano", "us": "English (US)",
+            "es": "Español", "br": "Português (Brasil)",
+        }
+        values = {
+            "disk": self.disk_combo.get_active_id() or "Sin seleccionar",
+            "hostname": self.host.get_text().strip(),
+            "username": self.user.get_text().strip().lower(),
+            "root": ("Activada (contraseña independiente)" if self.root_enabled.get_active()
+                     else "Desactivada; administración mediante sudo"),
+            "locale": locale_names.get(self.locale_combo.get_active_id(), "No seleccionado"),
+            "keyboard": keyboard_names.get(self.keyboard_combo.get_active_id(), "No seleccionado"),
+            "timezone": self.timezone_combo.get_active_id() or "No seleccionada",
+            "desktop": "XFCE4",
+            "network": "NetworkManager (configuración durante el primer inicio)",
+        }
+        for key, value in values.items():
+            self.review_labels[key].set_text(value)
+
     def build_progress(self):
         page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
         page.set_border_width(28)
@@ -373,11 +441,11 @@ class NexoraInstaller(Gtk.Window):
 
     def show_page(self, page):
         self.page = page
-        self.stack.set_visible_child_name(["welcome", "storage", "config", "progress"][page])
+        self.stack.set_visible_child_name(["welcome", "storage", "config", "review", "progress"][page])
         self.back.set_sensitive(page > 0 and not self.install_started)
-        self.next.set_label("Instalar NEXORA" if page == 2 else "Continuar")
+        self.next.set_label("Instalar NEXORA" if page == 3 else "Continuar")
         self.next.set_sensitive(not self.install_started)
-        if page == 3:
+        if page == 4:
             self.next.set_label("Cerrar")
             self.next.set_sensitive(self.process is None)
 
@@ -401,6 +469,10 @@ class NexoraInstaller(Gtk.Window):
             self.show_page(2)
             return
         if self.page == 2:
+            self.update_review()
+            self.show_page(3)
+            return
+        if self.page == 3:
             self.start_install()
             return
         if self.process is None:
