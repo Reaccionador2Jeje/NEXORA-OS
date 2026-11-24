@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import sys
 import time
+import urllib.request
 from pathlib import Path
 
 MOUNTS = []
@@ -89,9 +90,14 @@ def validate_manual_partition_plan(disk, root_part, efi_part, inventory):
 def main():
     if os.geteuid() != 0:
         fail("El motor debe ejecutarse con permisos administrativos.")
-    if len(sys.argv) != 10:
+    if len(sys.argv) != 12:
         fail("Uso interno incorrecto.")
-    disk, username, hostname, locale_code, timezone, keyboard_layout, root_enabled, root_secret_file, secret_file = sys.argv[1:]
+    (disk, username, hostname, locale_code, timezone, keyboard_layout,
+     root_enabled, root_secret_file, secret_file, desktop_profile, apt_mirror) = sys.argv[1:]
+    if desktop_profile not in {"xfce", "minimal"}:
+        fail("El perfil de escritorio no es válido.")
+    if not re.fullmatch(r"https://[A-Za-z0-9.-]+(?::[0-9]{1,5})?(?:/[A-Za-z0-9._~:/-]*)?", apt_mirror):
+        fail("El servidor APT debe ser una URL HTTPS válida.")
     if root_enabled not in {"yes", "no"}:
         fail("La opción de superusuario no es válida.")
     allowed_locales = {"es_CL.UTF-8", "es_ES.UTF-8", "en_US.UTF-8", "en_GB.UTF-8", "pt_BR.UTF-8"}
@@ -133,6 +139,18 @@ def main():
             fail("La contraseña de root no cumple los requisitos mínimos.")
     elif root_secret_file != "-":
         fail("No se esperaba un archivo de contraseña root.")
+
+    # Validar la red antes de modificar el disco: APT necesitará Internet.
+    network_state = run(["nmcli", "-t", "-f", "STATE", "general"], check=False)
+    if network_state.returncode != 0 or network_state.stdout.strip() != "connected":
+        fail("No hay conexión activa. Conecta Ethernet o Wi-Fi desde NetworkManager.")
+    try:
+        request = urllib.request.Request(apt_mirror + "/dists/bookworm/InRelease")
+        with urllib.request.urlopen(request, timeout=12) as response:
+            if response.status != 200:
+                fail("El repositorio APT no respondió correctamente.")
+    except Exception as error:
+        fail("No se pudo acceder al repositorio APT: " + str(error))
 
     # Validate capacity and refuse disks currently mounted by the Live session.
     size_result = run(["lsblk", "-b", "-ndo", "SIZE", disk], check=False)
@@ -232,6 +250,20 @@ def main():
     hosts = target / "etc/hosts"
     hosts.write_text("127.0.0.1 localhost\n127.0.1.1 " + hostname + "\n\n::1 localhost ip6-localhost ip6-loopback\n", encoding="utf-8")
 
+    # Aplicar el mirror Debian en sources.list y archivos deb822.
+    print("Configurando repositorios APT…", flush=True)
+    apt_sources = target / "etc/apt/sources.list.d"
+    if apt_sources.exists():
+        for source_file in apt_sources.glob("*.sources"):
+            content = source_file.read_text(encoding="utf-8")
+            content = re.sub(r"(?m)^URIs:.*$", "URIs: " + apt_mirror, content)
+            source_file.write_text(content, encoding="utf-8")
+    legacy_sources = target / "etc/apt/sources.list"
+    if legacy_sources.exists():
+        content = legacy_sources.read_text(encoding="utf-8")
+        content = re.sub(r"(?m)^(deb(?:-src)?\s+)\S+", lambda match: match.group(1) + apt_mirror, content)
+        legacy_sources.write_text(content, encoding="utf-8")
+
     print("Configurando la cuenta y el arranque…", flush=True)
     for mount in ("dev", "dev/pts", "proc", "sys", "run"):
         (target / mount).mkdir(parents=True, exist_ok=True)
@@ -271,8 +303,19 @@ def main():
     else:
         run(chroot + ["passwd", "-l", "root"], check=False)
         print("Cuenta root bloqueada; el usuario principal administra mediante sudo.", flush=True)
-    run(chroot + ["systemctl", "enable", "NetworkManager", "lightdm"], check=False)
-    run(chroot + ["systemctl", "set-default", "graphical.target"], check=False)
+    print("Actualizando índices APT en el sistema instalado…", flush=True)
+    run(chroot + ["apt-get", "update"])
+    if desktop_profile == "xfce":
+        print("Instalando el escritorio XFCE4…", flush=True)
+        run(chroot + ["apt-get", "install", "-y", "task-xfce-desktop", "lightdm", "network-manager-gnome"])
+        run(chroot + ["systemctl", "enable", "lightdm"])
+        run(chroot + ["systemctl", "set-default", "graphical.target"])
+    else:
+        print("Preparando NEXORA Minimal sin entorno gráfico…", flush=True)
+        run(chroot + ["apt-get", "purge", "-y", "task-xfce-desktop", "xfce4", "xfce4-goodies", "xfce4-panel", "xfce4-session", "xfce4-settings", "xfdesktop4", "xfwm4", "lightdm", "lightdm-gtk-greeter"], check=False)
+        run(chroot + ["apt-get", "autoremove", "-y"], check=False)
+        run(chroot + ["systemctl", "set-default", "multi-user.target"])
+    run(chroot + ["systemctl", "enable", "NetworkManager"])
     if efi:
         run(chroot + ["grub-install", "--target=x86_64-efi", "--efi-directory=/boot/efi",
                       "--bootloader-id=NEXORA", "--recheck", "--no-nvram", "--removable"])
