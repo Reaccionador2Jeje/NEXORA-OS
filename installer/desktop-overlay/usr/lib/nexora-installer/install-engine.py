@@ -36,7 +36,7 @@ def validate_manual_partition_plan(disk, root_part, efi_part, inventory):
     Return an explanatory error string, or None when the plan is structurally safe.
     """
     def clean_device(value):
-        return isinstance(value, str) and re.fullmatch(r"/dev/[A-Za-z0-9_./-]+", value)
+        return isinstance(value, str) and re.fullmatch(r"/dev/[A-Za-z0-9_-]+", value)
 
     if not clean_device(disk) or not clean_device(root_part):
         return "La ruta del disco o de la partición raíz no es válida."
