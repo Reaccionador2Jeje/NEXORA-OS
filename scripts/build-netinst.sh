@@ -161,6 +161,54 @@ printf '%s\n' "$overlay_listing" | grep -q 'nexora-aurora.svg' || {
     echo "NEXORA desktop overlay is missing its wallpapers." >&2
     exit 1
 }
+
+# Keep the native NEXORA installer payload available in the netinst ISO as well.
+# Debian Installer remains the active netinst environment; the native GTK app
+# runs from the XFCE4 Live session, where its copied-live-system engine operates.
+NETINST_PAYLOAD_VERIFY="$ROOT_DIR/build-output/netinst-nexora-payload"
+rm -rf "$NETINST_PAYLOAD_VERIFY"
+mkdir -p "$NETINST_PAYLOAD_VERIFY"
+for payload in \
+    usr/bin/nexora-installer \
+    usr/lib/nexora-installer/install-engine.py \
+    usr/local/sbin/nexora-postinstall \
+    usr/share/applications/nexora-installer.desktop \
+    etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml \
+    etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml \
+    usr/share/nexora/catalog.json usr/share/nexora/desktop-tools.json \
+    usr/share/nexora/wallpapers.json
+do
+    xorriso -osirrox on -indev "$OUTPUT_ISO" \
+        -extract "/nexora/desktop-overlay/$payload" "$NETINST_PAYLOAD_VERIFY/$(basename "$payload")" \
+        >/dev/null 2>&1 || {
+        echo "NEXORA installer payload is missing from netinst ISO: $payload" >&2
+        exit 1
+    }
+    test -s "$NETINST_PAYLOAD_VERIFY/$(basename "$payload")" || {
+        echo "NEXORA installer payload is empty in netinst ISO: $payload" >&2
+        exit 1
+    }
+done
+grep -q 'NEXORA OS.*installation wizard' "$NETINST_PAYLOAD_VERIFY/nexora-installer" || {
+    echo "The bundled NEXORA GTK installer entry point is invalid." >&2
+    exit 1
+}
+grep -q 'NEXORA OS disk installation engine' "$NETINST_PAYLOAD_VERIFY/install-engine.py" || {
+    echo "The bundled NEXORA disk installation engine is invalid." >&2
+    exit 1
+}
+for wallpaper in \
+    nexora-default.svg nexora-aurora.svg nexora-nebula.svg nexora-horizon.svg \
+    nexora-minimal.svg nexora-orbit.svg nexora-grid.svg nexora-midnight.svg
+do
+    xorriso -osirrox on -indev "$OUTPUT_ISO" \
+        -extract "/nexora/desktop-overlay/usr/share/backgrounds/nexora/$wallpaper" \
+        "$NETINST_PAYLOAD_VERIFY/$wallpaper" >/dev/null 2>&1 || {
+        echo "NEXORA desktop wallpaper is missing from netinst payload: $wallpaper" >&2
+        exit 1
+    }
+done
+echo "NEXORA GTK installer payload, XFCE defaults and eight wallpapers verified in netinst ISO."
 boot_report=$(xorriso -indev "$OUTPUT_ISO" -report_el_torito plain 2>&1 || true)
 printf '%s\n' "$boot_report" | grep -qi 'El Torito' || {
     echo "No El Torito boot catalog was found in the resulting ISO." >&2
