@@ -9,7 +9,7 @@ NEXORA OS is a Debian 13 Trixie-based operating system with two installation pro
 | Edition | Image | Purpose |
 | --- | --- | --- |
 | **NEXORA OS XFCE4** | Live hybrid ISO | Main desktop edition. Boots directly into the complete NEXORA XFCE desktop and can be tried without installing. |
-| **NEXORA OS Minimal** | GTK netinst ISO | Small terminal-focused installer for users who want a minimal system. |
+| **NEXORA OS Minimal** | Native GTK installer ISO | Lightweight graphical installer that boots directly into the NEXORA wizard and offers a terminal-only installed profile. |
 
 ## Downloads
 
@@ -34,7 +34,7 @@ The native installer is an early implementation with automatic whole-disk partit
 
 ## Minimal netinst
 
-NEXORA Minimal remains a separate, small Debian Installer GTK network installer for now. Replacing Debian Installer in the Minimal netinst image requires a separate custom boot/initrd integration; the native GTK installer currently belongs to the XFCE4 Live edition.
+NEXORA Minimal now uses a lightweight Debian Live boot runtime with Openbox, LightDM and GTK3. LightDM automatically starts the native NEXORA GTK installer; Debian Installer is not used. The wizard can install either the terminal-focused Minimal profile or the full XFCE4 desktop profile. The temporary Openbox/Xorg session is removed from a Minimal target after installation.
 
 ## Add NEXORA Desktop after installing Minimal
 
