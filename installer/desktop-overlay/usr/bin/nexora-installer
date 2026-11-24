@@ -334,7 +334,11 @@ class NexoraInstaller(Gtk.Window):
             self.timezone_combo.append(zone, title)
         self.timezone_combo.set_active_id("America/Santiago")
         form.attach(self.timezone_combo, 1, 10, 1, 1)
-        page.pack_start(form, True, True, 0)
+        config_scroll = Gtk.ScrolledWindow()
+        config_scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        config_scroll.set_min_content_height(360)
+        config_scroll.add(form)
+        page.pack_start(config_scroll, True, True, 0)
         self.stack.add_named(page, "config")
         if self.disks:
             self.selected_storage_disk = self.disks[0][0]
