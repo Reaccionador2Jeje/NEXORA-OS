@@ -89,7 +89,7 @@ if not small_error or "8 GB" not in small_error:
 
 for required in ("locale_code", "timezone", "keyboard_layout", "allowed_locales",
                  "allowed_timezones", "allowed_keyboards", "locale-gen",
-                 "/etc/default/keyboard", "/etc/default/locale"):
+                 "etc/default/keyboard", "etc/default/locale"):
     if required not in source:
         raise SystemExit(f"FAIL: installer regional configuration is missing: {required}")
 for required in ("self.locale_combo", "self.keyboard_combo", "self.timezone_combo",
