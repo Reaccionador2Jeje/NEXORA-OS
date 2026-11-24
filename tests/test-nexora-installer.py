@@ -38,8 +38,16 @@ for required in ("def get_storage_inventory()", "def build_storage(self)", "def 
                  "def on_storage_selection(self, selection)", "Las particiones se muestran solo como información"):
     if required not in gui:
         raise SystemExit(f"FAIL: GTK storage inspection screen is missing: {required}")
-if '["welcome", "storage", "config", "progress"]' not in gui:
-    raise SystemExit("FAIL: installer navigation does not include the storage step")
+if '["welcome", "storage", "config", "review", "progress"]' not in gui:
+    raise SystemExit("FAIL: installer navigation does not include review and progress steps")
+for required in ("def build_review(self):", "def update_review(self):",
+                 "Revisión final", "self.show_page(4)",
+                 '"desktop": "XFCE4"', '"network": "NetworkManager'):
+    if required not in gui:
+        raise SystemExit(f"FAIL: final configuration review is missing: {required}")
+review_section = gui.split("    def build_review(self):", 1)[1].split("    def build_progress(self):", 1)[0]
+if "self.password" in review_section or "root_password" in review_section:
+    raise SystemExit("FAIL: final review must never display account passwords")
 
 
 # Manual partition planning is validated against a read-only lsblk-shaped
@@ -115,4 +123,4 @@ for required in (
     if required not in gui:
         raise SystemExit(f"FAIL: GTK superuser/configuration control missing: {required}")
 
-print("PASS: installer storage safety, account setup, multilingual locales, root account controls and regional configuration checks passed.")
+print("PASS: installer storage safety, account setup, multilingual locales, root account controls, regional configuration and final review checks passed.")
