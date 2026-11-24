@@ -217,6 +217,12 @@ for image_path in \
     usr/share/applications/nexora-updater.desktop \
     usr/share/nexora/catalog.json usr/share/nexora/desktop-tools.json \
     usr/share/nexora/wallpapers.json \
+    usr/share/nexora/branding/nexora-icon.svg \
+    usr/share/nexora/branding/nexora-logo.svg \
+    usr/share/pixmaps/nexora-icon.svg \
+    usr/share/themes/NEXORA/gtk-3.0/gtk.css \
+    usr/share/themes/NEXORA-Light/gtk-3.0/gtk.css \
+    usr/share/themes/NEXORA-Midnight/gtk-3.0/gtk.css \
     usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css \
     etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml \
     etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml \
