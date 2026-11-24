@@ -1,9 +1,7 @@
-# NEXORA Minimal profile — task selection guidance
+# NEXORA Minimal installed profile
 
-In Debian Installer's graphical **Software selection** (tasksel) screen:
+Choose **NEXORA Minimal (solo sistema base)** in the native GTK installer's desktop profile selector.
 
-- Keep **standard system utilities** selected.
-- Leave **Debian desktop environment** and every desktop environment unchecked.
-- Do not select web server or SSH server unless you explicitly need them.
+The ISO boots a temporary Openbox + GTK3 environment solely to run the NEXORA installer. The installer removes Openbox, LightDM and Xorg from the installed target and sets the system to boot to multi-user.target (terminal login).
 
-This leaves a terminal-only installed system. The graphical installer itself is temporary and is not installed into the target system.
+The temporary graphical installer environment is not retained in the installed Minimal system. NetworkManager remains enabled.
