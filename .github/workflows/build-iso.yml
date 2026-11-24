@@ -40,7 +40,7 @@ jobs:
       - name: Install ISO, VM and publishing tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl xorriso cpio gzip qemu-system-x86 qemu-utils rsync openssh-client
+          sudo apt-get install -y curl xorriso cpio gzip qemu-system-x86 qemu-utils rsync openssh-client live-build debootstrap debian-archive-keyring squashfs-tools
 
       - name: Check build dependencies
         run: sh ./scripts/check-dependencies.sh
@@ -51,7 +51,7 @@ jobs:
       - name: Check SourceForge uploader shell syntax
         run: sh -n ./scripts/publish-sourceforge.sh
 
-      - name: Build NEXORA GTK netinst
+      - name: Build NEXORA Minimal native GTK installer
         run: sudo sh ./scripts/build.sh
 
       # The builder runs as root; restore runner ownership before creating
@@ -96,7 +96,7 @@ jobs:
           NEXORA_ISO_PATH: build-output/nexora-os-minimal-netinst-amd64.iso
           NEXORA_RELEASE_DIR: NEXORA-OS-Minimal-GTK-Netinst-alpha-${{ github.run_number }}.${{ github.run_attempt }}
           NEXORA_RELEASE_TITLE: NEXORA OS Minimal GTK Netinst alpha ${{ github.run_number }}.${{ github.run_attempt }}
-          NEXORA_RELEASE_DESCRIPTION: Debian 13 Trixie based minimal graphical network installer for terminal-focused systems.
+          NEXORA_RELEASE_DESCRIPTION: Debian 13 Trixie based minimal live installer that boots directly into the native NEXORA GTK installation wizard.
         run: |
           if [ -z "$SF_USERNAME" ] || [ -z "$SF_PROJECT" ] || [ -z "$SF_SSH_PRIVATE_KEY" ]; then
             echo "::notice::SourceForge upload skipped. Configure SF_USERNAME, SF_PROJECT and SF_SSH_PRIVATE_KEY in GitHub Actions secrets."
