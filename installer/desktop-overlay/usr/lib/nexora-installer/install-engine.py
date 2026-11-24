@@ -320,7 +320,7 @@ def main():
         run(chroot + ["systemctl", "set-default", "multi-user.target"])
     run(chroot + ["systemctl", "enable", "NetworkManager"])
     print("Instalando GRUB y aplicando la identidad visual de NEXORA…", flush=True)
-    grub_packages = ["grub-common", "grub2-common", "os-prober"]
+    grub_packages = ["grub-common", "grub2-common", "os-prober", "fonts-dejavu-core"]
     if efi:
         grub_packages.append("grub-efi-amd64-bin")
     else:
