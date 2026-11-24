@@ -44,3 +44,15 @@ Both netinst and XFCE4 Live builders now generate a NEXORA aurora splash with th
 The netinst builder also retains the explicit NEXORA background reference in its custom GRUB and Syslinux menu configurations. Both builders extract the resulting artwork from the ISO and compare it against the generated source, so a build fails rather than silently shipping Debian's default splash.
 
 The XFCE4 Live desktop's **Install NEXORA OS** launcher opens a branded GTK welcome screen before starting Debian Installer Live. It explains the flow and reminds the user to review disk changes. Debian Installer's actual installation engine and its GTK screens remain upstream; the NEXORA welcome screen is the first UX improvement, not a claim that the installer has been fully forked.
+
+
+## NEXORA bootloader visual identity
+
+Both ISO families now use the same midnight-blue, cyan-accented selection palette:
+
+- UEFI GRUB uses the generated NEXORA aurora splash, a visible menu timeout, and blue highlighted entries.
+- BIOS Syslinux/ISOLINUX uses the same splash with matching title, selection, and timeout colors.
+- The XFCE4 Live ISO's GRUB config is patched after live-build completes; the original Debian Live menu entries and boot records are preserved.
+- The Minimal/XFCE GTK netinst keeps its upstream fallback entries while adding NEXORA colors to its UEFI GRUB and BIOS Syslinux menus.
+
+The ISO build scripts extract the final boot configurations and fail validation if the NEXORA splash or selection palette is missing. The installed-system GRUB theme is configured separately by the native installer.
