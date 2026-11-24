@@ -89,9 +89,22 @@ def validate_manual_partition_plan(disk, root_part, efi_part, inventory):
 def main():
     if os.geteuid() != 0:
         fail("El motor debe ejecutarse con permisos administrativos.")
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 8:
         fail("Uso interno incorrecto.")
-    disk, username, hostname, secret_file = sys.argv[1:]
+    disk, username, hostname, locale_code, timezone, keyboard_layout, secret_file = sys.argv[1:]
+    allowed_locales = {"es_CL.UTF-8", "es_ES.UTF-8", "en_US.UTF-8", "en_GB.UTF-8", "pt_BR.UTF-8"}
+    allowed_timezones = {
+        "America/Santiago", "America/Punta_Arenas", "America/Easter",
+        "America/Argentina/Buenos_Aires", "America/Lima", "America/Bogota",
+        "America/Mexico_City", "Europe/Madrid", "UTC",
+    }
+    allowed_keyboards = {"latam", "us", "es", "br"}
+    if locale_code not in allowed_locales or timezone not in allowed_timezones:
+        fail("La configuración regional seleccionada no está permitida.")
+    if keyboard_layout not in allowed_keyboards:
+        fail("La distribución de teclado seleccionada no está permitida.")
+    if not Path("/usr/share/zoneinfo", timezone).is_file():
+        fail("La zona horaria seleccionada no está instalada en el medio Live.")
     if not re.fullmatch(r"/dev/[A-Za-z0-9_./-]+", disk) or not Path(disk).exists():
         fail("Disco de destino no válido.")
     if not re.fullmatch(r"[a-z_][a-z0-9_-]{0,31}", username):
@@ -193,12 +206,15 @@ def main():
         fstab.append(f"UUID={efi_uuid} /boot/efi vfat umask=0077 0 1")
     (target / "etc/fstab").write_text("\n".join(fstab) + "\n", encoding="utf-8")
     (target / "etc/hostname").write_text(hostname + "\n", encoding="utf-8")
-    (target / "etc/default/locale").write_text('LANG="es_CL.UTF-8"\n', encoding="utf-8")
+    (target / "etc/default/locale").write_text(
+        'LANG="' + locale_code + '"\n', encoding="utf-8"
+    )
     (target / "etc/default/keyboard").write_text(
-        'XKBMODEL="pc105"\nXKBLAYOUT="latam"\nXKBVARIANT=""\nXKBOPTIONS=""\nBACKSPACE="guess"\n',
+        'XKBMODEL="pc105"\nXKBLAYOUT="' + keyboard_layout +
+        '"\nXKBVARIANT=""\nXKBOPTIONS=""\nBACKSPACE="guess"\n',
         encoding="utf-8",
     )
-    (target / "etc/timezone").write_text("America/Santiago\n", encoding="utf-8")
+    (target / "etc/timezone").write_text(timezone + "\n", encoding="utf-8")
     hosts = target / "etc/hosts"
     hosts.write_text("127.0.0.1 localhost\n127.0.1.1 " + hostname + "\n\n::1 localhost ip6-localhost ip6-loopback\n", encoding="utf-8")
 
@@ -212,8 +228,13 @@ def main():
         run(chroot + ["useradd", "-m", "-s", "/bin/bash", "-G", "sudo", username])
     else:
         run(chroot + ["usermod", "-aG", "sudo", username])
-    run(chroot + ["locale-gen", "es_CL.UTF-8"], check=False)
-    run(chroot + ["ln", "-sf", "/usr/share/zoneinfo/America/Santiago", "/etc/localtime"], check=False)
+    locale_gen = target / "etc/locale.gen"
+    locale_lines = locale_gen.read_text(encoding="utf-8").splitlines() if locale_gen.exists() else []
+    locale_lines = [line for line in locale_lines if not line.lstrip().startswith(locale_code + " ")]
+    locale_lines.append(locale_code + " UTF-8")
+    locale_gen.write_text("\n".join(locale_lines) + "\n", encoding="utf-8")
+    run(chroot + ["locale-gen", locale_code], check=False)
+    run(chroot + ["ln", "-sf", "/usr/share/zoneinfo/" + timezone, "/etc/localtime"], check=False)
     run(chroot + ["chpasswd"], input_text=username + ":" + password + "\n")
     password = ""
     # Remove the temporary Live-session account when the user chose another name.
