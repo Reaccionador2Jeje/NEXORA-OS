@@ -315,7 +315,7 @@ def main():
         run(chroot + ["systemctl", "set-default", "graphical.target"])
     else:
         print("Preparando NEXORA Minimal sin entorno gráfico…", flush=True)
-        run(chroot + ["apt-get", "purge", "-y", "task-xfce-desktop", "xfce4", "xfce4-goodies", "xfce4-panel", "xfce4-session", "xfce4-settings", "xfdesktop4", "xfwm4", "lightdm", "lightdm-gtk-greeter"], check=False)
+        run(chroot + ["apt-get", "purge", "-y", "task-xfce-desktop", "xfce4", "xfce4-goodies", "xfce4-panel", "xfce4-session", "xfce4-settings", "xfdesktop4", "xfwm4", "openbox", "lightdm", "lightdm-gtk-greeter", "lxpolkit", "xserver-xorg", "xserver-xorg-core", "xinit"], check=False)
         run(chroot + ["apt-get", "autoremove", "-y"], check=False)
         run(chroot + ["systemctl", "set-default", "multi-user.target"])
     run(chroot + ["systemctl", "enable", "NetworkManager"])
