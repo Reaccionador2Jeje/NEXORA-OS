@@ -42,7 +42,7 @@ if '["welcome", "storage", "config", "review", "progress"]' not in gui:
     raise SystemExit("FAIL: installer navigation does not include review and progress steps")
 for required in ("def build_review(self):", "def update_review(self):",
                  "Revisión final", "self.show_page(4)",
-                 '"desktop": ("NEXORA XFCE4"', '"network": "NetworkManager'):
+                 '"desktop": "NEXORA XFCE4"', '"network": "NetworkManager'):
     if required not in gui:
         raise SystemExit(f"FAIL: final configuration review is missing: {required}")
 review_section = gui.split("    def build_review(self):", 1)[1].split("    def build_progress(self):", 1)[0]
