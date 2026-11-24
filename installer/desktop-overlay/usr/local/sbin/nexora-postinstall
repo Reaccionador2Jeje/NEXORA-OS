@@ -70,7 +70,7 @@ for home in /home/*; do
     chown -R "$user":"$(id -gn "$user" 2>/dev/null || echo "$user")" "$home/.config" 2>/dev/null || true
 done
 
-chmod 0755 /usr/bin/nexora-ai /usr/bin/nexora-center /usr/bin/nexora-store /usr/bin/nexora-welcome /usr/bin/nexora-updater 2>/dev/null || true
+chmod 0755 /usr/bin/nexora-ai /usr/bin/nexora-center /usr/bin/nexora-store /usr/bin/nexora-welcome /usr/bin/nexora-updater /usr/bin/nexora-panel-repair 2>/dev/null || true
 chmod 0755 /usr/local/sbin/nexora-postinstall
 if command -v update-desktop-database >/dev/null 2>&1; then
     update-desktop-database /usr/share/applications >/dev/null 2>&1 || true
