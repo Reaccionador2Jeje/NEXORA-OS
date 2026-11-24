@@ -335,6 +335,30 @@ class NexoraInstaller(Gtk.Window):
             self.timezone_combo.append(zone, title)
         self.timezone_combo.set_active_id("America/Santiago")
         form.attach(self.timezone_combo, 1, 10, 1, 1)
+        form.attach(label("Entorno de escritorio", bold=True), 0, 11, 1, 1)
+        self.desktop_combo = Gtk.ComboBoxText()
+        self.desktop_combo.append("xfce", "NEXORA XFCE4 (escritorio completo)")
+        self.desktop_combo.append("minimal", "NEXORA Minimal (solo sistema base)")
+        self.desktop_combo.set_active_id("xfce")
+        form.attach(self.desktop_combo, 1, 11, 1, 1)
+
+        form.attach(label("Servidor APT", bold=True), 0, 12, 1, 1)
+        self.apt_mirror = Gtk.Entry()
+        self.apt_mirror.set_text("https://deb.debian.org/debian")
+        self.apt_mirror.set_placeholder_text("https://deb.debian.org/debian")
+        form.attach(self.apt_mirror, 1, 12, 1, 1)
+
+        form.attach(label("Conectividad", bold=True), 0, 13, 1, 1)
+        network_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.network_status = Gtk.Label(label="Comprobando conexión de NetworkManager…")
+        self.network_status.set_xalign(0)
+        network_box.pack_start(self.network_status, False, False, 0)
+        network_refresh = Gtk.Button(label="Comprobar conexión")
+        network_refresh.connect("clicked", lambda _button: self.refresh_network_status())
+        network_box.pack_start(network_refresh, False, False, 0)
+        form.attach(network_box, 1, 13, 1, 1)
+        GLib.idle_add(self.refresh_network_status)
+
         config_scroll = Gtk.ScrolledWindow()
         config_scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         config_scroll.set_min_content_height(360)
@@ -351,6 +375,25 @@ class NexoraInstaller(Gtk.Window):
         if not enabled:
             self.root_password.set_text("")
             self.root_password2.set_text("")
+
+    def refresh_network_status(self):
+        try:
+            result = subprocess.run(
+                ["nmcli", "-t", "-f", "STATE", "general"],
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=5
+            )
+            state = result.stdout.strip()
+            if state == "connected":
+                detail = subprocess.run(
+                    ["nmcli", "-t", "-f", "NAME,TYPE", "connection", "show", "--active"],
+                    text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=5
+                ).stdout.strip().replace("\\n", ", ")
+                self.network_status.set_text("Conectado · " + (detail or "NetworkManager"))
+            else:
+                self.network_status.set_text("Sin conexión activa · conecta Ethernet o Wi-Fi antes de instalar")
+        except (OSError, subprocess.SubprocessError):
+            self.network_status.set_text("No se pudo consultar NetworkManager")
+        return False
 
     def build_review(self):
         """Pantalla de revisión: no muestra contraseñas ni datos secretos."""
@@ -374,6 +417,7 @@ class NexoraInstaller(Gtk.Window):
             ("timezone", "Zona horaria"),
             ("desktop", "Entorno de escritorio"),
             ("network", "Red"),
+            ("apt", "Repositorio APT"),
         ):
             line = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
             name = label(title + ":", bold=True)
@@ -413,8 +457,10 @@ class NexoraInstaller(Gtk.Window):
             "locale": locale_names.get(self.locale_combo.get_active_id(), "No seleccionado"),
             "keyboard": keyboard_names.get(self.keyboard_combo.get_active_id(), "No seleccionado"),
             "timezone": self.timezone_combo.get_active_id() or "No seleccionada",
-            "desktop": "XFCE4",
-            "network": "NetworkManager (configuración durante el primer inicio)",
+            "desktop": ("NEXORA XFCE4" if self.desktop_combo.get_active_id() == "xfce"
+                        else "NEXORA Minimal (sin entorno gráfico)"),
+            "network": self.network_status.get_text(),
+            "apt": self.apt_mirror.get_text().strip(),
         }
         for key, value in values.items():
             self.review_labels[key].set_text(value)
@@ -503,6 +549,14 @@ class NexoraInstaller(Gtk.Window):
         if not all((locale_code, keyboard_layout, timezone)):
             self.show_error("Selecciona idioma, teclado y zona horaria.")
             return
+        apt_mirror = self.apt_mirror.get_text().strip().rstrip("/")
+        if not re.fullmatch(r"https://[A-Za-z0-9.-]+(?::[0-9]{1,5})?(?:/[A-Za-z0-9._~:/-]*)?", apt_mirror):
+            self.show_error("El repositorio APT debe ser una URL HTTPS válida.")
+            return
+        desktop = self.desktop_combo.get_active_id()
+        if desktop not in {"xfce", "minimal"}:
+            self.show_error("Selecciona un perfil de escritorio válido.")
+            return
         if root_enabled and (len(root_password) < 12 or root_password != self.root_password2.get_text()):
             self.show_error("La contraseña de root debe coincidir y tener al menos 12 caracteres.")
             return
@@ -554,7 +608,8 @@ class NexoraInstaller(Gtk.Window):
         self.next.set_sensitive(False)
         command = ["pkexec", ENGINE, disk, username, hostname,
                    locale_code, timezone, keyboard_layout,
-                   "yes" if root_enabled else "no", root_secret_path, self.secret_path]
+                   "yes" if root_enabled else "no", root_secret_path, self.secret_path,
+                   desktop, apt_mirror]
         try:
             self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                            text=False, bufsize=0)
