@@ -255,12 +255,24 @@ class NexoraInstaller(Gtk.Window):
         )
         confirm.format_secondary_text(
             f"Destino: {disk}\n\nSe eliminarán todas las particiones y archivos de ese disco. "
-            "Esta acción no se puede deshacer. Pulsa Aceptar solo si has comprobado que es el disco correcto."
+            "Esta acción no se puede deshacer. Para habilitar la instalación, escribe exactamente "
+            "la ruta del disco de destino que aparece abajo."
         )
+        area = confirm.get_message_area()
+        path_label = Gtk.Label(label=f"Escribe: {disk}")
+        path_label.set_xalign(0)
+        area.pack_start(path_label, False, False, 6)
+        typed_path = Gtk.Entry()
+        typed_path.set_placeholder_text(disk)
+        typed_path.set_activates_default(True)
+        area.pack_start(typed_path, False, False, 4)
         confirm.add_button("Borrar disco e instalar", Gtk.ResponseType.ACCEPT)
+        confirm.set_default_response(Gtk.ResponseType.CANCEL)
+        confirm.show_all()
         response = confirm.run()
+        confirmed_path = typed_path.get_text().strip()
         confirm.destroy()
-        if response != Gtk.ResponseType.ACCEPT:
+        if response != Gtk.ResponseType.ACCEPT or confirmed_path != disk:
             return
 
         fd, self.secret_path = tempfile.mkstemp(prefix="nexora-install-secret-")
