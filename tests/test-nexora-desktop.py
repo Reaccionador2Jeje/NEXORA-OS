@@ -127,3 +127,36 @@ assert default_wallpaper.attrib.get("value") == "/usr/share/backgrounds/nexora/n
 installer_text = (ROOT / "scripts/install-nexora-desktop.sh").read_text(encoding="utf-8")
 assert all(f'nexora/{name}' in installer_text for name in wallpapers)
 print("PASS: five NEXORA wallpapers ship with the desktop installer and the default wallpaper is configured.")
+
+
+# Every NEXORA desktop tool shipped in the overlay must have a valid launcher.
+import json
+tool_names = ["nexora-ai", "nexora-center", "nexora-store", "nexora-welcome", "nexora-updater", "nexora-installer"]
+for tool in tool_names:
+    path = overlay / "usr/bin" / tool
+    assert path.is_file() and path.stat().st_size > 0, path
+    if tool in {"nexora-ai", "nexora-center", "nexora-store", "nexora-updater", "nexora-installer"}:
+        ast.parse(path.read_text(encoding="utf-8"))
+    else:
+        assert path.read_text(encoding="utf-8").startswith("#!/bin/sh")
+
+tool_manifest = json.loads((overlay / "usr/share/nexora/desktop-tools.json").read_text(encoding="utf-8"))
+manifest_execs = {item["exec"] for item in tool_manifest["apps"]}
+assert {"nexora-ai", "nexora-center", "nexora-store", "nexora-welcome"} <= manifest_execs
+catalog = json.loads((overlay / "usr/share/nexora/catalog.json").read_text(encoding="utf-8"))
+assert catalog.get("schema") == 1 and len(catalog.get("applications", [])) >= 8
+
+# Check the complete wallpaper collection, not just the default image.
+wallpaper_names = [
+    "nexora-default.svg", "nexora-aurora.svg", "nexora-nebula.svg",
+    "nexora-horizon.svg", "nexora-minimal.svg", "nexora-orbit.svg",
+    "nexora-grid.svg", "nexora-midnight.svg",
+]
+for wallpaper in wallpaper_names:
+    asset = overlay / "usr/share/backgrounds/nexora" / wallpaper
+    assert asset.is_file() and asset.stat().st_size > 100, asset
+    ET.parse(asset)
+
+wallpaper_manifest = json.loads((overlay / "usr/share/nexora/wallpapers.json").read_text(encoding="utf-8"))
+assert set(wallpaper_manifest.get("wallpapers", [])) == set(wallpaper_names)
+print("PASS: all eight NEXORA wallpapers and desktop tool launchers are valid.")
