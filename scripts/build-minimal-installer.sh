@@ -125,7 +125,7 @@ raw = open(sys.argv[1], encoding="utf-8").read()
 packages = [Parser().parsestr(block) for block in re.split(r"\n\s*\n", raw) if block.strip()]
 required = {
     "live-boot", "lightdm", "lightdm-gtk-greeter", "openbox", "xserver-xorg",
-    "network-manager", "network-manager-gnome", "python3", "python3-gi",
+    "network-manager", "network-manager-gnome", "xserver-xorg-video-all", "xserver-xorg-input-all", "python3", "python3-gi",
     "gir1.2-gtk-3.0", "rsync", "parted", "dosfstools", "e2fsprogs",
     "pkexec", "lxpolkit", "grub-pc-bin", "grub-efi-amd64-bin",
 }
