@@ -22,6 +22,7 @@ mkdir -p "$OUTPUT_DIR"
 rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR/config"
 cp -a "$ROOT_DIR/installer/desktop-overlay/." "$WORK_DIR/config/includes.chroot/"
+chmod 0755 "$WORK_DIR/config/includes.chroot/usr/bin/nexora-installer" "$WORK_DIR/config/includes.chroot/usr/lib/nexora-installer/install-engine.py"
 mkdir -p "$WORK_DIR/config/package-lists" "$WORK_DIR/config/includes.chroot/etc/lightdm/lightdm.conf.d" "$WORK_DIR/config/includes.chroot/etc/skel/.config/openbox" "$WORK_DIR/config/includes.binary/isolinux" "$WORK_DIR/config/includes.binary/boot/grub"
 cp "$ROOT_DIR/config/package-lists/nexora-minimal-installer.list.chroot" "$WORK_DIR/config/package-lists/nexora-minimal-installer.list.chroot"
 
