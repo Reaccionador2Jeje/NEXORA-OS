@@ -16,11 +16,11 @@ The Live image includes:
 - XFCE4, NetworkManager, PolicyKit, Flatpak and desktop utilities.
 - The native NEXORA GTK3 installer and its disk/bootloader engine.
 
-This is the first installer implementation. A real UEFI and BIOS virtual-machine installation test is required before calling it production-ready. The current workflow checks that the installer and engine are included in the ISO and performs a Live boot smoke test.
+This is the first installer implementation. A real UEFI and BIOS virtual-machine installation test is required before calling it production-ready. The build extracts the finished squashfs and checks the native installer, engine, desktop launchers, all eight wallpapers, XFCE panel locks, default wallpaper, GTK theme and required packages. It then performs a Live boot smoke test. The netinst build separately extracts and verifies its bundled NEXORA desktop/installer payload.
 
 ## NEXORA Minimal netinst
 
-The Minimal image continues to use Debian Installer GTK. It embeds the `preseed/minimal.cfg` and `preseed/desktop.cfg` profiles and the NEXORA installer branding. Minimal remains terminal-focused; the old XFCE preseed is retained for the separate netinst workflow.
+The Minimal image continues to boot Debian Installer GTK. It embeds the `preseed/minimal.cfg` and `preseed/desktop.cfg` profiles, NEXORA boot branding, and a verified copy of the native NEXORA GTK installer, engine, desktop tools, XFCE defaults and wallpapers under `/nexora/desktop-overlay`. The native GTK app is a payload in this ISO, not a replacement for Debian Installer's active runtime; its copied-Live-system engine is launched from the XFCE4 Live session. Minimal remains terminal-focused; the XFCE preseed is retained for the separate netinst workflow.
 
 The installer uses Chilean Spanish and the Latin American keyboard layout by default. Disk partitioning remains interactive.
 
