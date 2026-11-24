@@ -67,6 +67,40 @@ def get_disks():
         result.append((f"/dev/{item['name']}", f"{model} — {size / 1024**3:.1f} GB (/dev/{item['name']})"))
     return result
 
+def get_storage_inventory():
+    """Return a read-only disk/partition inventory for the GTK storage screen."""
+    try:
+        raw = subprocess.check_output(
+            ["lsblk", "-J", "-b", "-o", "NAME,SIZE,MODEL,TYPE,RM,FSTYPE,MOUNTPOINTS"],
+            text=True, stderr=subprocess.DEVNULL
+        )
+        devices = json.loads(raw).get("blockdevices", [])
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return []
+    rows = []
+    def walk(node, depth=0, parent_eligible=False):
+        kind = node.get("type") or "unknown"
+        name = node.get("name") or ""
+        path = f"/dev/{name}" if name else ""
+        mounts = [point for point in (node.get("mountpoints") or []) if point]
+        mounted = bool(mounts)
+        size = int(node.get("size") or 0)
+        eligible = (depth == 0 and kind == "disk" and size >= 12 * 1024**3
+                    and not mounted and not parent_eligible)
+        model = (node.get("model") or "Disco").strip()
+        label_text = f"{model} — {size / 1024**3:.1f} GB" if depth == 0 else f"{name}"
+        if mounted:
+            label_text += " · En uso"
+        detail = node.get("fstype") or kind
+        if mounts:
+            detail += " · " + ", ".join(mounts)
+        rows.append((label_text, path, detail, eligible, depth))
+        for child in node.get("children") or []:
+            walk(child, depth + 1, mounted or parent_eligible)
+    for device in devices:
+        walk(device)
+    return rows
+
 class NexoraInstaller(Gtk.Window):
     def __init__(self):
         super().__init__(title=TITLE)
@@ -104,6 +138,7 @@ class NexoraInstaller(Gtk.Window):
         self.stack.set_transition_duration(180)
         outer.pack_start(self.stack, True, True, 0)
         self.build_welcome()
+        self.build_storage()
         self.build_config()
         self.build_progress()
 
@@ -147,6 +182,75 @@ class NexoraInstaller(Gtk.Window):
         page.pack_start(info, True, True, 0)
         self.stack.add_named(page, "welcome")
 
+    def build_storage(self):
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        page.set_border_width(24)
+        page.pack_start(label("Almacenamiento", "x-large"), False, False, 0)
+        page.pack_start(label("Revisa los discos y sus particiones. Seleccionar un disco para instalación automática borrará todo su contenido."), False, False, 0)
+
+        self.storage_model = Gtk.TreeStore(str, str, str, bool)
+        self.storage_view = Gtk.TreeView(model=self.storage_model)
+        self.storage_view.set_headers_visible(True)
+        for title, column_id in (("Dispositivo", 0), ("Ruta", 1), ("Tipo / montaje", 2)):
+            renderer = Gtk.CellRendererText()
+            column = Gtk.TreeViewColumn(title, renderer, text=column_id)
+            column.set_resizable(True)
+            self.storage_view.append_column(column)
+        self.storage_view.get_selection().connect("changed", self.on_storage_selection)
+        scroller = Gtk.ScrolledWindow()
+        scroller.set_min_content_height(230)
+        scroller.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        scroller.add(self.storage_view)
+        page.pack_start(scroller, True, True, 0)
+
+        note = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        note.get_style_context().add_class("card")
+        note.pack_start(label("Modo actual: disco completo (automático)", bold=True), False, False, 0)
+        note.pack_start(label("La selección de particiones individuales todavía no está habilitada. Esta pantalla es de inspección: no modifica discos."), False, False, 0)
+        page.pack_start(note, False, False, 0)
+        refresh = Gtk.Button(label="Actualizar dispositivos")
+        refresh.connect("clicked", lambda _button: self.refresh_storage())
+        page.pack_start(refresh, False, False, 0)
+        self.stack.add_named(page, "storage")
+        self.refresh_storage()
+
+    def refresh_storage(self):
+        self.storage_model.clear()
+        self.disks = get_disks()
+        for title, path, detail, eligible, depth in get_storage_inventory():
+            parent = None
+            if depth:
+                # Attach each partition to the most recently inserted top-level disk.
+                parent = getattr(self, "_storage_parent", None)
+            if depth == 0:
+                parent = self.storage_model.append(None, [title, path, detail, eligible])
+                self._storage_parent = parent
+            else:
+                self.storage_model.append(parent, [title, path, detail, eligible])
+        if hasattr(self, "disk_combo"):
+            self.disk_combo.remove_all()
+            for device, description in self.disks:
+                self.disk_combo.append(device, description)
+            if self.disks:
+                self.disk_combo.set_active(0)
+        self.selected_storage_disk = None
+
+    def on_storage_selection(self, selection):
+        model, iterator = selection.get_selected()
+        if iterator is None:
+            self.selected_storage_disk = None
+            return
+        device = model.get_value(iterator, 1)
+        eligible = model.get_value(iterator, 3)
+        # Only selectable top-level disks may be used in whole-disk mode.
+        parent = model.iter_parent(iterator)
+        if parent is None and eligible:
+            self.selected_storage_disk = device
+            if hasattr(self, "disk_combo"):
+                self.disk_combo.set_active_id(device)
+        else:
+            self.selected_storage_disk = None
+
     def build_config(self):
         page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
         page.set_border_width(24)
@@ -183,6 +287,8 @@ class NexoraInstaller(Gtk.Window):
         form.attach(self.password2, 1, 4, 1, 1)
         page.pack_start(form, True, True, 0)
         self.stack.add_named(page, "config")
+        if self.disks:
+            self.selected_storage_disk = self.disks[0][0]
 
     def build_progress(self):
         page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
@@ -206,11 +312,11 @@ class NexoraInstaller(Gtk.Window):
 
     def show_page(self, page):
         self.page = page
-        self.stack.set_visible_child_name(["welcome", "config", "progress"][page])
+        self.stack.set_visible_child_name(["welcome", "storage", "config", "progress"][page])
         self.back.set_sensitive(page > 0 and not self.install_started)
-        self.next.set_label("Instalar NEXORA" if page == 1 else "Continuar")
+        self.next.set_label("Instalar NEXORA" if page == 2 else "Continuar")
         self.next.set_sensitive(not self.install_started)
-        if page == 2:
+        if page == 3:
             self.next.set_label("Cerrar")
             self.next.set_sensitive(self.process is None)
 
@@ -220,12 +326,20 @@ class NexoraInstaller(Gtk.Window):
 
     def go_next(self, _button):
         if self.page == 0:
+            self.refresh_storage()
             if not self.disks:
-                self.show_error("No se detectaron discos de 12 GB o más.")
+                self.show_error("No se detectaron discos de 12 GB o más que estén libres.")
                 return
             self.show_page(1)
             return
         if self.page == 1:
+            if not self.selected_storage_disk:
+                self.show_error("Selecciona un disco completo disponible en la lista. Las particiones se muestran solo como información.")
+                return
+            self.disk_combo.set_active_id(self.selected_storage_disk)
+            self.show_page(2)
+            return
+        if self.page == 2:
             self.start_install()
             return
         if self.process is None:
@@ -282,7 +396,7 @@ class NexoraInstaller(Gtk.Window):
         self.password.set_text("")
         self.password2.set_text("")
         self.install_started = True
-        self.show_page(2)
+        self.show_page(3)
         self.status.set_text("Instalación en curso…")
         self.next.set_label("Instalando…")
         self.next.set_sensitive(False)
