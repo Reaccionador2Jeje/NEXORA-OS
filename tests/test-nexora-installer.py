@@ -138,16 +138,21 @@ for required in (
     if required not in source:
         raise SystemExit(f"FAIL: APT, network or desktop profile support missing: {required}")
 for required in (
-    'self.desktop_combo',
-    '"NEXORA XFCE4 (escritorio completo)"',
-    '"NEXORA Minimal (solo sistema base)"',
+    'def detect_install_profile(',
+    'NEXORA OS XFCE4 Live',
+    'NEXORA OS Minimal GTK Installer',
+    'self.desktop_profile = detect_install_profile()',
+    'Edición detectada automáticamente',
     'self.apt_mirror',
     'self.refresh_network_status',
     'Comprobar conexión',
     'desktop, apt_mirror',
 ):
+
     if required not in gui:
-        raise SystemExit(f"FAIL: GTK APT/network/desktop controls missing: {required}")
+        raise SystemExit(f"FAIL: GTK APT/network/automatic-edition controls missing: {required}")
+if "self.desktop_combo" in gui:
+    raise SystemExit("FAIL: installer must detect the ISO edition instead of offering a desktop selector")
 
 
 for required in (
