@@ -2,7 +2,7 @@
 # Check the host tools required for the NEXORA GTK netinst build.
 set -eu
 missing=0
-for command in curl xorriso cpio gzip sha256sum qemu-system-x86_64 lb unsquashfs; do
+for command in curl xorriso cpio gzip sha256sum qemu-system-x86_64 lb unsquashfs rsvg-convert; do
     if command -v "$command" >/dev/null 2>&1; then
         printf '[OK]      %s\n' "$command"
     else
@@ -14,7 +14,7 @@ if [ "$missing" -ne 0 ]; then
     echo
     echo "Install the required tools with:"
     echo "  sudo apt update"
-    echo "  sudo apt install curl xorriso cpio gzip qemu-system-x86 qemu-utils live-build debootstrap squashfs-tools"
+    echo "  sudo apt install curl xorriso cpio gzip qemu-system-x86 qemu-utils live-build debootstrap squashfs-tools librsvg2-bin"
     exit 1
 fi
 printf '\nAll NEXORA netinst and Live build tools are available.\n'
