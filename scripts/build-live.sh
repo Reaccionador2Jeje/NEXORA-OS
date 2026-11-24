@@ -301,64 +301,7 @@ PY
 # The desktop launcher must invoke the native NEXORA GTK application.
 unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" \
     usr/share/applications/nexora-installer.desktop > "$VERIFY_DIR/nexora-installer.desktop"
-grep -q '^Exec=python3 /usr/bin/nexora-installer
-BOOT_SPLASH_VERIFY_DIR="$OUTPUT_DIR/boot-splash-verification"
-rm -rf "$BOOT_SPLASH_VERIFY_DIR"
-mkdir -p "$BOOT_SPLASH_VERIFY_DIR"
-xorriso -osirrox on -indev "$OUTPUT_ISO" \
-    -extract /isolinux/splash.png "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png" \
-    -extract /boot/grub/splash.png "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png" \
-    >/dev/null 2>&1
-cmp "$WORK_DIR/config/includes.binary/isolinux/splash.png" "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png"
-cmp "$WORK_DIR/config/includes.binary/isolinux/splash.png" "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png"
-
-LIVE_GRUB_VERIFY="$OUTPUT_DIR/live-grub-verification.cfg"
-xorriso -osirrox on -indev "$OUTPUT_ISO" \
-    -extract /boot/grub/grub.cfg "$LIVE_GRUB_VERIFY" >/dev/null 2>&1
-grep -q '# NEXORA OS visual identity' "$LIVE_GRUB_VERIFY" || {
-    echo "The XFCE Live GRUB menu is missing NEXORA styling." >&2
-    exit 1
-}
-grep -q 'menu_color_highlight=white/blue' "$LIVE_GRUB_VERIFY" || {
-    echo "The XFCE Live GRUB menu is missing NEXORA selection colors." >&2
-    exit 1
-}
-grep -q 'background_image /boot/grub/splash.png' "$LIVE_GRUB_VERIFY" || {
-    echo "The XFCE Live GRUB menu is not configured to use the NEXORA splash." >&2
-    exit 1
-}
-rm -f "$LIVE_GRUB_VERIFY"
-
-LIVE_ISOLINUX_VERIFY="$OUTPUT_DIR/live-isolinux-verification.cfg"
-xorriso -osirrox on -indev "$OUTPUT_ISO" \
-    -extract "$SYSLINUX_CONFIG_PATH" "$LIVE_ISOLINUX_VERIFY" >/dev/null 2>&1
-grep -q 'NEXORA OS visual identity' "$LIVE_ISOLINUX_VERIFY" || {
-    echo "The XFCE Live BIOS menu is missing NEXORA styling." >&2
-    exit 1
-}
-grep -q 'MENU BACKGROUND /isolinux/splash.png' "$LIVE_ISOLINUX_VERIFY" || {
-    echo "The XFCE Live BIOS menu is not configured to use the NEXORA splash." >&2
-    exit 1
-}
-grep -q 'MENU COLOR sel' "$LIVE_ISOLINUX_VERIFY" || {
-    echo "The XFCE Live BIOS menu is missing NEXORA selection colors." >&2
-    exit 1
-}
-rm -f "$LIVE_ISOLINUX_VERIFY"
-
-SIZE_HUMAN="$(du -h "$OUTPUT_ISO" | awk '{print $1}')"
-SHA256="$(sha256sum "$OUTPUT_ISO" | awk '{print $1}')"
-printf '%s  %s\n' "$SHA256" "$(basename "$OUTPUT_ISO")" > "$OUTPUT_ISO.sha256"
-
-echo
-echo "==> NEXORA OS XFCE4 Live ISO created:"
-echo "    $OUTPUT_ISO"
-echo "    Size: $SIZE_HUMAN"
-echo "    SHA256: $SHA256"
-echo "    Live desktop: XFCE4"
-echo "    Installer: native NEXORA GTK"
-echo "    Base: Debian 13 Trixie"
- "$VERIFY_DIR/nexora-installer.desktop" || {
+grep -q "^Exec=python3 /usr/bin/nexora-installer$" "$VERIFY_DIR/nexora-installer.desktop" || {
     echo "The NEXORA desktop shortcut does not launch the native installer." >&2
     exit 1
 }
@@ -380,11 +323,11 @@ grep -q '# NEXORA OS visual identity' "$LIVE_GRUB_VERIFY" || {
     echo "The XFCE Live GRUB menu is missing NEXORA styling." >&2
     exit 1
 }
-grep -q 'menu_color_highlight=white/blue' "$LIVE_GRUB_VERIFY" || {
+grep -q "menu_color_highlight=white/blue" "$LIVE_GRUB_VERIFY" || {
     echo "The XFCE Live GRUB menu is missing NEXORA selection colors." >&2
     exit 1
 }
-grep -q 'background_image /boot/grub/splash.png' "$LIVE_GRUB_VERIFY" || {
+grep -q "background_image /boot/grub/splash.png" "$LIVE_GRUB_VERIFY" || {
     echo "The XFCE Live GRUB menu is not configured to use the NEXORA splash." >&2
     exit 1
 }
@@ -397,11 +340,11 @@ grep -q 'NEXORA OS visual identity' "$LIVE_ISOLINUX_VERIFY" || {
     echo "The XFCE Live BIOS menu is missing NEXORA styling." >&2
     exit 1
 }
-grep -q 'MENU BACKGROUND /isolinux/splash.png' "$LIVE_ISOLINUX_VERIFY" || {
+grep -q "MENU BACKGROUND /isolinux/splash.png" "$LIVE_ISOLINUX_VERIFY" || {
     echo "The XFCE Live BIOS menu is not configured to use the NEXORA splash." >&2
     exit 1
 }
-grep -q 'MENU COLOR sel' "$LIVE_ISOLINUX_VERIFY" || {
+grep -q "MENU COLOR sel" "$LIVE_ISOLINUX_VERIFY" || {
     echo "The XFCE Live BIOS menu is missing NEXORA selection colors." >&2
     exit 1
 }
