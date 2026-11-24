@@ -43,6 +43,7 @@ nm-applet &
 AUTOSTART
 chmod 0755 "$WORK_DIR/config/includes.chroot/etc/skel/.config/openbox/autostart"
 mkdir -p "$WORK_DIR/config/includes.chroot/etc/systemd/system/graphical.target.wants" "$WORK_DIR/config/includes.chroot/etc/systemd/system/multi-user.target.wants"
+ln -sfn /lib/systemd/system/graphical.target "$WORK_DIR/config/includes.chroot/etc/systemd/system/default.target"
 ln -sfn /lib/systemd/system/lightdm.service "$WORK_DIR/config/includes.chroot/etc/systemd/system/graphical.target.wants/lightdm.service"
 ln -sfn /lib/systemd/system/NetworkManager.service "$WORK_DIR/config/includes.chroot/etc/systemd/system/multi-user.target.wants/NetworkManager.service"
 
