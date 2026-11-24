@@ -196,6 +196,166 @@ unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" usr/lib/nexora-installer/insta
     exit 1
 }
 
+# Verify the complete installed NEXORA desktop, not just the installer entry point.
+verify_live_file() {
+    local image_path="$1"
+    if ! unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" "$image_path" >/dev/null 2>&1; then
+        echo "Required NEXORA Live file is missing: /$image_path" >&2
+        exit 1
+    fi
+}
+for image_path in \
+    usr/bin/nexora-ai usr/bin/nexora-center usr/bin/nexora-store \
+    usr/bin/nexora-welcome usr/bin/nexora-updater \
+    usr/local/sbin/nexora-postinstall \
+    usr/share/applications/nexora-installer.desktop \
+    usr/share/applications/nexora-ai.desktop \
+    usr/share/applications/nexora-center.desktop \
+    usr/share/applications/nexora-store.desktop \
+    usr/share/applications/nexora-welcome.desktop \
+    usr/share/applications/nexora-updater.desktop \
+    usr/share/nexora/catalog.json usr/share/nexora/desktop-tools.json \
+    usr/share/nexora/wallpapers.json \
+    usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css \
+    etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml \
+    etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml \
+    etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml \
+    etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml \
+    etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml \
+    etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+do
+    verify_live_file "$image_path"
+done
+
+for wallpaper in \
+    nexora-default.svg nexora-aurora.svg nexora-nebula.svg nexora-horizon.svg \
+    nexora-minimal.svg nexora-orbit.svg nexora-grid.svg nexora-midnight.svg
+do
+    unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" \
+        "usr/share/backgrounds/nexora/$wallpaper" > "$VERIFY_DIR/$wallpaper" || {
+        echo "NEXORA wallpaper is missing from the XFCE Live ISO: $wallpaper" >&2
+        exit 1
+    }
+    python3 -c 'import sys,xml.etree.ElementTree as ET; ET.parse(sys.argv[1])' "$VERIFY_DIR/$wallpaper"
+done
+
+# Validate the actual panel layout and the default wallpaper from the built image.
+unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" \
+    etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml \
+    > "$VERIFY_DIR/xfce4-panel.xml"
+unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" \
+    etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml \
+    > "$VERIFY_DIR/xfce4-desktop.xml"
+python3 - "$VERIFY_DIR/xfce4-panel.xml" "$VERIFY_DIR/xfce4-desktop.xml" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+panel = ET.parse(sys.argv[1]).getroot()
+props = {node.attrib.get("name"): node for node in panel.findall("property")}
+assert [node.attrib["value"] for node in props["panels"].findall("value")] == ["1", "2"]
+for panel_id in ("1", "2"):
+    item = {node.attrib.get("name"): node for node in props[f"panel-{panel_id}"].findall("property")}
+    assert item["mode"].attrib["value"] == "0"
+    assert item["length"].attrib["value"] == "100"
+    assert item["length-adjust"].attrib["value"] == "false"
+    assert item["position-locked"].attrib["value"] == "true"
+    assert item["autohide-behavior"].attrib["value"] == "0"
+plugins = {node.attrib.get("name"): node for node in props["plugins"].findall("property")}
+assert plugins["plugin-1"].attrib["value"] == "whiskermenu"
+assert plugins["plugin-3"].attrib["value"] == "tasklist"
+desktop = ET.parse(sys.argv[2]).getroot()
+default = desktop.find("./property[@name='backdrop']/property[@name='screen0']/property[@name='monitor0']/property[@name='workspace0']/property[@name='last-image']")
+assert default is not None and default.attrib["value"] == "/usr/share/backgrounds/nexora/nexora-default.svg"
+print("PASS: built XFCE image has two fixed, visible NEXORA panels and the default NEXORA wallpaper.")
+PY
+
+# Confirm the essential desktop and NEXORA runtime dependencies are installed.
+unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" var/lib/dpkg/status > "$VERIFY_DIR/dpkg-status"
+python3 - "$VERIFY_DIR/dpkg-status" <<'PY'
+import sys
+from email.parser import Parser
+
+status = Parser().parsestr(open(sys.argv[1], encoding="utf-8").read())
+required = {
+    "task-xfce-desktop", "lightdm", "network-manager", "network-manager-gnome",
+    "xfce4-whiskermenu-plugin", "xfce4-pulseaudio-plugin", "flatpak",
+    "python3-gi", "gir1.2-gtk-3.0", "fonts-noto", "fonts-noto-color-emoji",
+    "grub-pc-bin", "grub-efi-amd64-bin",
+}
+missing = sorted(name for name in required if not any(
+    package.get("Package") == name and package.get("Status") == "install ok installed"
+    for package in status
+))
+if missing:
+    raise SystemExit("Missing installed NEXORA/XFCE packages in Live ISO: " + ", ".join(missing))
+print("PASS: XFCE, GTK, NetworkManager, Flatpak, fonts and bootloader packages are installed.")
+PY
+
+# The desktop launcher must invoke the native NEXORA GTK application.
+unsquashfs -cat "$VERIFY_DIR/filesystem.squashfs" \
+    usr/share/applications/nexora-installer.desktop > "$VERIFY_DIR/nexora-installer.desktop"
+grep -q '^Exec=python3 /usr/bin/nexora-installer
+BOOT_SPLASH_VERIFY_DIR="$OUTPUT_DIR/boot-splash-verification"
+rm -rf "$BOOT_SPLASH_VERIFY_DIR"
+mkdir -p "$BOOT_SPLASH_VERIFY_DIR"
+xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract /isolinux/splash.png "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png" \
+    -extract /boot/grub/splash.png "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png" \
+    >/dev/null 2>&1
+cmp "$WORK_DIR/config/includes.binary/isolinux/splash.png" "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png"
+cmp "$WORK_DIR/config/includes.binary/isolinux/splash.png" "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png"
+
+LIVE_GRUB_VERIFY="$OUTPUT_DIR/live-grub-verification.cfg"
+xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract /boot/grub/grub.cfg "$LIVE_GRUB_VERIFY" >/dev/null 2>&1
+grep -q '# NEXORA OS visual identity' "$LIVE_GRUB_VERIFY" || {
+    echo "The XFCE Live GRUB menu is missing NEXORA styling." >&2
+    exit 1
+}
+grep -q 'menu_color_highlight=white/blue' "$LIVE_GRUB_VERIFY" || {
+    echo "The XFCE Live GRUB menu is missing NEXORA selection colors." >&2
+    exit 1
+}
+grep -q 'background_image /boot/grub/splash.png' "$LIVE_GRUB_VERIFY" || {
+    echo "The XFCE Live GRUB menu is not configured to use the NEXORA splash." >&2
+    exit 1
+}
+rm -f "$LIVE_GRUB_VERIFY"
+
+LIVE_ISOLINUX_VERIFY="$OUTPUT_DIR/live-isolinux-verification.cfg"
+xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract "$SYSLINUX_CONFIG_PATH" "$LIVE_ISOLINUX_VERIFY" >/dev/null 2>&1
+grep -q 'NEXORA OS visual identity' "$LIVE_ISOLINUX_VERIFY" || {
+    echo "The XFCE Live BIOS menu is missing NEXORA styling." >&2
+    exit 1
+}
+grep -q 'MENU BACKGROUND /isolinux/splash.png' "$LIVE_ISOLINUX_VERIFY" || {
+    echo "The XFCE Live BIOS menu is not configured to use the NEXORA splash." >&2
+    exit 1
+}
+grep -q 'MENU COLOR sel' "$LIVE_ISOLINUX_VERIFY" || {
+    echo "The XFCE Live BIOS menu is missing NEXORA selection colors." >&2
+    exit 1
+}
+rm -f "$LIVE_ISOLINUX_VERIFY"
+
+SIZE_HUMAN="$(du -h "$OUTPUT_ISO" | awk '{print $1}')"
+SHA256="$(sha256sum "$OUTPUT_ISO" | awk '{print $1}')"
+printf '%s  %s\n' "$SHA256" "$(basename "$OUTPUT_ISO")" > "$OUTPUT_ISO.sha256"
+
+echo
+echo "==> NEXORA OS XFCE4 Live ISO created:"
+echo "    $OUTPUT_ISO"
+echo "    Size: $SIZE_HUMAN"
+echo "    SHA256: $SHA256"
+echo "    Live desktop: XFCE4"
+echo "    Installer: native NEXORA GTK"
+echo "    Base: Debian 13 Trixie"
+ "$VERIFY_DIR/nexora-installer.desktop" || {
+    echo "The NEXORA desktop shortcut does not launch the native installer." >&2
+    exit 1
+}
+
 BOOT_SPLASH_VERIFY_DIR="$OUTPUT_DIR/boot-splash-verification"
 rm -rf "$BOOT_SPLASH_VERIFY_DIR"
 mkdir -p "$BOOT_SPLASH_VERIFY_DIR"
