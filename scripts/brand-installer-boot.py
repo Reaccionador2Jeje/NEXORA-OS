@@ -44,10 +44,17 @@ if "NEXORA OS Minimal" not in grub:
         raise SystemExit("GRUB splash block changed; refusing an unsafe blind patch.")
     grub = grub.replace(
         marker,
+        "# NEXORA OS visual identity\n"
         "insmod png\ninsmod gfxterm\nset gfxmode=auto\nterminal_output gfxterm\n"
+        "set menu_color_normal=light-gray/black\n"
+        "set menu_color_highlight=white/blue\n"
+        "set color_normal=light-gray/black\n"
+        "set color_highlight=white/blue\n"
+        "set timeout_style=menu\n"
+        "set timeout=8\n"
         "if background_image /nexora/nexora-installer-background.png; then\n"
         "  set color_normal=light-gray/black\n"
-        "  set color_highlight=white/black\n"
+        "  set color_highlight=white/blue\n"
         "elif background_image /isolinux/splash.png; then",
         1,
     )
@@ -85,6 +92,18 @@ if "NEXORA OS Minimal" not in menu:
     menu = re.sub(r"(?m)^menu title .*$", "menu title NEXORA OS Installer", menu, count=1)
     if "menu title NEXORA OS Installer" not in menu:
         menu = "menu title NEXORA OS Installer\n" + menu
+    bios_style = (
+        "MENU COLOR border       30;44   #334155 #101827\n"
+        "MENU COLOR title        1;36;44 #67e8f9 #101827\n"
+        "MENU COLOR sel          7;37;44 #ffffff #1d4ed8\n"
+        "MENU COLOR unsel        37;44  #dce6f2 #101827\n"
+        "MENU COLOR hotsel       1;37;44 #ffffff #1e40af\n"
+        "MENU COLOR timeout_msg  37;44  #67e8f9 #101827\n"
+        "MENU COLOR timeout      1;37;44 #ffffff #101827\n"
+        "MENU COLOR cmdline      37;40  #dce6f2 #101827\n"
+    )
+    if "MENU COLOR sel" not in menu:
+        menu = bios_style + menu
     menu = "menu background /nexora/nexora-installer-background.png\n" + menu
     entries = """\
 label nexora-minimal
