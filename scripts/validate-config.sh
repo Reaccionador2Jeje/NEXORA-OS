@@ -82,7 +82,7 @@ grep -q 'autologin-user=nexora' scripts/build-minimal-installer.sh || fail "Mini
 grep -q 'python3 /usr/bin/nexora-installer' scripts/build-minimal-installer.sh || fail "Minimal installer session must auto-launch the native GTK wizard."
 grep -q 'Openbox' scripts/build-minimal-installer.sh || fail "Minimal installer must use a lightweight Openbox session."
 grep -q 'lightdm-gtk-greeter' config/package-lists/nexora-minimal-installer.list.chroot || fail "Minimal installer GTK greeter package missing."
-for package in live-boot lightdm openbox xserver-xorg xserver-xorg-video-all network-manager network-manager-gnome python3-gi gir1.2-gtk-3.0 rsync parted dosfstools e2fsprogs pkexec lxpolkit grub-pc-bin grub-efi-amd64-bin; do
+for package in live-boot lightdm openbox xserver-xorg xserver-xorg-video-all network-manager network-manager-gnome xserver-xorg-video-all xserver-xorg-input-all python3-gi gir1.2-gtk-3.0 rsync parted dosfstools e2fsprogs pkexec lxpolkit grub-pc-bin grub-efi-amd64-bin; do
     grep -qx "$package" config/package-lists/nexora-minimal-installer.list.chroot || fail "Minimal native installer runtime package missing: $package"
 done
 grep -q 'apt-get.*purge' installer/desktop-overlay/usr/lib/nexora-installer/install-engine.py || fail "Minimal installed profile must remove the temporary graphical installer runtime."
