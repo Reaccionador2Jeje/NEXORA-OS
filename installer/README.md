@@ -18,11 +18,15 @@ The Live image includes:
 
 This is the first installer implementation. A real UEFI and BIOS virtual-machine installation test is required before calling it production-ready. The build extracts the finished squashfs and checks the native installer, engine, desktop launchers, all eight wallpapers, XFCE panel locks, default wallpaper, GTK theme and required packages. It then performs a Live boot smoke test. The netinst build separately extracts and verifies its bundled NEXORA desktop/installer payload.
 
-## NEXORA Minimal netinst
+## NEXORA Minimal GTK Netinst (native installer)
 
-The Minimal image continues to boot Debian Installer GTK. It embeds the `preseed/minimal.cfg` and `preseed/desktop.cfg` profiles, NEXORA boot branding, and a verified copy of the native NEXORA GTK installer, engine, desktop tools, XFCE defaults and wallpapers under `/nexora/desktop-overlay`. The native GTK app is a payload in this ISO, not a replacement for Debian Installer's active runtime; its copied-Live-system engine is launched from the XFCE4 Live session. Minimal remains terminal-focused; the XFCE preseed is retained for the separate netinst workflow.
+The Minimal ISO now boots a dedicated Debian Live runtime built with scripts/build-minimal-installer.sh. It uses a lightweight Openbox session rather than XFCE, with LightDM auto-login for the live user and an Openbox autostart entry that launches /usr/bin/nexora-installer automatically. Users therefore arrive at the native NEXORA GTK3 wizard instead of Debian Installer.
 
-The installer uses Chilean Spanish and the Latin American keyboard layout by default. Disk partitioning remains interactive.
+The boot environment includes GTK3/PyGObject, NetworkManager and its connection editor, PolicyKit, rsync, partitioning and filesystem tools, GRUB BIOS/UEFI utilities, and the NEXORA installer engine. It is intentionally a small graphical environment used to install the system, not a full desktop.
+
+The native installer offers the Minimal terminal profile or the XFCE4 profile. Minimal removes the temporary Openbox, LightDM and Xorg runtime from the installed system and boots to a text target. XFCE installs the full XFCE desktop and LightDM. Disk partitioning remains an explicit, destructive whole-disk operation after the review/confirmation screen.
+
+The build verifies the squashfs contains the native GTK application and engine, LightDM auto-login configuration, Openbox autostart, and required runtime packages. A QEMU boot smoke test is still required; a successful ISO build alone does not prove the graphical wizard has been visually tested.
 
 ## Add the desktop after a Minimal terminal installation
 
