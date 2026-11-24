@@ -3,6 +3,7 @@
 live-boot
 live-config
 lightdm
+lightdm-gtk-greeter
 openbox
 xserver-xorg
 xinit
