@@ -43,6 +43,6 @@ The script installs Debian's XFCE task and LightDM, applies the desktop overlay,
 
 ## Installer branding
 
-The netinst image embeds NEXORA artwork at `/nexora/branding/nexora-installer.svg` and a generated boot background. The GTK initrd banner is rebranded for the installer-based Minimal image.
+Both bootable editions use the shared NEXORA BIOS Syslinux and UEFI GRUB palette and splash. The Minimal ISO's boot environment starts the native NEXORA GTK wizard automatically through LightDM and Openbox; it does not boot Debian Installer or use the Debian Installer initrd banner.
 
-The XFCE4 Live image uses a custom NEXORA aurora/wordmark splash in the standard BIOS (ISOLINUX) and UEFI (GRUB) splash locations, then starts the XFCE session. The boot menu's underlying options remain Debian Live's tested entries; the branded splash replaces the stock Debian artwork.
+The XFCE4 Live edition starts the complete NEXORA desktop and exposes the same native installer through its desktop shortcut. Both editions use the same GTK installer application and disk installation engine.
