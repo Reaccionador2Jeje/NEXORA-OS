@@ -10,7 +10,7 @@ for file in \
     scripts/build.sh scripts/build-netinst.sh scripts/build-live.sh \
     scripts/check-dependencies.sh scripts/clean.sh scripts/test-qemu-boot.sh \
     scripts/inspect-boot-layout.sh scripts/create-installer-background.py \
-    scripts/brand-installer-boot.py scripts/patch-live-build-contents-index.py \
+    scripts/brand-installer-boot.py scripts/brand-live-grub.py scripts/patch-live-build-contents-index.py \
     scripts/install-nexora-desktop.sh scripts/validate-config.sh scripts/publish-sourceforge.sh \
     config/package-lists/nexora-live.list.chroot installer/README.md \
     installer/profiles/minimal.md installer/profiles/desktop.md \
@@ -23,7 +23,8 @@ for file in \
     installer/desktop-overlay/usr/share/nexora/catalog.json \
     installer/desktop-overlay/usr/share/backgrounds/nexora/nexora-default.svg \
     installer/desktop-overlay/usr/share/themes/NEXORA-Ocean/gtk-3.0/gtk.css \
-    tests/test-nexora-desktop.py tests/test-live-build-contents-index.py tests/test-nexora-installer.py
+    tests/test-nexora-desktop.py tests/test-live-build-contents-index.py tests/test-nexora-installer.py \
+    tests/test-boot-branding.py
 do check_file "$file"; done
 
 bash -n scripts/build-live.sh
@@ -89,6 +90,7 @@ python3 -c 'import ast,json,pathlib,xml.etree.ElementTree as ET; paths=["scripts
 python3 tests/test-nexora-desktop.py
 python3 tests/test-live-build-contents-index.py
 python3 tests/test-nexora-installer.py
+python3 tests/test-boot-branding.py
 
 grep -q 'task-xfce-desktop' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must install XFCE."
 grep -q 'lightdm' scripts/install-nexora-desktop.sh || fail "Minimal desktop installer must install LightDM."
