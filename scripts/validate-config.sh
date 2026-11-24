@@ -84,7 +84,7 @@ grep -q 'NetworkManager.service' scripts/build-minimal-installer.sh || fail "Min
 grep -q 'python3 /usr/bin/nexora-installer' scripts/build-minimal-installer.sh || fail "Minimal installer session must auto-launch the native GTK wizard."
 grep -q 'patch-live-build-contents-index.py' scripts/build-minimal-installer.sh || fail "Minimal builder must apply the Debian Trixie live-build compatibility fix."
 grep -q 'BOOTLOADER_OVERRIDE=.*config/bootloaders/isolinux' scripts/build-minimal-installer.sh || fail "Minimal builder must provide the Debian Trixie ISOLINUX override."
-grep -q 'RSVG_COMPAT_DIR=.*compat-bin' scripts/build-minimal-installer.sh || fail "Minimal builder must provide the legacy rsvg compatibility shim."
+grep -q 'ln -sfn "$RSVG_CONVERT" /usr/bin/rsvg' scripts/build-minimal-installer.sh || fail "Minimal builder must install the legacy rsvg compatibility shim in /usr/bin."
 grep -q 'Openbox' scripts/build-minimal-installer.sh || fail "Minimal installer must use a lightweight Openbox session."
 grep -q 'lightdm-gtk-greeter' config/package-lists/nexora-minimal-installer.list.chroot || fail "Minimal installer GTK greeter package missing."
 for package in isolinux syslinux-common live-boot lightdm openbox xserver-xorg xserver-xorg-video-all xserver-xorg-input-all network-manager network-manager-gnome python3-gi gir1.2-gtk-3.0 rsync parted dosfstools e2fsprogs pkexec lxpolkit grub-pc-bin grub-efi-amd64-bin; do
