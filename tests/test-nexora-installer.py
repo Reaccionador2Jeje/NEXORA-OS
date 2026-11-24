@@ -88,7 +88,7 @@ for required in ("self.locale_combo", "self.keyboard_combo", "self.timezone_comb
                  "Español (Chile)", "Latinoamericano", "America/Santiago"):
     if required not in gui:
         raise SystemExit(f"FAIL: GTK configuration selector is missing: {required}")
-if 'self.secret_path]' in gui:
+if 'command = ["pkexec", ENGINE, disk, username, hostname, self.secret_path]' in gui:
     raise SystemExit("FAIL: GUI still uses the old installer engine argument list")
 
 print("PASS: installer partition naming, storage checks, manual plan validation, account and regional configuration checks passed.")
