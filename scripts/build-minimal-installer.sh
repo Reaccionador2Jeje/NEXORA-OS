@@ -11,15 +11,18 @@ if [[ "$EUID" -ne 0 ]]; then
     echo "Run this script as root: sudo ./scripts/build.sh" >&2
     exit 1
 fi
-# Debian Trixie ships rsvg-convert while this live-build generation calls rsvg.
+# Debian Trixie ships rsvg-convert, while the installed live-build
+# helpers invoke the legacy command name through /usr/bin/env. A PATH-local
+# shim is not reliable because live-build resets PATH in its helper processes.
 if ! command -v rsvg >/dev/null 2>&1; then
     RSVG_CONVERT="$(command -v rsvg-convert || true)"
     [[ -n "$RSVG_CONVERT" ]] || { echo "Missing rsvg-convert (install librsvg2-bin)." >&2; exit 1; }
-    RSVG_COMPAT_DIR="$OUTPUT_DIR/compat-bin"
-    mkdir -p "$RSVG_COMPAT_DIR"
-    ln -sfn "$RSVG_CONVERT" "$RSVG_COMPAT_DIR/rsvg"
-    export PATH="$RSVG_COMPAT_DIR:$PATH"
+    ln -sfn "$RSVG_CONVERT" /usr/bin/rsvg
 fi
+command -v rsvg >/dev/null 2>&1 || {
+    echo "Unable to provide the legacy rsvg command required by live-build." >&2
+    exit 1
+}
 
 for command in lb xorriso sha256sum unsquashfs; do
     command -v "$command" >/dev/null 2>&1 || {
