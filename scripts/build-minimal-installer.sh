@@ -71,7 +71,7 @@ ln -sfn /lib/systemd/system/lightdm.service "$WORK_DIR/config/includes.chroot/et
 ln -sfn /lib/systemd/system/NetworkManager.service "$WORK_DIR/config/includes.chroot/etc/systemd/system/multi-user.target.wants/NetworkManager.service"
 
 cat > "$WORK_DIR/config/includes.chroot/etc/nexora-release" <<'RELEASE'
-NEXORA OS Minimal GTK Installer 0.1.0-alpha
+NEXORA OS Netinst GTK Installer 0.1.0-alpha
 Base: Debian GNU/Linux 13 (Trixie)
 Desktop runtime: Openbox + GTK3
 Installer: NEXORA Native GTK Installer
@@ -100,9 +100,9 @@ lb config \
     --archive-areas "main contrib non-free non-free-firmware" \
     --bootappend-live "boot=live components locales=es_CL.UTF-8 keyboard-layouts=latam username=nexora" \
     --apt-recommends false \
-    --iso-application "NEXORA OS Minimal Native GTK Installer" \
+    --iso-application "NEXORA OS Netinst Native GTK Installer" \
     --iso-publisher "NEXORA Project" \
-    --iso-volume "NEXORA_MINIMAL"
+    --iso-volume "NEXORA_NETINST"
 
 echo "==> Applying Debian Trixie live-build Contents index compatibility fix..."
 python3 "$ROOT_DIR/scripts/patch-live-build-contents-index.py"
