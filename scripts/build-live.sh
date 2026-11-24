@@ -144,6 +144,18 @@ fi
 
 cp "$BUILT_ISO" "$OUTPUT_ISO"
 
+# Apply the same NEXORA palette and splash behavior to the Live UEFI GRUB menu.
+PATCHED_GRUB_CFG="$OUTPUT_DIR/nexora-live-grub.cfg"
+BRANDED_ISO="$OUTPUT_DIR/nexora-os-xfce4-live-amd64-branded.iso"
+python3 "$ROOT_DIR/scripts/brand-live-grub.py" "$OUTPUT_ISO" "$PATCHED_GRUB_CFG"
+xorriso -indev "$OUTPUT_ISO" \
+    -outdev "$BRANDED_ISO" \
+    -map "$PATCHED_GRUB_CFG" /boot/grub/grub.cfg \
+    -boot_image any replay \
+    -commit
+mv "$BRANDED_ISO" "$OUTPUT_ISO"
+rm -f "$PATCHED_GRUB_CFG"
+
 echo "==> Checking the Live filesystem and boot media..."
 LIVE_CONTENTS="$(xorriso -indev "$OUTPUT_ISO" -ls /live 2>&1 || true)"
 printf '%s\n' "$LIVE_CONTENTS"
@@ -189,6 +201,23 @@ xorriso -osirrox on -indev "$OUTPUT_ISO" \
     >/dev/null 2>&1
 cmp "$WORK_DIR/config/includes.binary/isolinux/splash.png" "$BOOT_SPLASH_VERIFY_DIR/isolinux-splash.png"
 cmp "$WORK_DIR/config/includes.binary/isolinux/splash.png" "$BOOT_SPLASH_VERIFY_DIR/grub-splash.png"
+
+LIVE_GRUB_VERIFY="$OUTPUT_DIR/live-grub-verification.cfg"
+xorriso -osirrox on -indev "$OUTPUT_ISO" \
+    -extract /boot/grub/grub.cfg "$LIVE_GRUB_VERIFY" >/dev/null 2>&1
+grep -q '# NEXORA OS visual identity' "$LIVE_GRUB_VERIFY" || {
+    echo "The XFCE Live GRUB menu is missing NEXORA styling." >&2
+    exit 1
+}
+grep -q 'menu_color_highlight=white/blue' "$LIVE_GRUB_VERIFY" || {
+    echo "The XFCE Live GRUB menu is missing NEXORA selection colors." >&2
+    exit 1
+}
+grep -q 'background_image /boot/grub/splash.png' "$LIVE_GRUB_VERIFY" || {
+    echo "The XFCE Live GRUB menu is not configured to use the NEXORA splash." >&2
+    exit 1
+}
+rm -f "$LIVE_GRUB_VERIFY"
 
 SIZE_HUMAN="$(du -h "$OUTPUT_ISO" | awk '{print $1}')"
 SHA256="$(sha256sum "$OUTPUT_ISO" | awk '{print $1}')"
