@@ -2,6 +2,7 @@
 # Keep BIOS bootloader payloads available inside the live-build chroot.
 isolinux
 syslinux-common
+librsvg2-bin
 task-xfce-desktop
 lightdm
 network-manager
