@@ -104,9 +104,11 @@ def get_storage_inventory():
 class NexoraInstaller(Gtk.Window):
     def __init__(self):
         super().__init__(title=TITLE)
-        self.set_default_size(780, 570)
+        self.set_default_size(920, 680)
+        self.set_size_request(700, 520)
         self.set_position(Gtk.WindowPosition.CENTER)
-        self.set_resizable(False)
+        # Permitir ajustar el tamaño según la resolución y las preferencias del usuario.
+        self.set_resizable(True)
         self.process = None
         self.secret_path = None
         self.page = 0
