@@ -89,9 +89,11 @@ def validate_manual_partition_plan(disk, root_part, efi_part, inventory):
 def main():
     if os.geteuid() != 0:
         fail("El motor debe ejecutarse con permisos administrativos.")
-    if len(sys.argv) != 8:
+    if len(sys.argv) != 10:
         fail("Uso interno incorrecto.")
-    disk, username, hostname, locale_code, timezone, keyboard_layout, secret_file = sys.argv[1:]
+    disk, username, hostname, locale_code, timezone, keyboard_layout, root_enabled, root_secret_file, secret_file = sys.argv[1:]
+    if root_enabled not in {"yes", "no"}:
+        fail("La opción de superusuario no es válida.")
     allowed_locales = {"es_CL.UTF-8", "es_ES.UTF-8", "en_US.UTF-8", "en_GB.UTF-8", "pt_BR.UTF-8"}
     allowed_timezones = {
         "America/Santiago", "America/Punta_Arenas", "America/Easter",
@@ -119,6 +121,18 @@ def main():
         except OSError: pass
     if len(password) < 8 or "\n" in password or ":" in password:
         fail("La contraseña no cumple los requisitos mínimos.")
+    root_password = ""
+    if root_enabled == "yes":
+        root_secret = Path(root_secret_file)
+        try:
+            root_password = root_secret.read_text(encoding="utf-8")
+        finally:
+            try: root_secret.unlink()
+            except OSError: pass
+        if len(root_password) < 12 or "\n" in root_password or ":" in root_password:
+            fail("La contraseña de root no cumple los requisitos mínimos.")
+    elif root_secret_file != "-":
+        fail("No se esperaba un archivo de contraseña root.")
 
     # Validate capacity and refuse disks currently mounted by the Live session.
     size_result = run(["lsblk", "-b", "-ndo", "SIZE", disk], check=False)
@@ -230,10 +244,18 @@ def main():
         run(chroot + ["usermod", "-aG", "sudo", username])
     locale_gen = target / "etc/locale.gen"
     locale_lines = locale_gen.read_text(encoding="utf-8").splitlines() if locale_gen.exists() else []
-    locale_lines = [line for line in locale_lines if not line.lstrip().startswith(locale_code + " ")]
-    locale_lines.append(locale_code + " UTF-8")
+    supported_locales = (
+        "es_CL.UTF-8", "es_ES.UTF-8", "en_US.UTF-8",
+        "en_GB.UTF-8", "pt_BR.UTF-8",
+    )
+    for supported in supported_locales:
+        locale_lines = [
+            line for line in locale_lines
+            if not line.lstrip().startswith(supported + " ")
+        ]
+        locale_lines.append(supported + " UTF-8")
     locale_gen.write_text("\n".join(locale_lines) + "\n", encoding="utf-8")
-    run(chroot + ["locale-gen", locale_code], check=False)
+    run(chroot + ["locale-gen"], check=False)
     run(chroot + ["ln", "-sf", "/usr/share/zoneinfo/" + timezone, "/etc/localtime"], check=False)
     run(chroot + ["chpasswd"], input_text=username + ":" + password + "\n")
     password = ""
@@ -242,7 +264,13 @@ def main():
         run(chroot + ["userdel", "-r", "nexora"], check=False)
     # The Live image machine-id must not be cloned to installed systems.
     (target / "etc/machine-id").write_text("", encoding="utf-8")
-    run(chroot + ["passwd", "-l", "root"], check=False)
+    if root_enabled == "yes":
+        run(chroot + ["chpasswd"], input_text="root:" + root_password + "\n")
+        root_password = ""
+        print("Cuenta root activada con contraseña propia.", flush=True)
+    else:
+        run(chroot + ["passwd", "-l", "root"], check=False)
+        print("Cuenta root bloqueada; el usuario principal administra mediante sudo.", flush=True)
     run(chroot + ["systemctl", "enable", "NetworkManager", "lightdm"], check=False)
     run(chroot + ["systemctl", "set-default", "graphical.target"], check=False)
     if efi:
