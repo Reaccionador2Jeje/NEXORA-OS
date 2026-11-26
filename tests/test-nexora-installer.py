@@ -23,6 +23,12 @@ for disk, expected in cases.items():
         raise SystemExit(f"FAIL: part_path({disk!r}, 2) -> {actual!r}, expected {expected!r}")
 
 source = ENGINE.read_text(encoding="utf-8")
+if module.lightdm_xfce_config().splitlines() != [
+    "[Seat:*]", "user-session=xfce", "greeter-session=lightdm-gtk-greeter"
+]:
+    raise SystemExit("FAIL: generated LightDM XFCE configuration must contain real separate lines")
+if not module.lightdm_xfce_config().endswith("\n"):
+    raise SystemExit("FAIL: generated LightDM XFCE configuration must end with a newline")
 for required in ("lsblk", "MOUNTS.append", "grub-install", "mkfs.ext4", "NEXORA Live"):
     if required not in source:
         raise SystemExit(f"FAIL: installer engine is missing safety or install step: {required}")
