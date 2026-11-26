@@ -18,6 +18,11 @@ def cleanup():
 
 atexit.register(cleanup)
 
+
+def lightdm_xfce_config():
+    """Return a valid multi-line LightDM seat configuration."""
+    return "[Seat:*]\nuser-session=xfce\ngreeter-session=lightdm-gtk-greeter\n"
+
 def run(args, *, check=True, input_text=None):
     return subprocess.run(args, check=check, text=True, input=input_text,
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -329,7 +334,7 @@ def main():
         lightdm_config = target / "etc/lightdm/lightdm.conf.d/50-nexora-session.conf"
         lightdm_config.parent.mkdir(parents=True, exist_ok=True)
         lightdm_config.write_text(
-            "[Seat:*]\\nuser-session=xfce\\ngreeter-session=lightdm-gtk-greeter\\n",
+            lightdm_xfce_config(),
             encoding="utf-8",
         )
         run(chroot + ["systemctl", "set-default", "graphical.target"])
