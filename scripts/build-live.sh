@@ -32,6 +32,10 @@ mkdir -p "$WORK_DIR/config"
 # Start from the repository's existing NEXORA system defaults.
 cp -a "$ROOT_DIR/config/." "$WORK_DIR/config/"
 mkdir -p "$WORK_DIR/config/includes.chroot"
+# Make the legacy rsvg command available from the very start of chroot setup.
+# live-build may call it before normal chroot hooks have executed.
+mkdir -p "$WORK_DIR/config/includes.chroot/usr/bin"
+ln -sfn /usr/bin/rsvg-convert "$WORK_DIR/config/includes.chroot/usr/bin/rsvg"
 mkdir -p "$WORK_DIR/config/package-lists" "$WORK_DIR/config/hooks/normal"
 
 # live-build's legacy Syslinux helper runs against the chroot. Provide its
