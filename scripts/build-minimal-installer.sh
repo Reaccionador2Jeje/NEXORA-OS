@@ -11,7 +11,7 @@ if [[ "$EUID" -ne 0 ]]; then
     echo "Run this script as root: sudo ./scripts/build.sh" >&2
     exit 1
 fi
-for command in lb xorriso sha256sum unsquashfs; do
+for command in lb xorriso sha256sum unsquashfs rsvg-convert; do
     command -v "$command" >/dev/null 2>&1 || {
         echo "Required command is missing: $command" >&2
         exit 1
@@ -19,6 +19,12 @@ for command in lb xorriso sha256sum unsquashfs; do
 done
 
 mkdir -p "$OUTPUT_DIR"
+# Debian live-build still invokes the old `rsvg` command name on the host.
+# Provide a private compatibility alias instead of modifying runner/system PATH.
+COMPAT_BIN="$OUTPUT_DIR/compat-bin"
+mkdir -p "$COMPAT_BIN"
+ln -sfn "$(command -v rsvg-convert)" "$COMPAT_BIN/rsvg"
+export PATH="$COMPAT_BIN:$PATH"
 rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR/config"
 cp -a "$ROOT_DIR/installer/desktop-overlay/." "$WORK_DIR/config/includes.chroot/"
