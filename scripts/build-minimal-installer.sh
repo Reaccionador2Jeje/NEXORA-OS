@@ -28,6 +28,10 @@ export PATH="$COMPAT_BIN:$PATH"
 rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR/config"
 cp -a "$ROOT_DIR/installer/desktop-overlay/." "$WORK_DIR/config/includes.chroot/"
+# Provide the legacy command before any chroot package hooks can call it.
+# The target is supplied by librsvg2-bin from the installer package list.
+mkdir -p "$WORK_DIR/config/includes.chroot/usr/bin"
+ln -sfn /usr/bin/rsvg-convert "$WORK_DIR/config/includes.chroot/usr/bin/rsvg"
 chmod 0755 "$WORK_DIR/config/includes.chroot/usr/bin/nexora-installer" "$WORK_DIR/config/includes.chroot/usr/lib/nexora-installer/install-engine.py"
 mkdir -p "$WORK_DIR/config/package-lists" "$WORK_DIR/config/hooks/normal" "$WORK_DIR/config/includes.chroot/etc/lightdm/lightdm.conf.d" "$WORK_DIR/config/includes.chroot/etc/skel/.config/openbox" "$WORK_DIR/config/includes.binary/isolinux" "$WORK_DIR/config/includes.binary/boot/grub"
 cp "$ROOT_DIR/config/package-lists/nexora-minimal-installer.list.chroot" "$WORK_DIR/config/package-lists/nexora-minimal-installer.list.chroot"
