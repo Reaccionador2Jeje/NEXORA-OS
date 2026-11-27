@@ -1,6 +1,5 @@
 #!/bin/sh
-# Clean generated live-build files. This does not delete project sources.
-
+# Clean generated NEXORA ISO artifacts and an interrupted Eggs remaster.
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
@@ -11,7 +10,10 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-lb clean --purge
-rm -f ./*.iso ./*.img ./*.img.* ./*.contents ./*.packages ./*.manifest
+if command -v eggs >/dev/null 2>&1; then
+    eggs destroy
+fi
 
-echo "NEXORA OS build artifacts cleaned."
+rm -f "$ROOT_DIR"/build-output/*.iso
+
+echo "NEXORA OS ISO artifacts cleaned."
