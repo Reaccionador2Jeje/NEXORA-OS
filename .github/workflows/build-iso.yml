@@ -32,6 +32,7 @@ jobs:
           sh -n scripts/build.sh
           sh -n scripts/check-dependencies.sh
           sh -n scripts/validate-config.sh
+          sh -n scripts/clean.sh
 
       - name: Validate NEXORA configuration
         run: sh ./scripts/validate-config.sh
