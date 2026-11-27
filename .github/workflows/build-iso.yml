@@ -30,6 +30,7 @@ jobs:
       - name: Check shell syntax
         run: |
           sh -n scripts/build.sh
+          sh -n scripts/prepare-system.sh
           sh -n scripts/check-dependencies.sh
           sh -n scripts/validate-config.sh
           sh -n scripts/clean.sh
