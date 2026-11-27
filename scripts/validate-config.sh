@@ -22,6 +22,7 @@ check_package() {
 }
 
 check_file scripts/build.sh
+check_file scripts/prepare-system.sh
 check_file scripts/check-dependencies.sh
 check_file docs/BUILDING.md
 check_file config/package-lists/nexora-desktop.list.chroot
