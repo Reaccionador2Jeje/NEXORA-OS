@@ -46,15 +46,18 @@ The initial package selection is maintained in config/package-lists/nexora-deskt
 
 ## Build the Desktop image
 
-Penguins' eggs remasters the running system. Build from a **dedicated Debian 13 Trixie installation already configured as NEXORA OS**, not from an unrelated workstation.
+Penguins' eggs remasters the running system. Use a **dedicated Debian 13 Trixie VM**, not your everyday workstation. Prepare it with the repository script, install the official Eggs package, configure Eggs, and then build:
 
 ~~~bash
 git clone https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
+sudo ./scripts/prepare-system.sh
+# Install the official Penguins' eggs package, then:
+sudo eggs config
 sudo ./scripts/build.sh
 ~~~
 
-The generated image is placed in build-output/. See docs/BUILDING.md for host preparation, Eggs configuration and testing.
+The generated image is placed in build-output/. See docs/BUILDING.md for the full setup and testing procedure.
 
 ## Repository map
 
