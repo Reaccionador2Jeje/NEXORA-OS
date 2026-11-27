@@ -1,42 +1,41 @@
 #!/bin/sh
-# Build the NEXORA OS Desktop live ISO.
-
+# Build a NEXORA OS live ISO with Penguins' eggs.
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 cd "$ROOT_DIR"
 
-if [ "$(id -u)" -ne 0 ]; then
-    echo "Run this script as root: sudo ./scripts/build.sh" >&2
-    exit 1
+fail() { echo "NEXORA ISO: $*" >&2; exit 1; }
+
+[ "$(id -u)" -eq 0 ] || fail "Run from the NEXORA system with sudo: sudo ./scripts/build.sh"
+[ -r /etc/nexora-release ] || fail "NEXORA release marker missing (/etc/nexora-release). Refusing to remaster another system."
+
+. /etc/os-release
+[ "${ID:-}" = "debian" ] || fail "Build host must be Debian 13 Trixie. Detected: ${PRETTY_NAME:-unknown}"
+[ "${VERSION_CODENAME:-}" = "trixie" ] || fail "Expected Debian 13 Trixie; detected: ${VERSION_CODENAME:-unknown}."
+
+command -v eggs >/dev/null 2>&1 || fail "Penguins' eggs is not installed. Install the official penguins-eggs package first."
+eggs version >/dev/null 2>&1 || fail "The eggs command could not report its version."
+
+mkdir -p "$ROOT_DIR/build-output"
+
+echo "==> Building NEXORA OS with Penguins' eggs..."
+echo "==> Output directory: $ROOT_DIR/build-output"
+echo "==> Standard Live mode is used; personal credentials are not cloned."
+
+eggs remaster --target-dir "$ROOT_DIR/build-output"
+
+iso=$(find "$ROOT_DIR/build-output" -maxdepth 1 -type f -name '*.iso' -print | sort | tail -n 1)
+[ -n "$iso" ] || fail "Penguins' eggs finished without producing an ISO in build-output/."
+
+version=$(sed -n 's/^VERSION=//p' /etc/nexora-release | head -n 1)
+[ -n "$version" ] || version="development"
+arch=$(dpkg --print-architecture)
+destination="$ROOT_DIR/build-output/nexora-os-$version-$arch.iso"
+
+if [ "$iso" != "$destination" ]; then
+    mv "$iso" "$destination"
 fi
 
-if ! command -v lb >/dev/null 2>&1; then
-    echo "live-build is missing. Install it with: apt install live-build" >&2
-    exit 1
-fi
-
-if [ ! -x auto/config ]; then
-    echo "auto/config must be executable. Run: chmod +x auto/config" >&2
-    exit 1
-fi
-
-mkdir -p build-output
-
-echo "==> Configuring NEXORA OS for Debian 13 Trixie (amd64)..."
-lb config
-
-echo "==> Building the live ISO. This may take a while..."
-lb build
-
-iso=$(find "$ROOT_DIR" -maxdepth 1 -type f -name '*.iso' -print -quit)
-if [ -z "$iso" ]; then
-    echo "Build finished, but no ISO was found in the project root." >&2
-    exit 1
-fi
-
-destination="$ROOT_DIR/build-output/$(basename "$iso")"
-mv "$iso" "$destination"
-
-echo "==> NEXORA OS image created:"
+echo "==> NEXORA OS ISO created:"
 echo "    $destination"
