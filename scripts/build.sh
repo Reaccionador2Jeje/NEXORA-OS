@@ -28,7 +28,7 @@ eggs remaster --target-dir "$ROOT_DIR/build-output"
 iso=$(find "$ROOT_DIR/build-output" -maxdepth 1 -type f -name '*.iso' -print | sort | tail -n 1)
 [ -n "$iso" ] || fail "Penguins' eggs finished without producing an ISO in build-output/."
 
-version=$(sed -n 's/^VERSION=//p' /etc/nexora-release | head -n 1)
+version=$(awk 'NR == 1 { print $NF }' /etc/nexora-release)
 [ -n "$version" ] || version="development"
 arch=$(dpkg --print-architecture)
 destination="$ROOT_DIR/build-output/nexora-os-$version-$arch.iso"
