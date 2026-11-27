@@ -1,7 +1,5 @@
 #!/bin/sh
-# Fast static checks for the NEXORA OS live-build source tree.
-# This does not build or boot-test an ISO.
-
+# Static checks for the NEXORA OS source and Penguins' eggs integration.
 set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
@@ -19,11 +17,13 @@ check_file() {
 
 check_package() {
     grep -qx "$1" config/package-lists/nexora-desktop.list.chroot ||
-        fail "Required package is missing: $1"
+        fail "Required package is missing from the reference manifest: $1"
     printf '[OK] package %s\n' "$1"
 }
 
-check_file auto/config
+check_file scripts/build.sh
+check_file scripts/check-dependencies.sh
+check_file docs/BUILDING.md
 check_file config/package-lists/nexora-desktop.list.chroot
 check_file config/includes.chroot/etc/nexora-release
 check_file config/includes.chroot/etc/issue
@@ -40,9 +40,6 @@ check_file branding/logo/nexora-logo.svg
 check_file branding/logo/nexora-icon.svg
 check_file branding/wallpapers/nexora-default.svg
 
-grep -q -- '--distribution trixie' auto/config || fail "Distribution must remain Debian Trixie."
-grep -q -- '--architecture amd64' auto/config || fail "Initial ISO architecture must remain amd64."
-
 check_package task-kde-desktop
 check_package sddm
 check_package chromium
@@ -54,8 +51,12 @@ check_package supertux
 check_package supertuxkart
 
 grep -q 'NEXORA OS' config/includes.chroot/etc/nexora-release || fail "NEXORA release identity is missing."
+grep -q 'eggs remaster --target-dir' scripts/build.sh || fail "ISO builder is not using Penguins' eggs."
+grep -q '/etc/nexora-release' scripts/build.sh || fail "Build safety check for NEXORA identity is missing."
+grep -q 'Penguins' docs/BUILDING.md || fail "Penguins' eggs build documentation is missing."
+
 grep -qx 'es_CL.UTF-8 UTF-8' config/includes.chroot/etc/locale.gen || fail "Spanish (Chile) locale is not enabled."
 grep -qx 'LANG=es_CL.UTF-8' config/includes.chroot/etc/default/locale || fail "Spanish (Chile) is not the default locale."
 grep -q 'ColorScheme=NEXORA' config/includes.chroot/etc/xdg/kdeglobals || fail "NEXORA KDE color scheme is not selected."
 
-printf '\nNEXORA OS configuration checks passed. ISO build and boot tests are still required.\n'
+printf '\nNEXORA OS source checks passed. An Eggs remaster and VM boot test are still required.\n'
