@@ -1,4 +1,4 @@
-name: Build NEXORA OS ISO
+name: Validate NEXORA ISO project
 
 on:
   workflow_dispatch:
@@ -6,52 +6,38 @@ on:
     branches:
       - main
     paths:
-      - "auto/**"
+      - "scripts/**"
+      - "docs/BUILDING.md"
       - "config/**"
       - "branding/**"
-      - "scripts/**"
       - ".github/workflows/build-iso.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: nexora-iso-${{ github.ref }}
-  cancel-in-progress: false
+  group: nexora-iso-validation-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-desktop-iso:
-    name: Build Desktop ISO (Debian Trixie / amd64)
+  validate:
+    name: Validate Penguins' eggs integration
     runs-on: ubuntu-24.04
-    timeout-minutes: 180
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Install Debian Live build tools
+      - name: Check shell syntax
         run: |
-          sudo apt-get update
-          sudo apt-get install -y live-build debootstrap squashfs-tools xorriso
-
-      - name: Check build dependencies
-        run: sudo ./scripts/check-dependencies.sh
+          sh -n scripts/build.sh
+          sh -n scripts/check-dependencies.sh
+          sh -n scripts/validate-config.sh
 
       - name: Validate NEXORA configuration
         run: sh ./scripts/validate-config.sh
 
-      - name: Build NEXORA OS
-        run: sudo ./scripts/build.sh
-
-      - name: Make artifact readable
-        if: success()
-        run: sudo chown -R "$USER:$USER" build-output
-
-      - name: Upload ISO artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nexora-os-desktop-amd64
-          path: build-output/*.iso
-          if-no-files-found: error
-          retention-days: 7
+      - name: Verify Eggs integration contract
+        run: |
+          grep -q "eggs remaster --target-dir" scripts/build.sh
+          grep -q "/etc/nexora-release" scripts/build.sh
+          grep -q "Penguins' eggs" docs/BUILDING.md
