@@ -1,6 +1,6 @@
 # Building NEXORA OS with Penguins' eggs
 
-NEXORA OS uses **Penguins' eggs** as its live-ISO remastering engine. The project no longer uses Debian live-build as its ISO generator.
+NEXORA OS uses **Penguins' eggs** as its live-ISO remastering engine. Debian live-build is no longer used to generate the ISO.
 
 ## Target
 
@@ -10,29 +10,43 @@ NEXORA OS uses **Penguins' eggs** as its live-ISO remastering engine. The projec
 - Spanish (Chile) locale and Latin American keyboard layout
 - Hybrid live ISO (BIOS + UEFI, as supported by the installed Eggs release)
 
-## Important: build from a dedicated NEXORA system
+## Important: use a dedicated build machine
 
-Penguins' eggs remasters the **running operating system**. It does not take the old live-build package list and independently assemble a new root filesystem. Therefore, build from a dedicated Debian 13 installation already configured as NEXORA OS.
+Penguins' eggs remasters the **running operating system**. It does not take the old live-build package list and independently assemble a new root filesystem. Use a dedicated Debian 13 Trixie virtual machine or spare machine. The preparation script installs the full NEXORA desktop package set and copies NEXORA system defaults into that machine.
 
-Do not run the remaster script on your everyday computer or on an unrelated Debian installation. The script checks for the NEXORA release marker and Debian 13 before it proceeds.
+Do not run the preparation script on your everyday computer: it installs a complete desktop environment and replaces selected system configuration files.
 
-## Requirements
+## 1. Prepare the NEXORA build system
 
-- A dedicated Debian 13 Trixie amd64 build machine or virtual machine.
-- NEXORA OS packages, branding, defaults and /etc/nexora-release installed on that system.
-- The current official penguins-eggs package and its dependencies.
-- Several gigabytes of free disk space; more is needed for a full KDE desktop image.
+Clone the repository on a fresh Debian 13 Trixie amd64 installation:
 
-Install Penguins' eggs using its official package instructions. On a supported Debian-family system, the quick start documents:
+~~~bash
+git clone https://github.com/Reaccionador2Jeje/NEXORA-OS.git
+cd NEXORA-OS
+sudo ./scripts/prepare-system.sh
+~~~
+
+The script installs packages from config/package-lists/nexora-desktop.list.chroot and applies the files in config/includes.chroot. It also installs the NEXORA release marker used by the build safety check.
+
+## 2. Install Penguins' eggs
+
+Install the current official penguins-eggs package using the upstream instructions. The official quick start is:
+https://github.com/pieroproietti/penguins-eggs/blob/main/DOCS/2-user-manual/1-quickstart.md
+
+The upstream quick start documents adding the Eggs package repository with:
 
 ~~~bash
 sudo eggs tools repo add
 ~~~
 
-Then install the package offered by the configured official repository if it is not already installed. Check the upstream quick start for current package instructions:
-https://github.com/pieroproietti/penguins-eggs/blob/main/DOCS/2-user-manual/1-quickstart.md
+If Eggs is not installed yet, first obtain and install its current Debian package from the official Penguins' eggs release/package instructions. Then check it:
 
-## Configure the ISO identity
+~~~bash
+sudo ./scripts/check-dependencies.sh
+eggs version
+~~~
+
+## 3. Configure the ISO identity
 
 Before the first remaster, open the Eggs configuration interface:
 
@@ -42,13 +56,11 @@ sudo eggs config
 
 Set the ISO prefix to nexora-os, choose the desired compression, and review the live-user settings. Keep the build in **Standard Live** mode. Do not use clone mode for distributable releases because clone mode is intended to preserve the source system's user accounts and personal data.
 
-## Build
+## 4. Build
 
 From the NEXORA OS source checkout on the configured NEXORA build system:
 
 ~~~bash
-git clone https://github.com/Reaccionador2Jeje/NEXORA-OS.git
-cd NEXORA-OS
 sudo ./scripts/build.sh
 ~~~
 
@@ -59,14 +71,10 @@ The ISO is placed in build-output/ and renamed to nexora-os-VERSION-ARCH.iso.
 Remove generated ISO files from this project's output directory:
 
 ~~~bash
-rm -f build-output/*.iso
+sudo ./scripts/clean.sh
 ~~~
 
-For an interrupted remaster, use the upstream cleanup command after checking the current Eggs documentation:
-
-~~~bash
-sudo eggs destroy
-~~~
+For an interrupted remaster, the clean script invokes the Eggs workspace cleanup command and removes project ISO artifacts.
 
 ## Testing
 
@@ -90,4 +98,4 @@ Penguins' eggs can provide its own system installation paths, including Krill (T
 - Confirm the source system is Debian 13 Trixie and has /etc/nexora-release.
 - Run eggs version and eggs remaster --debug to inspect the installed Eggs version and remaster plan.
 - Check the upstream Penguins' eggs documentation for release-specific dependencies and supported options.
-- If a build is interrupted, use sudo eggs destroy to clean up the remaster workspace before retrying.
+- If a build is interrupted, run sudo ./scripts/clean.sh before retrying.
