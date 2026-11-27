@@ -2,7 +2,7 @@
 
 **Your Terminal. Your Universe.**
 
-[![Build ISO](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml/badge.svg)](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml)
+[![Validate ISO project](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml/badge.svg)](https://github.com/Reaccionador2Jeje/NEXORA-OS/actions/workflows/build-iso.yml)
 
 NEXORA OS is an open-source Linux distribution based on **Debian 13 (Trixie)**, designed around a clean KDE Plasma desktop and the NEXORA ecosystem.
 
@@ -31,7 +31,7 @@ NEXORA OS aims to be more than a themed Debian installation. It will bring toget
 - Architecture: amd64
 - Desktop: KDE Plasma
 - Languages: Spanish (Chile) and English
-- ISO builder: Debian live-build
+- ISO builder: **Penguins' eggs**
 - First milestone: reproducible bootable Desktop test ISO
 
 ## Included desktop software
@@ -42,33 +42,27 @@ The Desktop edition is being assembled with:
 - Games: SuperTux, SuperTuxKart, Neverball, Chromium B.S.U. and a selection of KDE arcade and puzzle games.
 - System tools: Fastfetch, htop, ncdu, rsync, tree, sensors and common archive utilities.
 
-The initial package selection is maintained in `config/package-lists/nexora-desktop.list.chroot`. The final ISO size and package resolution still need to be verified by CI.
+The initial package selection is maintained in config/package-lists/nexora-desktop.list.chroot. It remains the reference package manifest while the ISO workflow transitions to Eggs.
 
 ## Build the Desktop image
 
-Build on a Debian 13 amd64 host or a compatible Debian 13 build environment.
+Penguins' eggs remasters the running system. Build from a **dedicated Debian 13 Trixie installation already configured as NEXORA OS**, not from an unrelated workstation.
 
-```bash
-sudo apt update
-sudo apt install -y live-build debootstrap squashfs-tools xorriso
+~~~bash
 git clone https://github.com/Reaccionador2Jeje/NEXORA-OS.git
 cd NEXORA-OS
 sudo ./scripts/build.sh
-```
+~~~
 
-The generated image will be placed in the repository's `build-output/` directory.
-
-For full instructions and build requirements, see [docs/BUILDING.md](docs/BUILDING.md).
+The generated image is placed in build-output/. See docs/BUILDING.md for host preparation, Eggs configuration and testing.
 
 ## Repository map
 
-- `auto/` — reproducible live-build configuration entrypoint.
-- `config/` — package lists and live-build settings.
-- `scripts/` — build and maintenance helpers.
-- `docs/` — architecture, build guide and roadmap.
-- `branding/` — NEXORA logo, icon, wallpaper and visual identity guide.
-- `config/includes.chroot/` — live-system identity, KDE defaults, branding assets and NEXORA Welcome launcher.
-- `packages/` — future NEXORA OS packages and integrations.
+- config/ — package manifest and live-system configuration reference.
+- scripts/ — ISO build and maintenance helpers.
+- docs/ — architecture, build guide and roadmap.
+- branding/ — NEXORA logo, icon, wallpaper and visual identity guide.
+- packages/ — future NEXORA OS packages and integrations.
 
 ## Development principles
 
