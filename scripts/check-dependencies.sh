@@ -1,10 +1,9 @@
 #!/bin/sh
-# Check the host tools required to build NEXORA OS.
-
+# Check the host tools required to build NEXORA OS with Penguins' eggs.
 set -eu
 
 missing=0
-for command in lb debootstrap mksquashfs xorriso; do
+for command in eggs dpkg; do
     if command -v "$command" >/dev/null 2>&1; then
         printf '[OK]      %s\n' "$command"
     else
@@ -14,10 +13,17 @@ for command in lb debootstrap mksquashfs xorriso; do
 done
 
 if [ "$missing" -ne 0 ]; then
-    printf '\nInstall the build dependencies with:\n'
-    printf '  sudo apt update\n'
-    printf '  sudo apt install live-build debootstrap squashfs-tools xorriso\n'
+    printf '\nInstall the official Penguins\047 eggs package and Debian package tools.\n'
     exit 1
 fi
 
-printf '\nAll required build commands are available.\n'
+if [ -r /etc/os-release ]; then
+    . /etc/os-release
+    if [ "${ID:-}" != "debian" ] || [ "${VERSION_CODENAME:-}" != "trixie" ]; then
+        printf '[WARN] Build host is not Debian 13 Trixie.\n'
+    else
+        printf '[OK]      Debian 13 Trixie\n'
+    fi
+fi
+
+eggs version
